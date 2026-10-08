@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/onest";
-import "@fontsource/barlow-condensed/500.css";
-import "@fontsource/barlow-condensed/600.css";
-import "@fontsource/barlow-condensed/700.css";
+import "@fontsource-variable/instrument-sans";
+import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f2f2f0",
+  themeColor: "#f3f2ee",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

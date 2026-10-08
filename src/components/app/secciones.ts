@@ -1,7 +1,7 @@
 import {
   CalendarDays,
   Dumbbell,
-  House,
+  LayoutDashboard,
   LineChart,
   ListChecks,
   Settings,
@@ -12,26 +12,46 @@ import {
 export type Seccion = {
   href: string;
   texto: string;
-  /** Una línea para el menú en rejilla. */
+  /** Una línea para la pantalla "en construcción". */
   resumen: string;
   icono: LucideIcon;
-  /** Variable CSS del color de la sección (ver globals.css). */
-  tono: string;
 };
 
-export const SECCIONES: Seccion[] = [
-  { href: "/inicio", texto: "Inicio", resumen: "Tu día de un vistazo", icono: House, tono: "var(--app-inicio)" },
-  { href: "/alumnos", texto: "Alumnos", resumen: "Perfiles, notas y medidas", icono: Users, tono: "var(--app-alumnos)" },
-  { href: "/calendario", texto: "Calendario", resumen: "Citas de la semana", icono: CalendarDays, tono: "var(--app-calendario)" },
-  { href: "/entrenamiento", texto: "Entrenamiento", resumen: "Rutinas y planes", icono: ListChecks, tono: "var(--app-entrenamiento)" },
-  { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell, tono: "var(--app-ejercicios)" },
-  { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart, tono: "var(--app-progreso)" },
-  { href: "/configuracion", texto: "Ajustes", resumen: "Cuenta y preferencias", icono: Settings, tono: "var(--app-configuracion)" },
+/** El menú lateral, agrupado como en un panel de administración. */
+export const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
+  {
+    titulo: "General",
+    secciones: [{ href: "/inicio", texto: "Panel", resumen: "Tu día de un vistazo", icono: LayoutDashboard }],
+  },
+  {
+    titulo: "Gestión",
+    secciones: [
+      { href: "/alumnos", texto: "Alumnos", resumen: "Perfiles, notas y medidas", icono: Users },
+      { href: "/calendario", texto: "Calendario", resumen: "Citas de la semana", icono: CalendarDays },
+    ],
+  },
+  {
+    titulo: "Entrenamiento",
+    secciones: [
+      { href: "/entrenamiento", texto: "Rutinas y planes", resumen: "Constructor de rutinas, plantillas y planes", icono: ListChecks },
+      { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell },
+      { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart },
+    ],
+  },
 ];
 
-/** Las que caben en la barra inferior del móvil; el resto vive en el menú en rejilla. */
-export const SECCIONES_DOCK = ["/inicio", "/alumnos", "/calendario", "/ejercicios"];
+export const AJUSTES: Seccion = {
+  href: "/configuracion",
+  texto: "Ajustes",
+  resumen: "Cuenta y preferencias",
+  icono: Settings,
+};
+
+export const SECCIONES = [...GRUPOS.flatMap((g) => g.secciones), AJUSTES];
 
 export const seccion = (href: string) => SECCIONES.find((s) => s.href === href)!;
+
+/** Grupo al que pertenece una sección (para la miga de pan del encabezado). */
+export const grupoDe = (href: string) => GRUPOS.find((g) => g.secciones.some((s) => s.href === href))?.titulo;
 
 export const esActiva = (ruta: string, href: string) => ruta === href || ruta.startsWith(`${href}/`);

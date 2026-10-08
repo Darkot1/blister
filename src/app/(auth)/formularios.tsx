@@ -18,7 +18,7 @@ function BotonGoogleInterno() {
     <button
       type="submit"
       disabled={pending}
-      className={clasesBoton("secundario", "h-12 w-full")}
+      className={clasesBoton("secundario", "h-10 w-full")}
     >
       <svg aria-hidden viewBox="0 0 24 24" className="size-[18px]">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09Z" />
@@ -39,7 +39,7 @@ export function AccesoGoogle({ siguiente }: { siguiente?: string }) {
         {siguiente && <input type="hidden" name="siguiente" value={siguiente} />}
         <BotonGoogleInterno />
       </form>
-      <div className="my-6 flex items-center gap-3 text-xs font-medium tracking-wide text-tenue uppercase" role="separator">
+      <div className="etiqueta my-6 flex items-center gap-3" role="separator">
         <span className="h-px flex-1 bg-linea" />
         o con tu correo
         <span className="h-px flex-1 bg-linea" />
@@ -58,9 +58,9 @@ export function FormularioIngreso({ siguiente }: { siguiente?: string }) {
         defaultValue={estado.valores?.correo} errores={estado.errores?.correo} />
       <Campo etiqueta="Contraseña" nombre="clave" type="password" autoComplete="current-password" required
         errores={estado.errores?.clave} />
-      <BotonEnvio className="h-12 w-full" textoPendiente="Ingresando…">Ingresar</BotonEnvio>
+      <BotonEnvio className="h-10 w-full" textoPendiente="Ingresando…">Ingresar</BotonEnvio>
       <p className="text-center text-sm">
-        <Link href="/recuperar" className="font-medium text-acento hover:underline">¿Olvidaste tu contraseña?</Link>
+        <Link href="/recuperar" className="text-tenue underline underline-offset-2 hover:text-tinta">¿Olvidaste tu contraseña?</Link>
       </p>
     </form>
   );
@@ -88,7 +88,7 @@ export function FormularioRegistro() {
         defaultValue={estado.valores?.correo} errores={estado.errores?.correo} />
       <Campo etiqueta="Contraseña" nombre="clave" type="password" autoComplete="new-password" required
         ayuda="Mínimo 8 caracteres." errores={estado.errores?.clave} />
-      <BotonEnvio className="h-12 w-full" textoPendiente="Creando cuenta…">Crear cuenta</BotonEnvio>
+      <BotonEnvio className="h-10 w-full" textoPendiente="Creando cuenta…">Crear cuenta</BotonEnvio>
     </form>
   );
 }
@@ -106,7 +106,7 @@ export function FormularioRecuperar() {
     <form action={accion} className="space-y-4" noValidate>
       <Campo etiqueta="Correo" nombre="correo" type="email" autoComplete="email" required
         defaultValue={estado.valores?.correo} errores={estado.errores?.correo} />
-      <BotonEnvio className="h-12 w-full" textoPendiente="Enviando…">Enviar enlace</BotonEnvio>
+      <BotonEnvio className="h-10 w-full" textoPendiente="Enviando…">Enviar enlace</BotonEnvio>
     </form>
   );
 }
@@ -120,7 +120,7 @@ export function FormularioNuevaClave() {
         ayuda="Mínimo 8 caracteres." errores={estado.errores?.clave} />
       <Campo etiqueta="Repite la contraseña" nombre="confirmacion" type="password" autoComplete="new-password" required
         errores={estado.errores?.confirmacion} />
-      <BotonEnvio className="h-12 w-full" textoPendiente="Guardando…">Guardar contraseña</BotonEnvio>
+      <BotonEnvio className="h-10 w-full" textoPendiente="Guardando…">Guardar contraseña</BotonEnvio>
     </form>
   );
 }

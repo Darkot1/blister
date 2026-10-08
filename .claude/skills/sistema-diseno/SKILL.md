@@ -1,62 +1,55 @@
 ---
 name: sistema-diseno
-description: Sistema de diseño "panel de control" de Blister y reglas de UI/UX (colores, tipografía, componentes, estados vacíos, accesibilidad, responsive, tono del texto). Úsalo al crear o modificar cualquier interfaz, o para revisar si una pantalla está bien resuelta.
+description: Sistema de diseño "pizarra" (panel de administración en rejilla bento) de Blister y reglas de UI/UX (colores, tipografía, componentes, estados vacíos, accesibilidad, responsive, tono del texto). Úsalo al crear o modificar cualquier interfaz, o para revisar si una pantalla está bien resuelta.
 ---
 
-# Sistema de diseño: panel de control
+# Sistema de diseño: pizarra
 
-Una app de trabajo para entrenadores con el lenguaje de los sistemas móviles (iOS, HyperOS): fondo gris claro, tarjetas blancas muy redondeadas, títulos grandes en negrita y un icono de app en squircle con un color por sección. Los menús son **rejillas de iconos**, no listas de enlaces.
+Un panel de administración para entrenadores: denso en información útil y rápido de escanear entre sesión y sesión. Fondo de papel cálido, tarjetas blancas con borde fino ordenadas en **rejilla bento**, tinta casi negra y un único acento "volt" (lima de cinta de agarre). Nada de iconos de app de colores ni de degradados.
 
 ## Tokens (src/app/globals.css)
 
 | Clase Tailwind | Uso |
 |---|---|
-| `bg-fondo` | fondo de página |
-| `bg-superficie` | tarjetas, listas agrupadas, hojas (blanco) |
-| `text-tinta` / `bg-tinta` | texto principal; botón primario (cápsula negra) |
-| `text-tenue` | texto secundario, etiquetas, metadatos |
-| `border-linea` / `bg-linea` | separadores |
-| `acento` / `acento-hover` | enlaces, "volver", selección, foco |
-| `exito` / `aviso` / `peligro` | solo para estado: completado, atención, error/destructivo |
-| `app-inicio`, `app-alumnos`, `app-calendario`, `app-entrenamiento`, `app-ejercicios`, `app-progreso`, `app-configuracion` | color de cada sección: su icono de app y detalles propios (p. ej. el día de hoy en el calendario) |
+| `bg-fondo` | fondo de página; cabeceras de tabla y pies de tarjeta (`bg-fondo/60`) |
+| `bg-superficie` | tarjetas, barra lateral, diálogos |
+| `text-tinta` / `bg-tinta` | texto principal; botón primario; la celda protagonista de un bento (oscura) |
+| `text-tenue` | texto secundario, metadatos |
+| `border-linea` / `divide-linea` | bordes y separadores (todo lleva borde de 1 px, sin sombras) |
+| `bg-acento` | volt: **solo relleno**, siempre con texto `text-tinta`. Hoy en el calendario, "Siguiente", accesos rápidos, icono activo del menú. Sobre fondo oscuro también vale `text-acento`. Nunca `text-acento` sobre blanco. |
+| `exito` / `aviso` / `peligro` | solo para estado (con punto + texto, nunca solo color) |
 
-No inventes colores nuevos ni uses la paleta por defecto de Tailwind (`blue-500`, `gray-200`...). Para matices usa opacidad sobre tokens: `bg-tinta/[0.05]`, `bg-exito/10`, `bg-app-calendario/10`. Radio de tarjeta: `rounded-[var(--radius-tarjeta)]`.
+Para matices usa opacidad sobre tokens: `bg-tinta/[0.06]`, `bg-exito/10`. Radio de tarjeta: `rounded-[var(--radius-tarjeta)]` (14 px); controles `rounded-lg`.
 
-Tipografía: Onest (variable) para todo; títulos `font-bold tracking-tight`. Las cifras importantes llevan la clase `cifra` (Barlow Condensed + números tabulares) y van grandes: `text-5xl`/`text-6xl` para el dato principal de un widget.
+Tipografía: Instrument Sans para todo. JetBrains Mono para datos: la clase `etiqueta` (mayúsculas monoespaciadas, para cabeceras de tarjeta, columnas y migas) y `font-mono` para horas, fechas y cifras de tablas. Los KPI llevan `cifra` (números tabulares apretados) en `text-5xl`/`text-6xl font-semibold`.
 
 ## Componentes existentes (reutilízalos antes de crear otros)
 
-- `components/app/secciones.ts`: `SECCIONES` (href, texto, resumen, icono, tono). Toda sección nueva se registra aquí y aparece sola en el riel, el dock, el menú en rejilla y el inicio.
-- `components/app/navegacion.tsx`: riel de iconos en escritorio; dock flotante + hoja "Menú" con rejilla de apps en móvil.
-- `components/ui/icono-app.tsx`: `IconoApp` (squircle con el tono de la sección; tamaños `sm`, `md`, `lg`, `xl`).
-- `components/ui/tarjeta.tsx`: `Tarjeta`, `TituloGrupo`, `EnlaceGrupo`, `ListaAgrupada` (separadores con sangría), `Vacio`, `claseSegmentado`/`claseSegmento`.
-- `components/ui/avatar.tsx`: `Avatar` con iniciales y color estable por id.
-- `components/ui/boton.tsx`: `Boton`, `EnlaceBoton`, `clasesBoton(variante)`; cápsulas; variantes `primario` (una por vista), `secundario`, `fantasma`, `peligro`.
-- `components/ui/boton-envio.tsx`: `BotonEnvio` con `textoPendiente` ("Guardando…").
-- `components/ui/campo.tsx`: `Campo`, `AreaTexto`, `Selector` (rellenos, sin borde hasta el foco) y `claseControl` para inputs sueltos.
-- `components/ui/aviso.tsx`: errores y confirmaciones de formulario.
-- `components/ui/dialogo.tsx`: modal sobre `<dialog>` nativo; hoja inferior en móvil, centrado en escritorio.
-- `components/ui/esqueleto.tsx`: `Esqueleto`, `EsqueletoLista` como fallback de `Suspense`.
-- `components/ui/insignia-estado.tsx`: estado del alumno como pastilla.
+- `components/app/secciones.ts`: `GRUPOS` del menú (General, Gestión, Entrenamiento) + `AJUSTES`. Toda sección nueva se registra aquí.
+- `components/app/navegacion.tsx`: barra lateral agrupada en escritorio; barra superior + cajón lateral en móvil.
+- `components/app/encabezado.tsx`: `miga` (grupo, en `etiqueta`) o `volver={{ href, texto }}`, título, `figura` (avatar), descripción y acciones.
+- `components/ui/tarjeta.tsx`: `Tarjeta`, `CabeceraTarjeta` (etiqueta + acción, con borde inferior), `EnlaceTarjeta` ("Ver todo ↗"), `Lista` (con `divide-y`), `Vacio` (trama diagonal + acción), `claseSegmentado`/`claseSegmento`.
+- `components/datos/barras-semana.tsx` y `linea-tendencia.tsx`: gráficos de una sola serie en tinta (sin leyenda; valor visible y tabla accesible). Antes de crear otro gráfico, usa la skill `dataviz`.
+- `components/ui/avatar.tsx`: iniciales sobre fondo apagado, estable por id.
+- `components/ui/boton.tsx`: `primario` (tinta, uno por vista), `acento` (volt), `secundario` (borde), `fantasma`, `peligro`.
+- `components/ui/campo.tsx`: `Campo`, `AreaTexto`, `Selector`, `claseControl`.
+- `components/ui/aviso.tsx`, `dialogo.tsx` (`lateral` para cajón), `esqueleto.tsx`, `insignia-estado.tsx`.
 - `app/(app)/calendario/estado-cita.tsx`: `InsigniaCita`, `IconoEstadoCita`, `tonoEstadoCita`, `ESTADOS_VISIBLES`.
-- `components/app/encabezado.tsx`: título grande + descripción + acciones + `volver={{ href, texto }}`.
-- `components/anatomia/mapa-corporal.tsx`: cuerpo humano (ver skill `mapa-corporal`).
+- `components/anatomia/mapa-corporal.tsx`: cuerpo humano (ver skill `mapa-corporal`); la selección se pinta en tinta.
 
 ## Patrones de pantalla
 
-- **Menús**: rejilla de `IconoApp` con la etiqueta debajo (`grid-cols-3`/`4` en móvil), nunca una lista de enlaces de texto.
-- **Listas**: `ListaAgrupada` con filas `px-4 py-3` enteras clicables (`Link` en toda la fila) y `ChevronRight` tenue al final. Con avatar, `sangria="4.5rem"`.
-- **Filtros**: control segmentado (`claseSegmentado`) o cápsulas, con `aria-pressed`, dentro de `next/form` para que vivan en la URL.
-- **Resumen de cifras**: widgets (`Tarjeta` con etiqueta arriba y `cifra` grande abajo) en `grid grid-cols-2 gap-3 md:grid-cols-4`.
-- **Accesos rápidos**: baldosas de color sólido al estilo del centro de control (ver inicio).
-- **Estado vacío**: `Vacio`, siempre explicado y con la siguiente acción. Distingue "no hay nada aún" de "ningún resultado con estos filtros".
-- **Error de carga**: frase en `text-peligro` que diga qué hacer ("Recarga la página").
-- **Acciones destructivas**: variante `peligro`, al final de la pantalla y separadas del resto, con confirmación que explique la consecuencia ("Su historial se conserva…"). Preferir archivar a borrar.
+- **Rejilla bento** (panel, ficha del alumno): `grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4`, celdas con `col-span`/`row-span`. Una sola celda oscura protagonista (`bg-tinta`) y como mucho una en volt por pantalla. En móvil, las celdas grandes ocupan `col-span-2`; los KPI pueden ir de a dos.
+- **KPI**: etiqueta arriba, cifra grande abajo y una línea de contexto. Cada cifra debe ayudar a decidir algo hoy.
+- **Tablas/listas**: dentro de `Tarjeta`, cabecera de columnas en `etiqueta` sobre `bg-fondo/60`, filas `px-4 py-2.5` enteras clicables, pie con el conteo en `font-mono`. En móvil se esconden columnas secundarias (`hidden md:block`).
+- **Filtros**: control segmentado (`claseSegmentado`) o botones `rounded-md` con borde, con `aria-pressed`, dentro de `next/form` para que vivan en la URL.
+- **Estado vacío**: `Vacio`. Distingue "no hay nada aún" de "ningún resultado con estos filtros".
+- **Acciones destructivas**: en una tarjeta con borde discontinuo al final de la pantalla, variante `peligro`, con confirmación que explique la consecuencia. Preferir archivar a borrar.
 - **Drag & drop** (constructor de rutinas): siempre con alternativa por botones (subir, bajar, duplicar, eliminar).
 
 ## Responsive
 
-- Diseña primero a 400 px de ancho. En móvil el dock flotante tapa los últimos ~7 rem: el layout ya deja `pb-32`. Rejillas que se apilan (`grid gap-6 lg:grid-cols-[...]`), `flex-wrap` en barras de acciones, `min-w-0` + `truncate` en textos largos.
+- Diseña primero a 400 px de ancho. Rejillas que se apilan (`grid gap-6 lg:grid-cols-[...]`), `flex-wrap` en barras de acciones, `min-w-0` + `truncate` en textos largos.
 - Tablas anchas dentro de `overflow-x-auto`. Vistas densas (p. ej. la rejilla semanal) tienen versión móvil propia (agenda por días), no solo scroll.
 - Paneles laterales: `lg:sticky lg:top-8` en escritorio, apilados arriba en móvil.
 

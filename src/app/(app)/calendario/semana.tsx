@@ -142,7 +142,7 @@ function RejillaSemana({
   const ahora = minuto === null ? null : partesLocales(new Date(minuto * 60_000).toISOString());
 
   return (
-    <div className="hidden overflow-x-auto rounded-[var(--radius-tarjeta)] bg-superficie md:block">
+    <div className="hidden overflow-x-auto rounded-[var(--radius-tarjeta)] border border-linea bg-superficie md:block">
       <div className="grid min-w-[46rem] grid-cols-[3.5rem_repeat(7,minmax(0,1fr))]">
         {/* Encabezado de días */}
         <div className="border-b border-linea" />
@@ -152,7 +152,7 @@ function RejillaSemana({
             className="border-b border-l border-linea px-2 py-2.5 text-center text-sm capitalize"
           >
             <span className={`inline-flex h-7 items-center rounded-full px-2.5 ${
-              d === hoy ? "bg-app-calendario font-semibold text-white" : "text-tenue"
+              d === hoy ? "bg-acento font-semibold text-tinta" : "text-tenue"
             }`}>
               {etiquetaDia(d)}
             </span>
@@ -162,14 +162,14 @@ function RejillaSemana({
         {/* Horas */}
         <div className="relative" style={{ height: HORAS.length * PX_HORA }}>
           {HORAS.map((h, i) => (
-            <span key={h} className="cifra absolute right-2 -translate-y-1/2 text-[0.9rem] text-tenue" style={{ top: i * PX_HORA }}>
+            <span key={h} className="absolute right-2 -translate-y-1/2 font-mono text-[0.7rem] text-tenue" style={{ top: i * PX_HORA }}>
               {i === 0 ? "" : `${h}:00`}
             </span>
           ))}
         </div>
 
         {dias.map((d) => (
-          <div key={d} className={`relative border-l border-linea ${d === hoy ? "bg-app-calendario/[0.03]" : ""}`}>
+          <div key={d} className={`relative border-l border-linea ${d === hoy ? "bg-acento/[0.08]" : ""}`}>
             {/* Clic en un hueco: crea una cita en esa media hora. El teclado usa el botón "Nueva cita". */}
             <button
               type="button"
@@ -205,7 +205,7 @@ function RejillaSemana({
                   key={c.id}
                   type="button"
                   onClick={() => alElegirCita(c.id)}
-                  className={`absolute inset-x-1 z-20 overflow-hidden rounded-xl px-2 py-1 text-left text-sm leading-tight transition-[filter] hover:brightness-95 ${tonoEstadoCita(c.estado)}`}
+                  className={`absolute inset-x-1 z-20 overflow-hidden rounded-md px-2 py-1 text-left text-xs leading-tight transition-[filter] hover:brightness-95 ${tonoEstadoCita(c.estado)}`}
                   style={{ top: ((inicio - MIN_INICIO) / 60) * PX_HORA + 1, height: alto }}
                 >
                   <span className="flex items-center gap-1 truncate font-semibold">
@@ -244,20 +244,20 @@ function AgendaMovil({
         const lista = porDia.get(d) ?? [];
         return (
           <li key={d}>
-            <h3 className="mb-2 flex items-center gap-2 px-1 font-bold tracking-tight">
-              <span className={d === hoy ? "text-app-calendario" : ""}>{etiquetaDiaLarga(d)}</span>
-              {d === hoy && <span className="rounded-full bg-app-calendario px-2 py-0.5 text-xs font-semibold text-white">Hoy</span>}
+            <h3 className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold">
+              <span>{etiquetaDiaLarga(d)}</span>
+              {d === hoy && <span className="rounded-md bg-acento px-1.5 py-0.5 text-xs font-semibold text-tinta">Hoy</span>}
             </h3>
             {lista.length === 0 ? (
               <p className="px-1 text-sm text-tenue">Sin citas</p>
             ) : (
-              <ul className="lista-agrupada overflow-hidden rounded-[var(--radius-tarjeta)] bg-superficie">
+              <ul className="divide-y divide-linea overflow-hidden rounded-[var(--radius-tarjeta)] border border-linea bg-superficie">
                 {lista.map((c) => (
                   <li key={c.id}>
                     <button type="button" onClick={() => alElegirCita(c.id)}
-                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-tinta/[0.04]">
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-fondo/70">
                       <span aria-hidden className={`h-9 w-1 shrink-0 rounded-full ${tonoEstadoCita(c.estado)}`} />
-                      <span className="cifra w-[5.25rem] shrink-0 text-[1.2rem] leading-none font-semibold whitespace-nowrap">{hora(c.iniciaEn)}</span>
+                      <span className="w-[5.5rem] shrink-0 font-mono text-[0.8rem] whitespace-nowrap">{hora(c.iniciaEn)}</span>
                       <span className="min-w-0 flex-1">
                         <span className={`block truncate ${c.estado === "no_asistio" ? "text-tenue line-through" : "font-semibold"}`}>{c.alumno}</span>
                         <span className="block text-sm text-tenue">{ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}</span>
@@ -339,11 +339,11 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
   return (
     <div className="space-y-5">
       {error && <Aviso>{error}</Aviso>}
-      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 rounded-2xl bg-tinta/[0.04] p-4">
+      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 rounded-lg border border-linea bg-fondo/60 p-4 text-sm">
         <dt className="text-tenue">Cuándo</dt>
         <dd>
           {etiquetaDiaLarga(fecha)}
-          <span className="cifra ml-2 text-lg">{hora(cita.iniciaEn)} – {hora(cita.terminaEn)}</span>
+          <span className="ml-2 font-mono text-[0.8rem]">{hora(cita.iniciaEn)} – {hora(cita.terminaEn)}</span>
         </dd>
         <dt className="text-tenue">Tipo</dt>
         <dd>{ETIQUETA_TIPO_CITA[cita.tipo] ?? cita.tipo}</dd>
