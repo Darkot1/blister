@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Plus, Search } from "lucide-react";
+import { EnlaceBoton } from "@/components/ui/boton";
 import { Encabezado } from "@/components/app/encabezado";
 import { claseControl } from "@/components/ui/campo";
 import { Esqueleto, EsqueletoLista } from "@/components/ui/esqueleto";
@@ -10,26 +11,14 @@ import { Paginacion, conParametros, leerPagina } from "@/components/ui/paginacio
 import { CabeceraTarjeta, Lista, Tarjeta, Vacio as VacioBase } from "@/components/ui/tarjeta";
 import { obtenerContexto } from "@/lib/sesion";
 import { rankearEjercicios, type Rol } from "@/lib/ejercicios/ranking";
+import { ETIQUETA_DIFICULTAD, ETIQUETA_TIPO } from "@/lib/ejercicios/etiquetas";
+import { NivelDificultad } from "@/components/ui/nivel-dificultad";
 import { SelectorMusculos } from "./selector-musculos";
 
 export const metadata: Metadata = { title: "Ejercicios" };
 
-const TIPOS: Record<string, string> = {
-  fuerza: "Fuerza",
-  movilidad: "Movilidad",
-  estiramiento: "Estiramiento",
-  activacion: "Activación",
-  cardio: "Cardio",
-  calentamiento: "Calentamiento",
-  enfriamiento: "Enfriamiento",
-  otro: "Otros",
-};
-
-const DIFICULTAD: Record<string, string> = {
-  principiante: "Principiante",
-  intermedio: "Intermedio",
-  avanzado: "Avanzado",
-};
+const TIPOS = ETIQUETA_TIPO;
+const DIFICULTAD = ETIQUETA_DIFICULTAD;
 
 const ROL: Record<Rol, string> = { principal: "principal", secundario: "secundario", estabilizador: "estabilizador" };
 
@@ -42,6 +31,11 @@ export default function PaginaEjercicios({ searchParams }: PageProps<"/ejercicio
         titulo="Ejercicios"
         miga="Entrenamiento"
         descripcion="Elige músculos en el mapa y te sugerimos ejercicios ordenados por relevancia."
+        acciones={
+          <EnlaceBoton href="/maestros/ejercicios/nuevo" variante="secundario">
+            <Plus aria-hidden className="size-4" /> Crear ejercicio
+          </EnlaceBoton>
+        }
       />
       <Suspense fallback={<Cargando />}>
         <Biblioteca searchParams={searchParams} />
@@ -144,12 +138,12 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
                 aria-current={tipo === valor ? "true" : undefined}
                 className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors ${
                   tipo === valor
-                    ? "border-tinta bg-tinta font-medium text-white"
+                    ? "border-tinta bg-tinta font-medium text-sobre-tinta"
                     : "border-linea bg-superficie text-tenue hover:border-tinta/30 hover:text-tinta"
                 }`}
               >
                 {texto}
-                <span className={`font-mono text-[0.7rem] ${tipo === valor ? "text-white/60" : "text-tenue/70"}`}>{n}</span>
+                <span className={`font-mono text-[0.7rem] ${tipo === valor ? "opacity-60" : "text-tenue/70"}`}>{n}</span>
               </Link>
             ),
           )}
@@ -324,19 +318,4 @@ function FilasEjercicios({ ejercicios, principales }: { ejercicios: Ejercicio[];
 
 function Vacio({ titulo, texto }: { titulo: string; texto: string }) {
   return <VacioBase icono={<Search aria-hidden className="size-5" />} titulo={titulo} texto={texto} />;
-}
-
-const TONO_DIFICULTAD: Record<string, string> = {
-  principiante: "bg-exito",
-  intermedio: "bg-aviso",
-  avanzado: "bg-peligro",
-};
-
-function NivelDificultad({ dificultad }: { dificultad: string }) {
-  return (
-    <span className="inline-flex h-6 w-fit items-center gap-1.5 rounded-md border border-linea px-2 text-xs font-medium">
-      <span aria-hidden className={`size-1.5 rounded-full ${TONO_DIFICULTAD[dificultad] ?? "bg-tenue"}`} />
-      {DIFICULTAD[dificultad] ?? dificultad}
-    </span>
-  );
 }
