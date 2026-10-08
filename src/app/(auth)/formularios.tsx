@@ -6,9 +6,40 @@ import { Campo } from "@/components/ui/campo";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { Aviso } from "@/components/ui/aviso";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
-import { actualizarClave, ingresar, recuperar, registrar } from "./acciones";
+import { actualizarClave, ingresar, ingresarConGoogle, recuperar, registrar } from "./acciones";
+import { useFormStatus } from "react-dom";
 
 const inicial: EstadoFormulario = {};
+
+function BotonGoogleInterno() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="inline-flex h-10 w-full items-center justify-center rounded-md border border-linea bg-superficie px-4 text-[0.95rem] font-semibold text-tinta transition-colors hover:border-tinta/40 disabled:opacity-60"
+    >
+      {pending ? "Abriendo Google…" : "Continuar con Google"}
+    </button>
+  );
+}
+
+/** Botón de Google + separador. Va arriba del formulario de correo. */
+export function AccesoGoogle({ siguiente }: { siguiente?: string }) {
+  return (
+    <>
+      <form action={ingresarConGoogle}>
+        {siguiente && <input type="hidden" name="siguiente" value={siguiente} />}
+        <BotonGoogleInterno />
+      </form>
+      <div className="my-6 flex items-center gap-3 text-sm text-tenue" role="separator">
+        <span className="h-px flex-1 bg-linea" />
+        o con tu correo
+        <span className="h-px flex-1 bg-linea" />
+      </div>
+    </>
+  );
+}
 
 export function FormularioIngreso({ siguiente }: { siguiente?: string }) {
   const [estado, accion] = useActionState(ingresar, inicial);

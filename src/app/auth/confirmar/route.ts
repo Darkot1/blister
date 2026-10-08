@@ -8,6 +8,13 @@ export async function GET(request: NextRequest) {
   const siguienteCrudo = searchParams.get("siguiente") ?? "/inicio";
   const siguiente = siguienteCrudo.startsWith("/") && !siguienteCrudo.startsWith("//") ? siguienteCrudo : "/inicio";
 
+  // Errores devueltos por el proveedor (p. ej. el usuario canceló en Google o el registro está desactivado).
+  const errorProveedor = searchParams.get("error_code") ?? searchParams.get("error");
+  if (errorProveedor) {
+    const tipo = errorProveedor === "signup_disabled" ? "registro_desactivado" : "google";
+    return NextResponse.redirect(`${origin}/ingresar?error=${tipo}`);
+  }
+
   const supabase = await crearClienteServidor();
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");

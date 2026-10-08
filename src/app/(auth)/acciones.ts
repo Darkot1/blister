@@ -16,6 +16,7 @@ const MENSAJES: Record<string, string> = {
   over_email_send_rate_limit: "Se enviaron demasiados correos. Espera unos minutos e inténtalo de nuevo.",
   over_request_rate_limit: "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
   signup_disabled: "El registro de cuentas nuevas está desactivado.",
+  provider_disabled: "El ingreso con Google no está activado.",
 };
 
 function mensajeError(codigo: string | undefined) {
@@ -113,6 +114,21 @@ export async function actualizarClave(_: EstadoFormulario, formData: FormData): 
   if (error) return { error: mensajeError(error.code) };
 
   redirect("/inicio");
+}
+
+/** Inicia el flujo OAuth con Google. Supabase redirige de vuelta a /auth/confirmar. */
+export async function ingresarConGoogle(formData: FormData) {
+  const siguiente = rutaSegura(formData.get("siguiente"));
+  const supabase = await crearClienteServidor();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${await origen()}/auth/confirmar?siguiente=${encodeURIComponent(siguiente)}`,
+      queryParams: { prompt: "select_account" },
+    },
+  });
+  if (error || !data.url) redirect("/ingresar?error=google");
+  redirect(data.url);
 }
 
 export async function salir() {
