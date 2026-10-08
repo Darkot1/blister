@@ -6,11 +6,11 @@ export function Aviso({ tipo = "error", children }: { tipo?: "error" | "exito"; 
   return (
     <p
       role={error ? "alert" : "status"}
-      className={`flex items-start gap-2.5 rounded-2xl px-4 py-3 text-sm font-medium ${
-        error ? "bg-peligro/10 text-peligro" : "bg-exito/10 text-exito"
+      className={`flex items-start gap-2.5 rounded-lg border px-3 py-2.5 text-sm ${
+        error ? "border-peligro/25 bg-peligro/[0.05] text-peligro" : "border-exito/25 bg-exito/[0.06] text-exito"
       }`}
     >
-      <Icono aria-hidden className="mt-px size-[18px] shrink-0" />
+      <Icono aria-hidden className="mt-px size-4 shrink-0" />
       <span>{children}</span>
     </p>
   );

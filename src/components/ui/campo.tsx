@@ -1,18 +1,17 @@
 import type { ComponentProps } from "react";
 
-/** Campos rellenos al estilo de los ajustes del teléfono: sin borde hasta que reciben el foco. */
 export const claseControl =
-  "w-full h-12 rounded-2xl border border-transparent bg-tinta/[0.05] px-4 text-tinta placeholder:text-tenue/70 transition-colors " +
-  "hover:bg-tinta/[0.07] focus:border-acento focus:bg-superficie focus:outline-none focus:ring-4 focus:ring-acento/15 " +
-  "aria-[invalid=true]:border-peligro aria-[invalid=true]:bg-peligro/[0.04]";
+  "w-full h-10 rounded-lg border border-linea bg-superficie px-3 text-tinta placeholder:text-tenue/70 transition-[border-color,box-shadow] " +
+  "hover:border-tinta/25 focus:border-tinta focus:outline-none focus:ring-[3px] focus:ring-tinta/10 " +
+  "aria-[invalid=true]:border-peligro aria-[invalid=true]:ring-peligro/10";
 
-const claseEtiqueta = "mb-1.5 block px-1 text-sm font-medium text-tenue";
+const claseEtiqueta = "mb-1.5 block text-sm font-medium";
 
 type Base = { etiqueta: string; nombre: string; errores?: string[]; ayuda?: string };
 
 function Ayuda({ id, errores, ayuda }: { id?: string; errores?: string[]; ayuda?: string }) {
-  if (id && errores?.length) return <p id={id} className="mt-1.5 px-1 text-sm text-peligro">{errores[0]}</p>;
-  if (ayuda) return <p className="mt-1.5 px-1 text-sm text-tenue">{ayuda}</p>;
+  if (id && errores?.length) return <p id={id} className="mt-1.5 text-sm text-peligro">{errores[0]}</p>;
+  if (ayuda) return <p className="mt-1.5 text-sm text-tenue">{ayuda}</p>;
   return null;
 }
 
@@ -56,7 +55,7 @@ export function AreaTexto({
       <textarea
         id={nombre}
         name={nombre}
-        className={`${claseControl} h-auto min-h-24 py-3`}
+        className={`${claseControl} h-auto min-h-24 py-2`}
         aria-invalid={Boolean(idError)}
         aria-describedby={idError}
         {...props}
@@ -84,7 +83,7 @@ export function Selector({
         name={nombre}
         aria-invalid={Boolean(idError)}
         aria-describedby={idError}
-        className={`${claseControl} appearance-none bg-[url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23676b73'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m7%2010%205%205%205-5'/%3E%3C/svg%3E")] bg-[length:1.1rem] bg-[right_0.9rem_center] bg-no-repeat pr-10`}
+        className={`${claseControl} appearance-none bg-[url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23676a70'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m7%2010%205%205%205-5'/%3E%3C/svg%3E")] bg-[length:1rem] bg-[right_0.7rem_center] bg-no-repeat pr-9`}
         {...props}
       >
         {opciones.map((o) => (

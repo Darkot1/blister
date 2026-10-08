@@ -27,11 +27,11 @@ export function FormularioAlumno({
   const e = estado.errores ?? {};
 
   return (
-    <form action={enviar} className="max-w-2xl space-y-6" noValidate>
+    <form action={enviar} className="max-w-2xl space-y-4" noValidate>
       {estado.error && <Aviso>{estado.error}</Aviso>}
 
-      <fieldset className="rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-6">
-        <legend className="float-left mb-4 w-full text-[1.15rem] font-bold tracking-tight">Datos personales</legend>
+      <fieldset className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 sm:p-5">
+        <legend className="etiqueta float-left mb-4 w-full border-b border-linea pb-3">Datos personales</legend>
         <div className="clear-both grid gap-4 sm:grid-cols-2">
           <Campo etiqueta="Nombre" nombre="nombres" required autoComplete="off" defaultValue={v("nombres")} errores={e.nombres} />
           <Campo etiqueta="Apellido" nombre="apellidos" required autoComplete="off" defaultValue={v("apellidos")} errores={e.apellidos} />
@@ -39,16 +39,16 @@ export function FormularioAlumno({
         </div>
       </fieldset>
 
-      <fieldset className="rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-6">
-        <legend className="float-left mb-4 w-full text-[1.15rem] font-bold tracking-tight">Contacto</legend>
+      <fieldset className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 sm:p-5">
+        <legend className="etiqueta float-left mb-4 w-full border-b border-linea pb-3">Contacto</legend>
         <div className="clear-both grid gap-4 sm:grid-cols-2">
           <Campo etiqueta="Teléfono" nombre="telefono" type="tel" inputMode="tel" placeholder="300 123 4567" defaultValue={v("telefono")} errores={e.telefono} />
           <Campo etiqueta="Correo" nombre="correo" type="email" placeholder="opcional" defaultValue={v("correo")} errores={e.correo} />
         </div>
       </fieldset>
 
-      <fieldset className="rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-6">
-        <legend className="float-left mb-4 w-full text-[1.15rem] font-bold tracking-tight">Entrenamiento</legend>
+      <fieldset className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 sm:p-5">
+        <legend className="etiqueta float-left mb-4 w-full border-b border-linea pb-3">Entrenamiento</legend>
         <div className="clear-both grid gap-4 sm:grid-cols-2">
           <Campo etiqueta="Entrena contigo desde" nombre="fecha_inicio" type="date" defaultValue={v("fecha_inicio")} errores={e.fecha_inicio} />
           <Selector

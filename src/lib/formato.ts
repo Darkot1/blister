@@ -15,6 +15,11 @@ export function fechaCorta(valor: string | null | undefined) {
   );
 }
 
+/** "8 oct", sin el año (para listas de la semana en curso). */
+export function fechaSinAnio(valor: string | null | undefined) {
+  return fechaCorta(valor).replace(/( de)? \d{4}$/, "");
+}
+
 /** "8 oct, 3:45 p. m." */
 export function fechaHora(valor: string) {
   return espaciosSimples(

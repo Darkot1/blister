@@ -17,9 +17,9 @@ const VISTAS: { vista: Vista; titulo: string }[] = [
 ];
 
 const RELLENO_ROL: Record<RolMuscular, string> = {
-  principal: "fill-acento",
-  secundario: "fill-acento/45",
-  estabilizador: "fill-acento/20",
+  principal: "fill-tinta",
+  secundario: "fill-tinta/55",
+  estabilizador: "fill-tinta/30",
 };
 
 export const ETIQUETA_ROL: Record<RolMuscular, string> = {
@@ -56,9 +56,9 @@ export function MapaCorporal({
   const profundos = musculos.filter((m) => !SLUGS_DIBUJADOS.has(m.slug));
 
   const relleno = (slug: string) => {
-    if (elegidos.has(slug)) return "fill-acento";
+    if (elegidos.has(slug)) return "fill-tinta";
     if (resaltados?.[slug]) return RELLENO_ROL[resaltados[slug]];
-    if (enfocado === slug) return "fill-acento/35";
+    if (enfocado === slug) return "fill-tinta/40";
     return "fill-tinta/[0.13]";
   };
 
@@ -163,7 +163,7 @@ export function MapaCorporal({
                 onClick={() => alAlternar!(m.slug)}
                 className={`rounded-full border px-2.5 py-1 text-sm transition-colors ${
                   elegidos.has(m.slug)
-                    ? "border-acento bg-acento text-white"
+                    ? "border-tinta bg-tinta text-white"
                     : "border-linea bg-superficie text-tinta hover:border-tinta/40"
                 }`}
               >

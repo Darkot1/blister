@@ -65,7 +65,7 @@ export function FormularioMedicion({ accion, hoy }: { accion: Accion; hoy: strin
   }
 
   return (
-    <form action={enviar} className="space-y-4 rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-5" noValidate>
+    <form action={enviar} className="space-y-4" noValidate>
       {estado.error && <Aviso>{estado.error}</Aviso>}
       <Campo etiqueta="Fecha" nombre="medido_en" type="date" required className="max-w-48"
         defaultValue={estado.valores?.medido_en ?? hoy} errores={estado.errores?.medido_en} />
@@ -97,7 +97,7 @@ export function BotonCambioEstado({
   texto,
   confirmacion,
   variante = "secundario",
-  className = "w-full",
+  className = "",
 }: {
   accion: () => Promise<void>;
   texto: string;

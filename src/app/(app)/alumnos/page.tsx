@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Form from "next/form";
 import { Suspense } from "react";
-import { ChevronRight, Plus, Search } from "lucide-react";
+import { ChevronRight, Plus, Search, Users } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
-import { seccion } from "@/components/app/secciones";
 import { Avatar } from "@/components/ui/avatar";
 import { EnlaceBoton } from "@/components/ui/boton";
 import { claseControl } from "@/components/ui/campo";
-import { IconoApp } from "@/components/ui/icono-app";
 import { InsigniaEstado } from "@/components/ui/insignia-estado";
-import { ListaAgrupada, Vacio, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
+import { Tarjeta, Vacio, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
 import { EsqueletoLista } from "@/components/ui/esqueleto";
 import { obtenerContexto } from "@/lib/sesion";
 import { edad, fechaCorta } from "@/lib/formato";
@@ -24,6 +22,7 @@ export default function PaginaAlumnos({ searchParams }: PageProps<"/alumnos">) {
     <>
       <Encabezado
         titulo="Alumnos"
+        miga="Gestión"
         acciones={
           <EnlaceBoton href="/alumnos/nuevo">
             <Plus aria-hidden className="size-4" /> Nuevo alumno
@@ -65,11 +64,11 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
 
   return (
     <>
-      <Form action="/alumnos" className="mb-5 flex flex-wrap items-center gap-3">
+      <Form action="/alumnos" className="mb-4 flex flex-wrap items-center gap-3">
         <label className="relative min-w-60 flex-1 sm:max-w-sm">
           <span className="sr-only">Buscar alumno</span>
-          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-tenue" />
-          <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre o teléfono" className={`${claseControl} h-11 pl-10`} />
+          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tenue" />
+          <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre o teléfono" className={`${claseControl} pl-9`} />
         </label>
         <div role="group" aria-label="Filtrar por estado" className={`${claseSegmentado} max-w-full overflow-x-auto`}>
           {FILTROS.map((f) => (
@@ -93,33 +92,46 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
         <SinResultados hayFiltro={Boolean(q) || estado !== "activo"} />
       ) : (
         <>
-          <ListaAgrupada sangria="4.5rem">
-            {alumnos.map((a) => {
-              const anios = edad(a.fecha_nacimiento);
-              return (
-                <li key={a.id}>
-                  <Link
-                    href={`/alumnos/${a.id}`}
-                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-tinta/[0.03]"
-                  >
-                    <Avatar id={a.id} nombres={a.nombres} apellidos={a.apellidos} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold">{a.nombres} {a.apellidos}</span>
-                      <span className="block truncate text-sm text-tenue">
-                        {[anios !== null ? `${anios} años` : null, a.telefono].filter(Boolean).join(" · ") || "Sin datos de contacto"}
+          <Tarjeta className="overflow-hidden">
+            <div aria-hidden className="etiqueta hidden grid-cols-[minmax(0,2.2fr)_5rem_minmax(0,1fr)_7rem_1rem] gap-4 border-b border-linea bg-fondo/60 px-4 py-2.5 md:grid">
+              <span>Alumno</span>
+              <span>Edad</span>
+              <span>Entrena desde</span>
+              <span>Estado</span>
+              <span />
+            </div>
+            <ul className="divide-y divide-linea">
+              {alumnos.map((a) => {
+                const anios = edad(a.fecha_nacimiento);
+                return (
+                  <li key={a.id}>
+                    <Link
+                      href={`/alumnos/${a.id}`}
+                      className="grid grid-cols-[minmax(0,1fr)_auto_1rem] items-center gap-x-4 px-4 py-2.5 transition-colors hover:bg-fondo/70 md:grid-cols-[minmax(0,2.2fr)_5rem_minmax(0,1fr)_7rem_1rem]"
+                    >
+                      <span className="flex min-w-0 items-center gap-3">
+                        <Avatar id={a.id} nombres={a.nombres} apellidos={a.apellidos} />
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium">{a.nombres} {a.apellidos}</span>
+                          <span className="block truncate text-xs text-tenue">
+                            {a.telefono ?? "Sin teléfono"}
+                            <span className="md:hidden">{anios !== null ? ` · ${anios} años` : ""}</span>
+                          </span>
+                        </span>
                       </span>
-                    </span>
-                    <span className="hidden shrink-0 text-sm text-tenue md:block">Desde {fechaCorta(a.fecha_inicio)}</span>
-                    <InsigniaEstado estado={a.estado} />
-                    <ChevronRight aria-hidden className="size-4 shrink-0 text-tinta/25" />
-                  </Link>
-                </li>
-              );
-            })}
-          </ListaAgrupada>
-          <p className="mt-3 px-1 text-sm text-tenue">
-            {alumnos.length === 1 ? "1 alumno" : `${alumnos.length} alumnos`}
-          </p>
+                      <span className="hidden font-mono text-[0.8rem] text-tenue md:block">{anios !== null ? `${anios} años` : "—"}</span>
+                      <span className="hidden font-mono text-[0.8rem] text-tenue md:block">{fechaCorta(a.fecha_inicio)}</span>
+                      <span><InsigniaEstado estado={a.estado} /></span>
+                      <ChevronRight aria-hidden className="size-4 text-tinta/25" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="border-t border-linea bg-fondo/60 px-4 py-2.5 font-mono text-xs text-tenue">
+              {alumnos.length === 1 ? "1 alumno" : `${alumnos.length} alumnos`}
+            </p>
+          </Tarjeta>
         </>
       )}
     </>
@@ -127,16 +139,15 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
 }
 
 function SinResultados({ hayFiltro }: { hayFiltro: boolean }) {
-  const app = seccion("/alumnos");
   return hayFiltro ? (
     <Vacio
-      icono={<Search aria-hidden className="size-8 text-tinta/25" />}
+      icono={<Search aria-hidden className="size-5" />}
       titulo="Ningún alumno coincide"
       texto="Prueba con otro nombre o cambia el filtro de estado."
     />
   ) : (
     <Vacio
-      icono={<IconoApp icono={app.icono} tono={app.tono} tamano="lg" />}
+      icono={<Users aria-hidden className="size-5" />}
       titulo="Aún no tienes alumnos"
       texto="Registra el primero para empezar a planificar su entrenamiento."
       accion={<EnlaceBoton href="/alumnos/nuevo"><Plus aria-hidden className="size-4" /> Nuevo alumno</EnlaceBoton>}

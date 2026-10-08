@@ -82,6 +82,6 @@ export function etiquetaSemana(lunes: string) {
   const mismoMes = lunes.slice(0, 7) === domingo.slice(0, 7);
   const inicio = mismoMes
     ? String(Number(lunes.slice(8)))
-    : formatear(formatoMes, lunes).replace(".", "").replace(/ \d{4}$/, "");
+    : formatear(formatoMes, lunes).replace(".", "").replace(/( de)? \d{4}$/, "");
   return `${inicio} – ${fin}`;
 }

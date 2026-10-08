@@ -36,7 +36,7 @@ export async function obtenerContexto(): Promise<Contexto> {
   return { supabase, usuarioId, organizacionId: membresia.organizacion_id };
 }
 
-/** Memorizada por petición: el riel y el menú la piden a la vez. */
+/** Memorizada por petición: la barra lateral y el cajón móvil la piden a la vez. */
 export const obtenerPerfil = cache(async () => {
   const { supabase, usuarioId } = await obtenerContexto();
   const { data } = await supabase

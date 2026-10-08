@@ -1,17 +1,11 @@
 import { iniciales } from "@/lib/formato";
 
-const TONOS = [
-  "var(--app-alumnos)",
-  "var(--app-entrenamiento)",
-  "var(--app-ejercicios)",
-  "var(--app-calendario)",
-  "var(--app-progreso)",
-  "#0e9aa7",
-];
+// Fondos apagados: el avatar identifica sin competir con los datos.
+const FONDOS = ["#e8f5c0", "#e2e7f2", "#f2e5da", "#e1eee5", "#ede3ee", "#efece2"];
 
-const TAMANOS = { sm: "size-9 text-sm", md: "size-11 text-[0.95rem]", xl: "size-24 text-3xl" };
+const TAMANOS = { sm: "size-8 text-xs rounded-md", md: "size-9 text-[0.8rem] rounded-lg", xl: "size-16 text-xl rounded-xl" };
 
-/** Avatar con iniciales; el color sale del id, así cada alumno conserva siempre el suyo. */
+/** Avatar con iniciales; el fondo sale del id, así cada alumno conserva siempre el suyo. */
 export function Avatar({
   id,
   nombres,
@@ -25,12 +19,11 @@ export function Avatar({
 }) {
   let suma = 0;
   for (const c of id) suma = (suma * 31 + c.charCodeAt(0)) >>> 0;
-  const tono = TONOS[suma % TONOS.length];
   return (
     <span
       aria-hidden
-      className={`grid shrink-0 place-items-center rounded-full font-semibold text-white ${TAMANOS[tamano]}`}
-      style={{ background: `linear-gradient(165deg, color-mix(in oklab, ${tono} 70%, white), ${tono})` }}
+      className={`grid shrink-0 place-items-center font-semibold text-tinta ${TAMANOS[tamano]}`}
+      style={{ background: FONDOS[suma % FONDOS.length] }}
     >
       {iniciales(nombres, apellidos)}
     </span>

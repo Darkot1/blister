@@ -1,28 +1,24 @@
-/** Logo: un disco de pesas visto de frente dentro del icono de la app. */
-export function Marca({
-  conNombre = true,
-  oscuro = false,
-  className = "",
-}: {
-  conNombre?: boolean;
-  /** Sobre fondo oscuro: icono translúcido y texto claro. */
-  oscuro?: boolean;
-  className?: string;
-}) {
+/** Logo: un disco de pesas de perfil (las franjas) junto al nombre. */
+export function Marca({ oscuro = false, className = "" }: { oscuro?: boolean; className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <span aria-hidden className={`icono-app size-9 ${oscuro ? "bg-white/10 shadow-none" : ""}`} style={{ "--tono": "var(--tinta)" } as React.CSSProperties}>
-        <svg viewBox="0 0 24 24" className="size-6">
-          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="3" />
-          <circle cx="12" cy="12" r="4.2" fill="none" stroke="var(--app-entrenamiento)" strokeWidth="2.2" />
-          <circle cx="12" cy="12" r="1.3" fill="currentColor" />
+      <span
+        aria-hidden
+        className={`grid size-8 shrink-0 place-items-center rounded-lg ${oscuro ? "bg-acento text-tinta" : "bg-tinta text-acento"}`}
+      >
+        <svg viewBox="0 0 20 20" className="size-[18px]" fill="currentColor">
+          <rect x="2" y="7.5" width="16" height="5" rx="1" opacity="0.35" />
+          <rect x="4" y="3" width="3" height="14" rx="1" />
+          <rect x="8.5" y="5" width="3" height="10" rx="1" />
+          <rect x="13" y="3" width="3" height="14" rx="1" />
         </svg>
       </span>
-      {conNombre && (
-        <span className="text-[1.2rem] leading-none font-bold tracking-tight">
-          Blister<span className={`font-medium ${oscuro ? "text-white/55" : "text-tenue"}`}> Fitness</span>
+      <span className={`text-[1.05rem] leading-none font-semibold tracking-tight ${oscuro ? "text-white" : ""}`}>
+        Blister
+        <span className={`ml-1.5 font-mono text-[0.65rem] font-medium tracking-[0.12em] uppercase ${oscuro ? "text-white/50" : "text-tenue"}`}>
+          Fitness
         </span>
-      )}
+      </span>
     </span>
   );
 }

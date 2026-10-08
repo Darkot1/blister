@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { claseControl } from "@/components/ui/campo";
 import { Esqueleto, EsqueletoLista } from "@/components/ui/esqueleto";
-import { ListaAgrupada, TituloGrupo, Vacio as VacioBase } from "@/components/ui/tarjeta";
+import { CabeceraTarjeta, Lista, Tarjeta, Vacio as VacioBase } from "@/components/ui/tarjeta";
 import { obtenerContexto } from "@/lib/sesion";
 import { rankearEjercicios, type Rol } from "@/lib/ejercicios/ranking";
 import { SelectorMusculos } from "./selector-musculos";
@@ -38,6 +38,7 @@ export default function PaginaEjercicios({ searchParams }: PageProps<"/ejercicio
     <>
       <Encabezado
         titulo="Ejercicios"
+        miga="Entrenamiento"
         descripcion="Elige músculos en el mapa y te sugerimos ejercicios ordenados por relevancia."
       />
       <Suspense fallback={<Cargando />}>
@@ -96,7 +97,8 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-      <aside aria-label="Buscar por músculo" className="rounded-[var(--radius-tarjeta)] bg-superficie p-5 lg:sticky lg:top-8">
+      <aside aria-label="Buscar por músculo" className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 lg:sticky lg:top-8">
+        <p className="etiqueta mb-3">Mapa muscular</p>
         <SelectorMusculos musculos={listaMusculos.map(({ slug, nombre }) => ({ slug, nombre }))} seleccionados={seleccionados} />
       </aside>
 
@@ -105,8 +107,8 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
           {seleccionados.length > 0 && <input type="hidden" name="m" value={seleccionados.join(",")} />}
           <label className="relative block sm:max-w-sm">
             <span className="sr-only">Buscar ejercicio</span>
-            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-tenue" />
-            <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre" className={`${claseControl} h-11 pl-10`} />
+            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tenue" />
+            <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre" className={`${claseControl} pl-9`} />
           </label>
           <div role="group" aria-label="Filtrar por tipo" className="flex flex-wrap gap-1.5">
             {[["", "Todos"] as const, ...tiposPresentes.map((t) => [t, TIPOS[t]] as const)].map(([valor, texto]) => (
@@ -116,10 +118,10 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
                 name="tipo"
                 value={valor}
                 aria-pressed={tipo === valor}
-                className={`h-9 rounded-full px-3.5 text-sm transition-colors ${
+                className={`h-8 rounded-md border px-3 text-sm transition-colors ${
                   tipo === valor
-                    ? "bg-tinta font-semibold text-white"
-                    : "bg-superficie text-tenue hover:text-tinta"
+                    ? "border-tinta bg-tinta font-medium text-white"
+                    : "border-linea bg-superficie text-tenue hover:border-tinta/30 hover:text-tinta"
                 }`}
               >
                 {texto}
@@ -154,14 +156,13 @@ function Sugeridos({
   }
   return (
     <section aria-labelledby="titulo-sugeridos">
-      <TituloGrupo id="titulo-sugeridos">
-        Sugeridos <span className="text-base font-medium text-tenue">({sugerencias.length})</span>
-      </TituloGrupo>
-      <ListaAgrupada ordenada>
+      <Tarjeta className="overflow-hidden">
+      <CabeceraTarjeta id="titulo-sugeridos" titulo={`Sugeridos · ${sugerencias.length}`} />
+      <Lista ordenada>
         {sugerencias.map(({ ejercicio: e, relevancia, coincidencias }) => (
           <li key={e.id}><div className="grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <div className="min-w-0">
-              <p className="font-semibold">{e.nombre}</p>
+              <p className="text-sm font-medium">{e.nombre}</p>
               <p className="text-sm text-tenue">
                 {coincidencias.map((c, i) => (
                   <span key={c.slug}>
@@ -178,7 +179,8 @@ function Sugeridos({
             </div>
           </div></li>
         ))}
-      </ListaAgrupada>
+      </Lista>
+      </Tarjeta>
     </section>
   );
 }
@@ -188,7 +190,7 @@ function Relevancia({ valor }: { valor: number }) {
   return (
     <span role="img" aria-label={`Relevancia ${valor} de 5`} className="flex items-end gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={`w-1.5 rounded-full ${n <= valor ? "bg-app-ejercicios" : "bg-tinta/10"}`} style={{ height: 6 + n * 2.5 }} />
+        <span key={n} className={`w-1.5 rounded-full ${n <= valor ? "bg-tinta" : "bg-tinta/10"}`} style={{ height: 6 + n * 2.5 }} />
       ))}
     </span>
   );
@@ -208,23 +210,23 @@ function PorTipo({
   if (!porTipo.length) return <Vacio titulo="Ningún ejercicio coincide" texto="Prueba con otro nombre o quita el filtro de tipo." />;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-4">
       {porTipo.map(({ tipo, lista }) => (
         <section key={tipo} aria-labelledby={`tipo-${tipo}`}>
-          <TituloGrupo id={`tipo-${tipo}`}>
-            {TIPOS[tipo]} <span className="text-base font-medium text-tenue">({lista.length})</span>
-          </TituloGrupo>
-          <ListaAgrupada>
+          <Tarjeta className="overflow-hidden">
+          <CabeceraTarjeta id={`tipo-${tipo}`} titulo={`${TIPOS[tipo]} · ${lista.length}`} />
+          <Lista>
             {lista.map((e) => (
               <li key={e.id}>
                 <div className="grid gap-1 px-4 py-3 sm:grid-cols-[2fr_2fr_auto] sm:items-center sm:gap-4">
-                  <span className="font-semibold">{e.nombre}</span>
+                  <span className="text-sm font-medium">{e.nombre}</span>
                   <span className="text-sm text-tenue">{(principales.get(e.id) ?? []).join(", ") || "—"}</span>
                   {e.dificultad && <NivelDificultad dificultad={e.dificultad} />}
                 </div>
               </li>
             ))}
-          </ListaAgrupada>
+          </Lista>
+          </Tarjeta>
         </section>
       ))}
     </div>
@@ -232,18 +234,19 @@ function PorTipo({
 }
 
 function Vacio({ titulo, texto }: { titulo: string; texto: string }) {
-  return <VacioBase icono={<Search aria-hidden className="size-8 text-tinta/25" />} titulo={titulo} texto={texto} />;
+  return <VacioBase icono={<Search aria-hidden className="size-5" />} titulo={titulo} texto={texto} />;
 }
 
 const TONO_DIFICULTAD: Record<string, string> = {
-  principiante: "bg-exito/10 text-exito",
-  intermedio: "bg-aviso/10 text-aviso",
-  avanzado: "bg-peligro/10 text-peligro",
+  principiante: "bg-exito",
+  intermedio: "bg-aviso",
+  avanzado: "bg-peligro",
 };
 
 function NivelDificultad({ dificultad }: { dificultad: string }) {
   return (
-    <span className={`inline-flex h-6 w-fit items-center rounded-full px-2.5 text-xs font-semibold ${TONO_DIFICULTAD[dificultad] ?? ""}`}>
+    <span className="inline-flex h-6 w-fit items-center gap-1.5 rounded-md border border-linea px-2 text-xs font-medium">
+      <span aria-hidden className={`size-1.5 rounded-full ${TONO_DIFICULTAD[dificultad] ?? "bg-tenue"}`} />
       {DIFICULTAD[dificultad] ?? dificultad}
     </span>
   );

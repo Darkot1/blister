@@ -36,8 +36,8 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
         ) : (
           <>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-semibold tracking-wide text-tenue uppercase">Seleccionados</p>
-              <button type="button" onClick={() => aplicar([])} className="text-sm font-semibold text-acento hover:underline">
+              <p className="etiqueta">Seleccionados</p>
+              <button type="button" onClick={() => aplicar([])} className="text-sm font-medium text-tenue underline-offset-2 hover:text-tinta hover:underline">
                 Limpiar
               </button>
             </div>
@@ -48,7 +48,7 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
                     type="button"
                     onClick={() => alternar(slug)}
                     aria-label={`Quitar ${nombre.get(slug) ?? slug}`}
-                    className="inline-flex h-8 items-center gap-1 rounded-full bg-acento pr-2 pl-3 text-sm font-medium text-white hover:bg-acento-hover"
+                    className="inline-flex h-7 items-center gap-1 rounded-md bg-tinta pr-1.5 pl-2.5 text-xs font-medium text-white hover:bg-tinta/85"
                   >
                     {nombre.get(slug) ?? slug}
                     <X aria-hidden className="size-3.5" />
