@@ -20,7 +20,7 @@ export function Proximamente({ href, descripcion }: { href: string; descripcion:
           <EnlaceBoton href="/inicio" variante="secundario" className="mt-6">Volver al panel</EnlaceBoton>
         </div>
         <div aria-hidden className="trama hidden place-items-center border-l border-linea bg-fondo sm:grid">
-          <span className="grid size-16 place-items-center rounded-2xl bg-tinta text-acento">
+          <span className="grid size-16 place-items-center rounded-2xl bg-panel text-acento">
             <Icono className="size-7" />
           </span>
         </div>

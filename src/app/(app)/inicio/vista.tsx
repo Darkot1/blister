@@ -43,7 +43,7 @@ export function VistaPanel({
         {/* Hoy: la celda protagonista, oscura. */}
         <section
           aria-labelledby="titulo-hoy"
-          className="col-span-2 flex flex-col overflow-hidden rounded-[var(--radius-tarjeta)] bg-tinta text-white lg:row-span-2"
+          className="col-span-2 flex flex-col overflow-hidden rounded-[var(--radius-tarjeta)] bg-panel text-white lg:row-span-2"
         >
           <div className="flex items-start justify-between gap-4 px-5 pt-5">
             <div>
@@ -69,7 +69,7 @@ export function VistaPanel({
                       </span>
                       <span className="block truncate text-xs text-white/50">{ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}</span>
                     </span>
-                    {esSiguiente && <span className="rounded-md bg-acento px-2 py-0.5 text-xs font-semibold text-tinta">Siguiente</span>}
+                    {esSiguiente && <span className="rounded-md bg-acento px-2 py-0.5 text-xs font-semibold text-sobre-acento">Siguiente</span>}
                   </li>
                 );
               })}
@@ -152,8 +152,8 @@ export function VistaPanel({
         {/* Accesos rápidos: la única celda en naranja. */}
         <nav aria-labelledby="titulo-accesos" className="col-span-2 flex flex-col justify-between gap-4 rounded-[var(--radius-tarjeta)] bg-acento p-2 sm:col-span-1">
           <div className="px-2.5 pt-2.5">
-            <h2 id="titulo-accesos" className="etiqueta text-tinta/70">Accesos rápidos</h2>
-            <p className="mt-2 hidden text-xl leading-tight font-semibold tracking-tight text-tinta sm:block">¿Qué hacemos ahora?</p>
+            <h2 id="titulo-accesos" className="etiqueta text-sobre-acento/70">Accesos rápidos</h2>
+            <p className="mt-2 hidden text-xl leading-tight font-semibold tracking-tight text-sobre-acento sm:block">¿Qué hacemos ahora?</p>
           </div>
           <div>
           {[
@@ -164,9 +164,9 @@ export function VistaPanel({
             <Link
               key={texto}
               href={href}
-              className="group flex items-center gap-3 rounded-lg px-2.5 py-2.5 text-sm font-semibold text-tinta hover:bg-tinta/[0.07]"
+              className="group flex items-center gap-3 rounded-lg px-2.5 py-2.5 text-sm font-semibold text-sobre-acento hover:bg-black/[0.07]"
             >
-              <span className="grid size-8 place-items-center rounded-lg bg-tinta text-acento">
+              <span className="grid size-8 place-items-center rounded-lg bg-panel text-acento">
                 <Icono aria-hidden className="size-4" />
               </span>
               <span className="flex-1">{texto}</span>

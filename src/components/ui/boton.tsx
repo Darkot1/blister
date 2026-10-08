@@ -7,8 +7,8 @@ const base =
   "inline-flex items-center justify-center gap-2 rounded-lg px-3.5 h-9 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap select-none [&_svg]:shrink-0";
 
 const variantes: Record<Variante, string> = {
-  primario: "bg-tinta text-white hover:bg-tinta/85",
-  acento: "bg-acento text-tinta hover:bg-acento-hover",
+  primario: "bg-tinta text-sobre-tinta hover:bg-tinta/85",
+  acento: "bg-acento text-sobre-acento hover:bg-acento-hover",
   secundario: "bg-superficie text-tinta border border-linea hover:border-tinta/30 hover:bg-fondo/60",
   fantasma: "text-tinta hover:bg-tinta/[0.06]",
   peligro: "bg-superficie text-peligro border border-peligro/30 hover:bg-peligro/[0.06]",

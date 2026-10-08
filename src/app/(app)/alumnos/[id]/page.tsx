@@ -129,7 +129,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
 
       {/* Bento de cifras clave: lo primero que el entrenador busca. */}
       <section aria-label="Resumen" className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <div className="col-span-2 flex flex-col rounded-[var(--radius-tarjeta)] bg-tinta p-4 text-white lg:col-span-1">
+        <div className="col-span-2 flex flex-col rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white lg:col-span-1">
           <p className="etiqueta text-white/50">Peso actual</p>
           <div className="mt-auto flex items-end justify-between gap-3 pt-5">
             <p className="cifra text-5xl leading-none font-semibold">

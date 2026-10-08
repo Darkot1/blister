@@ -16,8 +16,12 @@ Un panel de administración para entrenadores: denso en información útil y rá
 | `text-tinta` / `bg-tinta` | texto principal; botón primario; la celda protagonista de un bento (oscura) |
 | `text-tenue` | texto secundario, metadatos |
 | `border-linea` / `divide-linea` | bordes y separadores (todo lleva borde de 1 px, sin sombras) |
-| `bg-acento` | naranja: **solo relleno**, siempre con texto `text-tinta` (6:1; el blanco sobre naranja no pasa AA). Hoy en el calendario, "Siguiente", accesos rápidos, icono activo del menú. Sobre fondo oscuro también vale `text-acento`. Nunca `text-acento` sobre blanco. |
-| `exito` / `aviso` / `peligro` | solo para estado (con punto + texto, nunca solo color); ya están oscurecidos para pasar AA como texto |
+| `bg-acento` | naranja: **solo relleno**, siempre con texto `text-sobre-acento` (oscuro en ambos modos). Nunca `text-acento` sobre la superficie. |
+| `bg-panel` | la celda protagonista de un bento (agenda de hoy, peso actual, panel de acceso): oscura en ambos modos, con `text-white` y matices `white/…` |
+| `text-sobre-tinta` | texto sobre `bg-tinta` (botón primario, filtro o pestaña activa, chips elegidos); se invierte en modo oscuro |
+| `exito` / `aviso` / `peligro` | solo para estado (con punto + texto, nunca solo color); ya están ajustados para pasar AA como texto en ambos modos |
+
+**Modo oscuro**: los tokens cambian solos (`globals.css`: sigue al sistema o `<html data-tema="claro|oscuro">`, que fija `components/app/selector-tema.tsx`). Por eso: nunca `text-white` sobre `bg-tinta` (usa `text-sobre-tinta`), nunca `text-tinta` sobre `bg-acento` (usa `text-sobre-acento`), nunca hex sueltos en componentes y fondos de modal con `backdrop:bg-black/50`. Revisa cada pantalla nueva en los dos modos.
 
 Para matices usa opacidad sobre tokens: `bg-tinta/[0.06]`, `bg-exito/10`. Radio de tarjeta: `rounded-[var(--radius-tarjeta)]` (14 px); controles `rounded-lg`.
 
@@ -32,7 +36,10 @@ Tipografía: Instrument Sans para todo. JetBrains Mono para datos: la clase `eti
 - `components/datos/barras-semana.tsx` y `linea-tendencia.tsx`: gráficos de una sola serie en tinta (sin leyenda; valor visible y tabla accesible). Antes de crear otro gráfico, usa la skill `dataviz`.
 - `components/ui/avatar.tsx`: iniciales sobre fondo apagado, estable por id.
 - `components/ui/boton.tsx`: `primario` (tinta, uno por vista), `acento` (naranja), `secundario` (borde), `fantasma`, `peligro`.
-- `components/ui/campo.tsx`: `Campo`, `AreaTexto`, `Selector`, `claseControl`.
+- `components/ui/campo.tsx`: `Campo`, `AreaTexto`, `Selector`, `claseControl` y `claseSelector` (para `<select>` sueltos, con la misma flecha).
+- `components/ui/paginacion.tsx`: `Paginacion`, `leerPagina`, `conParametros` (URL con los filtros actuales).
+- `components/ui/nivel-dificultad.tsx` y `lib/ejercicios/etiquetas.ts`: etiquetas de tipo, dificultad y rol muscular.
+- `components/app/selector-tema.tsx`: Claro / Oscuro / Sistema.
 - `components/ui/aviso.tsx`, `dialogo.tsx` (`lateral` para cajón), `esqueleto.tsx`, `insignia-estado.tsx`.
 - `app/(app)/calendario/estado-cita.tsx`: `InsigniaCita`, `IconoEstadoCita`, `tonoEstadoCita`, `ESTADOS_VISIBLES`.
 - `components/anatomia/mapa-corporal.tsx`: cuerpo humano (ver skill `mapa-corporal`); la selección se pinta en tinta.

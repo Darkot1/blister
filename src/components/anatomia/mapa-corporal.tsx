@@ -163,7 +163,7 @@ export function MapaCorporal({
                 onClick={() => alAlternar!(m.slug)}
                 className={`h-7 rounded-md border px-2.5 text-xs font-medium transition-colors ${
                   elegidos.has(m.slug)
-                    ? "border-tinta bg-tinta text-white"
+                    ? "border-tinta bg-tinta text-sobre-tinta"
                     : "border-linea bg-superficie text-tinta hover:border-tinta/30"
                 }`}
               >

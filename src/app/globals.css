@@ -4,8 +4,14 @@
   Identidad visual: "pizarra".
   Un panel de administración de gimnasio: fondo gris frío, tarjetas blancas con borde fino
   ordenadas en rejilla bento, tinta azul pizarra muy oscura y un único acento naranja (energía)
-  que solo se usa como relleno con texto en tinta, nunca como color de texto sobre blanco.
+  que solo se usa como relleno con texto `sobre-acento`, nunca como color de texto sobre blanco.
   Instrument Sans para la interfaz; JetBrains Mono para etiquetas de datos y metadatos.
+
+  Modo oscuro: sigue al sistema y se puede forzar con <html data-tema="claro|oscuro">
+  (ver `components/app/selector-tema.tsx`). Los componentes solo usan tokens:
+  - `panel`: la celda protagonista de un bento; oscura en ambos modos, con texto blanco.
+  - `sobre-tinta`: texto sobre `bg-tinta` (botón primario, filtro activo); se invierte en oscuro.
+  - `sobre-acento`: texto sobre el naranja; siempre oscuro.
 */
 :root {
   --fondo: #eef0f3;
@@ -15,10 +21,50 @@
   --linea: #dfe3e9;
   --acento: #ff6b2c;
   --acento-hover: #f25a18;
-  /* Estados con contraste AA como texto sobre blanco. */
+  --panel: #0f1b2d;
+  --sobre-tinta: #ffffff;
+  --sobre-acento: #0f1b2d;
+  /* Estados con contraste AA como texto sobre la superficie. */
   --exito: #16804a;
   --aviso: #9a6100;
   --peligro: #c0352e;
+  color-scheme: light;
+}
+
+/* Los mismos tokens, en oscuro (contrastes AA comprobados contra superficie, fondo y panel). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fondo: #0b111c;
+    --superficie: #131b29;
+    --tinta: #e6ebf2;
+    --tenue: #97a3b6;
+    --linea: #26324a;
+    --acento: #ff7a3d;
+    --acento-hover: #ff8c56;
+    --panel: #1a2538;
+    --sobre-tinta: #0b111c;
+    --sobre-acento: #0f1b2d;
+    --exito: #4cc28a;
+    --aviso: #e3a945;
+    --peligro: #ff6b61;
+    color-scheme: dark;
+  }
+}
+:root[data-tema="oscuro"] {
+  --fondo: #0b111c;
+  --superficie: #131b29;
+  --tinta: #e6ebf2;
+  --tenue: #97a3b6;
+  --linea: #26324a;
+  --acento: #ff7a3d;
+  --acento-hover: #ff8c56;
+  --panel: #1a2538;
+  --sobre-tinta: #0b111c;
+  --sobre-acento: #0f1b2d;
+  --exito: #4cc28a;
+  --aviso: #e3a945;
+  --peligro: #ff6b61;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -32,13 +78,12 @@
   --color-exito: var(--exito);
   --color-aviso: var(--aviso);
   --color-peligro: var(--peligro);
+  --color-panel: var(--panel);
+  --color-sobre-tinta: var(--sobre-tinta);
+  --color-sobre-acento: var(--sobre-acento);
   --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
   --radius-tarjeta: 0.875rem;
-}
-
-html {
-  color-scheme: light;
 }
 
 body {

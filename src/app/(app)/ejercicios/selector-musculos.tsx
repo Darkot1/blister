@@ -48,7 +48,7 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
                     type="button"
                     onClick={() => alternar(slug)}
                     aria-label={`Quitar ${nombre.get(slug) ?? slug}`}
-                    className="inline-flex h-7 items-center gap-1 rounded-md bg-tinta pr-1.5 pl-2.5 text-xs font-medium text-white hover:bg-tinta/85"
+                    className="inline-flex h-7 items-center gap-1 rounded-md bg-tinta pr-1.5 pl-2.5 text-xs font-medium text-sobre-tinta hover:bg-tinta/85"
                   >
                     {nombre.get(slug) ?? slug}
                     <X aria-hidden className="size-3.5" />
