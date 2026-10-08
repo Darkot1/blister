@@ -123,7 +123,7 @@ export function MapaCorporal({
 
       <svg
         viewBox={`0 0 ${anchoTotal} ${ALTO_FIGURA + ALTO_ETIQUETA}`}
-        className="mx-auto block max-h-[30rem] w-full select-none"
+        className="mx-auto block max-h-[22rem] w-full select-none sm:max-h-[26rem]"
         {...(interactivo
           ? { role: "group", "aria-label": "Mapa corporal: elige músculos" }
           : { role: "img", "aria-label": resumen ? `Músculos trabajados: ${resumen}` : "Mapa corporal" })}

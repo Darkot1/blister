@@ -24,7 +24,7 @@ Archivos:
 
 - La identidad de cada músculo es su **`slug` de `public.musculos`**, puesto en `data-musculo`. Nunca uses ids UUID en el SVG.
 - Frente y espalda se dibujan lado a lado; no hay conmutador de vista.
-- Un músculo de la BD sin trazo aparece automáticamente como chip en "Músculos profundos" (hoy: `transverso_abdominal`). Así nunca queda inaccesible.
+- Un músculo de la BD sin trazo aparece automáticamente como chip en "Músculos profundos" (hoy: `transverso_abdominal`, `elevador_escapula`, `pectoral_menor`, `cuadrado_lumbar`, `multifidos`, `gluteo_menor` y `piriforme`, que quedan bajo otros músculos). Así nunca queda inaccesible.
 - Accesibilidad: cada trazo de la mitad no reflejada es `role="checkbox"` enfocable con `aria-label`; la mitad reflejada es `aria-hidden`. En modo lectura el SVG es `role="img"` con un resumen textual.
 
 ## Geometría

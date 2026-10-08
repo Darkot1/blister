@@ -39,8 +39,12 @@ export const TRAZOS: Record<Vista, Record<string, string>> = {
     psoas_iliaco: "M83 168 L91 170 L95 185 L88 183 Z",
     aductores: "M94 188 L99 190 L99 214 C97 228 95 238 93 246 C90 226 90 204 94 188 Z",
     cuadriceps: "M73 184 C80 182 88 184 92 188 C89 210 89 232 92 254 L91 286 L77 288 C72 262 70 222 73 184 Z",
+    // Encima del borde externo del cuádriceps, bajo el glúteo medio.
+    tensor_fascia_lata: "M72 182 L78 181 C77 192 75 202 72 211 C71 201 71 191 72 182 Z",
     gastrocnemio: "M87 302 C93 314 94 330 91 346 L87 346 C86 330 85 316 87 302 Z",
     soleo: "M75 324 L79 326 L80 378 L77 384 C75 364 74 344 75 324 Z",
+    // Cara anterior de la tibia, entre el sóleo (fuera) y el gastrocnemio (dentro).
+    tibial_anterior: "M79 300 L87 302 C87 322 86 346 85 370 L81 373 C79 348 78 324 79 300 Z",
   },
   posterior: {
     trapecio_superior: "M92 50 L99 49 L99 70 L75 66 C83 62 89 58 92 50 Z",

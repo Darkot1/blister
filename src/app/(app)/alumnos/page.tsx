@@ -6,6 +6,7 @@ import { ChevronRight, Plus, Search, Users } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Avatar } from "@/components/ui/avatar";
 import { EnlaceBoton } from "@/components/ui/boton";
+import { conParametros } from "@/components/ui/paginacion";
 import { claseControl } from "@/components/ui/campo";
 import { InsigniaEstado } from "@/components/ui/insignia-estado";
 import { Tarjeta, Vacio, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
@@ -64,27 +65,30 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
 
   return (
     <>
-      <Form action="/alumnos" className="mb-4 flex flex-wrap items-center gap-3">
-        <label className="relative min-w-60 flex-1 sm:max-w-sm">
-          <span className="sr-only">Buscar alumno</span>
-          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tenue" />
-          <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre o teléfono" className={`${claseControl} pl-9`} />
-        </label>
-        <div role="group" aria-label="Filtrar por estado" className={`${claseSegmentado} max-w-full overflow-x-auto`}>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Form action="/alumnos" className="relative min-w-60 flex-1 sm:max-w-sm">
+          {estado !== "activo" && <input type="hidden" name="estado" value={estado} />}
+          <label>
+            <span className="sr-only">Buscar alumno</span>
+            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tenue" />
+            <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre o teléfono" className={`${claseControl} pl-9`} />
+          </label>
+        </Form>
+        {/* Enlaces y no botones de envío: next/form no incluye el botón pulsado en la URL. */}
+        <nav aria-label="Filtrar por estado" className={`${claseSegmentado} max-w-full overflow-x-auto`}>
           {FILTROS.map((f) => (
-            <button
+            <Link
               key={f.valor}
-              type="submit"
-              name="estado"
-              value={f.valor}
-              aria-pressed={estado === f.valor}
-              className={claseSegmento(estado === f.valor)}
+              href={conParametros("/alumnos", { q, estado: f.valor === "activo" ? undefined : f.valor })}
+              scroll={false}
+              aria-current={estado === f.valor ? "true" : undefined}
+              className={`inline-flex items-center ${claseSegmento(estado === f.valor)}`}
             >
               {f.texto}
-            </button>
+            </Link>
           ))}
-        </div>
-      </Form>
+        </nav>
+      </div>
 
       {error ? (
         <p className="text-peligro">No se pudieron cargar los alumnos. Recarga la página.</p>

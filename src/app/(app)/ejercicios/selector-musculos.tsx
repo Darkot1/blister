@@ -18,6 +18,7 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
       const parametros = new URLSearchParams(window.location.search);
       if (siguientes.length) parametros.set("m", siguientes.join(","));
       else parametros.delete("m");
+      parametros.delete("pagina"); // la lista cambia: vuelve a la primera página
       const consulta = parametros.toString();
       router.replace(consulta ? `/ejercicios?${consulta}` : "/ejercicios", { scroll: false });
     });
@@ -28,15 +29,14 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
 
   return (
     <div>
-      <MapaCorporal musculos={musculos} seleccionados={optimistas} alAlternar={alternar} />
-
-      <div className="mt-5 border-t border-linea pt-4">
+      {/* La selección va arriba: así "Limpiar" queda a la vista aunque el panel se desplace. */}
+      <div className="mb-4 min-h-12 border-b border-linea pb-4">
         {optimistas.length === 0 ? (
           <p className="text-sm text-tenue">Elige uno o varios músculos para ver los ejercicios sugeridos.</p>
         ) : (
           <>
             <div className="mb-2 flex items-center justify-between">
-              <p className="etiqueta">Seleccionados</p>
+              <p className="etiqueta">Seleccionados · {optimistas.length}</p>
               <button type="button" onClick={() => aplicar([])} className="text-sm font-medium text-tenue underline-offset-2 hover:text-tinta hover:underline">
                 Limpiar
               </button>
@@ -59,6 +59,8 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
           </>
         )}
       </div>
+
+      <MapaCorporal musculos={musculos} seleccionados={optimistas} alAlternar={alternar} />
     </div>
   );
 }

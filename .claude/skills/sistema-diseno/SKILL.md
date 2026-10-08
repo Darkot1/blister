@@ -42,7 +42,8 @@ Tipografía: Instrument Sans para todo. JetBrains Mono para datos: la clase `eti
 - **Rejilla bento** (panel, ficha del alumno): `grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4`, celdas con `col-span`/`row-span`. Una sola celda oscura protagonista (`bg-tinta`) y como mucho una en naranja por pantalla. En móvil, las celdas grandes ocupan `col-span-2`; los KPI pueden ir de a dos.
 - **KPI**: etiqueta arriba, cifra grande abajo y una línea de contexto. Cada cifra debe ayudar a decidir algo hoy.
 - **Tablas/listas**: dentro de `Tarjeta`, cabecera de columnas en `etiqueta` sobre `bg-fondo/60`, filas `px-4 py-2.5` enteras clicables, pie con el conteo en `font-mono`. En móvil se esconden columnas secundarias (`hidden md:block`).
-- **Filtros**: control segmentado (`claseSegmentado`) o botones `rounded-md` con borde, con `aria-pressed`, dentro de `next/form` para que vivan en la URL.
+- **Filtros**: control segmentado (`claseSegmentado`) o cápsulas `rounded-md` con borde, como **enlaces** (`Link` con `aria-current`) que conservan los demás parámetros (`conParametros` en `components/ui/paginacion.tsx`). Nunca botones `type="submit" name=… value=…` dentro de `next/form`: arma la URL con `new FormData(form)` sin el botón pulsado y el filtro se pierde. `next/form` solo para el cuadro de búsqueda, con los demás filtros en `<input type="hidden">`.
+- **Listas largas**: paginadas de a 20 con `Paginacion` (`?pagina=`); sin filtros, un resumen por grupo con "Ver los N…".
 - **Estado vacío**: `Vacio`. Distingue "no hay nada aún" de "ningún resultado con estos filtros".
 - **Acciones destructivas**: en una tarjeta con borde discontinuo al final de la pantalla, variante `peligro`, con confirmación que explique la consecuencia. Preferir archivar a borrar.
 - **Drag & drop** (constructor de rutinas): siempre con alternativa por botones (subir, bajar, duplicar, eliminar).
