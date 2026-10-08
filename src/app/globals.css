@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/*
+  Identidad visual: "tiza y hierro".
+  Gris tiza frío de fondo, tinta pizarra, y un único acento: el azul de un disco de 20 kg.
+  Barlow Condensed para títulos y cifras (como el rotulado de discos y máquinas); Barlow para el texto.
+*/
+:root {
+  --fondo: #ecefec;
+  --superficie: #ffffff;
+  --tinta: #18232d;
+  --tenue: #5b6873;
+  --linea: #d3d9d5;
+  --acento: #1f47b8;
+  --acento-hover: #183a99;
+  --exito: #2e7d4f;
+  --aviso: #a8691a;
+  --peligro: #b42318;
+}
+
+@theme inline {
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-tinta: var(--tinta);
+  --color-tenue: var(--tenue);
+  --color-linea: var(--linea);
+  --color-acento: var(--acento);
+  --color-acento-hover: var(--acento-hover);
+  --color-exito: var(--exito);
+  --color-aviso: var(--aviso);
+  --color-peligro: var(--peligro);
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: "Barlow Condensed", "Arial Narrow", ui-sans-serif, sans-serif;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.cifra {
+  font-family: var(--font-titulo);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
