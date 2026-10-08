@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { crearClienteServidor } from "./supabase/servidor";
 
@@ -35,7 +36,8 @@ export async function obtenerContexto(): Promise<Contexto> {
   return { supabase, usuarioId, organizacionId: membresia.organizacion_id };
 }
 
-export async function obtenerPerfil() {
+/** Memorizada por petición: el riel y el menú la piden a la vez. */
+export const obtenerPerfil = cache(async () => {
   const { supabase, usuarioId } = await obtenerContexto();
   const { data } = await supabase
     .from("perfiles")
@@ -43,4 +45,4 @@ export async function obtenerPerfil() {
     .eq("id", usuarioId)
     .maybeSingle();
   return data;
-}
+});

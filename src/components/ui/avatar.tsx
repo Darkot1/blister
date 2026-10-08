@@ -1,22 +1,38 @@
-import { cx } from "@/lib/clases";
-import css from "./avatar.module.css";
+import { iniciales } from "@/lib/formato";
 
-/** Círculo con iniciales (usa `iniciales()` de lib/formato). Decorativo: el nombre va al lado en texto. */
+const TONOS = [
+  "var(--app-alumnos)",
+  "var(--app-entrenamiento)",
+  "var(--app-ejercicios)",
+  "var(--app-calendario)",
+  "var(--app-progreso)",
+  "#0e9aa7",
+];
+
+const TAMANOS = { sm: "size-9 text-sm", md: "size-11 text-[0.95rem]", xl: "size-24 text-3xl" };
+
+/** Avatar con iniciales; el color sale del id, así cada alumno conserva siempre el suyo. */
 export function Avatar({
-  iniciales,
-  tamano = "normal",
-  tono = "neutro",
-  className,
+  id,
+  nombres,
+  apellidos,
+  tamano = "md",
 }: {
-  iniciales: string;
-  tamano?: "pequeno" | "normal" | "grande";
-  /** `acento`: la cuenta del propio entrenador (tinta sólida). */
-  tono?: "neutro" | "acento";
-  className?: string;
+  id: string;
+  nombres: string;
+  apellidos: string;
+  tamano?: keyof typeof TAMANOS;
 }) {
+  let suma = 0;
+  for (const c of id) suma = (suma * 31 + c.charCodeAt(0)) >>> 0;
+  const tono = TONOS[suma % TONOS.length];
   return (
-    <span aria-hidden className={cx(css.avatar, tamano !== "normal" && css[tamano], tono === "acento" && css.acento, className)}>
-      {iniciales}
+    <span
+      aria-hidden
+      className={`grid shrink-0 place-items-center rounded-full font-semibold text-white ${TAMANOS[tamano]}`}
+      style={{ background: `linear-gradient(165deg, color-mix(in oklab, ${tono} 70%, white), ${tono})` }}
+    >
+      {iniciales(nombres, apellidos)}
     </span>
   );
 }

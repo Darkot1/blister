@@ -42,9 +42,8 @@ src/
 │   │   ├── calendario/         # Semana de citas (rejilla en escritorio, agenda en móvil)
 │   │   └── …                   # Secciones en construcción
 │   └── auth/confirmar/         # Destino de los enlaces de correo
-├── styles/                     # tokens.css (identidad "Disco") y base.css
 ├── components/
-│   ├── ui/                     # Sistema de componentes (cada uno con su .module.css)
+│   ├── ui/                     # Botones, campos, avisos, diálogo, esqueletos
 │   ├── anatomia/               # Mapa corporal SVG (frente y espalda)
 │   └── app/                    # Navegación, encabezado, usuario actual
 └── lib/
@@ -63,7 +62,6 @@ docs/hoja-de-ruta.md            # Estado por milestone y nombres blueprint → e
 
 - **Cache Components** está activado: todo lo que lee la sesión o datos va dentro de `<Suspense>`.
   Si una página nueva falla al compilar con un error de "outside of `<Suspense>`", esa es la causa.
-- Estilos con CSS Modules (`x.module.css` junto a `x.tsx`) y tokens de `src/styles/tokens.css`. No se usa Tailwind.
 - Las mutaciones son Server Actions que llaman a `refresh()` o `redirect()`.
 - Regenerar tipos tras cambiar la base de datos:
   `npx supabase gen types typescript --project-id xxhynsflkytaielhtnpn > src/lib/supabase/tipos-bd.ts`

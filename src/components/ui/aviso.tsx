@@ -1,30 +1,17 @@
-import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
-import { cx } from "@/lib/clases";
-import css from "./aviso.module.css";
+import { CircleAlert, CircleCheck } from "lucide-react";
 
-type TipoAviso = "error" | "exito" | "aviso" | "info";
-
-const ICONO = { error: CircleAlert, exito: CircleCheck, aviso: TriangleAlert, info: Info };
-const CLASE: Record<TipoAviso, string> = { error: css.error, exito: css.exito, aviso: css.advertencia, info: css.info };
-
-/**
- * Mensaje de formulario o de página. `error` se anuncia con role="alert";
- * el resto con role="status".
- */
-export function Aviso({
-  tipo = "error",
-  className,
-  children,
-}: {
-  tipo?: TipoAviso;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  const Icono = ICONO[tipo];
+export function Aviso({ tipo = "error", children }: { tipo?: "error" | "exito"; children: React.ReactNode }) {
+  const error = tipo === "error";
+  const Icono = error ? CircleAlert : CircleCheck;
   return (
-    <div role={tipo === "error" ? "alert" : "status"} className={cx(css.aviso, CLASE[tipo], className)}>
-      <Icono aria-hidden />
-      <div className={css.contenido}>{children}</div>
-    </div>
+    <p
+      role={error ? "alert" : "status"}
+      className={`flex items-start gap-2.5 rounded-2xl px-4 py-3 text-sm font-medium ${
+        error ? "bg-peligro/10 text-peligro" : "bg-exito/10 text-exito"
+      }`}
+    >
+      <Icono aria-hidden className="mt-px size-[18px] shrink-0" />
+      <span>{children}</span>
+    </p>
   );
 }

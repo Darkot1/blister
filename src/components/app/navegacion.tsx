@@ -2,181 +2,123 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
-import {
-  CalendarDays,
-  Dumbbell,
-  Ellipsis,
-  House,
-  LineChart,
-  ListChecks,
-  Settings,
-  Users,
-  X,
-  type LucideIcon,
-} from "lucide-react";
-import { cx } from "@/lib/clases";
+import { Suspense, useState } from "react";
+import { LayoutGrid } from "lucide-react";
+import { Dialogo } from "@/components/ui/dialogo";
+import { IconoApp } from "@/components/ui/icono-app";
 import { Marca } from "./marca";
-import css from "./navegacion.module.css";
+import { SECCIONES, SECCIONES_DOCK, esActiva } from "./secciones";
 
-type Seccion = {
-  href: string;
-  texto: string;
-  icono: LucideIcon;
-  /** Pestaña fija en la barra inferior móvil (las de uso diario en el gimnasio). */
-  diaria?: boolean;
-};
-
-const SECCIONES: Seccion[] = [
-  { href: "/inicio", texto: "Inicio", icono: House, diaria: true },
-  { href: "/alumnos", texto: "Alumnos", icono: Users, diaria: true },
-  { href: "/entrenamiento", texto: "Entrenamiento", icono: ListChecks },
-  { href: "/ejercicios", texto: "Ejercicios", icono: Dumbbell, diaria: true },
-  { href: "/calendario", texto: "Calendario", icono: CalendarDays, diaria: true },
-  { href: "/progreso", texto: "Progreso", icono: LineChart },
-];
-const CONFIGURACION: Seccion = { href: "/configuracion", texto: "Configuración", icono: Settings };
-/** Orden de la barra inferior móvil: Inicio, Alumnos, Calendario, Ejercicios (+ Más). */
-const PESTANAS = ["/inicio", "/alumnos", "/calendario", "/ejercicios"].map(
-  (href) => SECCIONES.find((s) => s.href === href)!,
-);
-const EN_MAS = [...SECCIONES.filter((s) => !s.diaria), CONFIGURACION];
-
-const esActual = (ruta: string, href: string) => ruta === href || ruta.startsWith(`${href}/`);
-
-/**
- * La ruta actual solo se conoce en tiempo de ejecución (Cache Components): mientras llega,
- * los enlaces se pintan sin resaltar (fallback con ruta "").
- */
+/** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, nada se muestra resaltado. */
 function ConRuta({ children }: { children: (ruta: string) => React.ReactNode }) {
   return (
     <Suspense fallback={children("")}>
-      <LeerRuta>{children}</LeerRuta>
+      <RutaActual>{children}</RutaActual>
     </Suspense>
   );
 }
 
-function LeerRuta({ children }: { children: (ruta: string) => React.ReactNode }) {
+function RutaActual({ children }: { children: (ruta: string) => React.ReactNode }) {
   return children(usePathname());
 }
 
-/**
- * Shell de navegación.
- * - ≥ 1024 px: barra superior blanca con la marca, las secciones (la actual subrayada en amarillo),
- *   Configuración y la cuenta.
- * - < 1024 px: la misma barra, compacta (marca + cuenta), y barra de pestañas inferior al alcance del pulgar
- *   con Inicio, Alumnos, Calendario, Ejercicios y "Más" (hoja con Entrenamiento, Progreso y Configuración).
- * `cuenta` es el nodo de la cuenta del entrenador (UsuarioActual dentro de Suspense).
- */
-export function Navegacion({ pie: cuenta }: { pie: React.ReactNode }) {
-  return (
-    <>
-      <header className={css.barra}>
-        <div className={css.barraInterior}>
-          <Marca className={css.marca} />
-          <ConRuta>
-            {(ruta) => (
-              <nav aria-label="Principal" className={css.secciones}>
-                <ul className={css.listaSecciones}>
-                  {SECCIONES.map(({ href, texto }) => (
-                    <li key={href}>
-                      <Link href={href} className={css.seccion} aria-current={esActual(ruta, href) ? "page" : undefined}>
-                        {texto}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={CONFIGURACION.href}
-                  className={cx(css.seccion, css.configuracion)}
-                  aria-current={esActual(ruta, CONFIGURACION.href) ? "page" : undefined}
-                >
-                  {CONFIGURACION.texto}
-                </Link>
-              </nav>
-            )}
-          </ConRuta>
-          <div className={css.cuenta}>{cuenta}</div>
-        </div>
-      </header>
-
-      <ConRuta>{(ruta) => <PestanasMovil ruta={ruta} />}</ConRuta>
-    </>
-  );
-}
-
-function PestanasMovil({ ruta }: { ruta: string }) {
-  const [abierta, setAbierta] = useState(false);
-  const hoja = useRef<HTMLDialogElement>(null);
-  const enMas = EN_MAS.some((s) => esActual(ruta, s.href));
-
-  useEffect(() => {
-    const dialogo = hoja.current;
-    if (!dialogo) return;
-    if (abierta && !dialogo.open) dialogo.showModal();
-    if (!abierta && dialogo.open) dialogo.close();
-  }, [abierta]);
+export function Navegacion({ cuenta, avatar }: { cuenta: React.ReactNode; avatar: React.ReactNode }) {
+  const [menu, setMenu] = useState(false);
 
   return (
     <>
-      <nav aria-label="Principal" className={css.pestanas}>
-        {PESTANAS.map(({ href, texto, icono: Icono }) => (
-          <Link key={href} href={href} className={css.pestana} aria-current={esActual(ruta, href) ? "page" : undefined}>
-            <Icono aria-hidden strokeWidth={1.75} />
-            <span>{texto}</span>
-          </Link>
-        ))}
-        <button
-          type="button"
-          className={cx(css.pestana, enMas && css.activa)}
-          aria-haspopup="dialog"
-          aria-expanded={abierta}
-          onClick={() => setAbierta(true)}
-        >
-          <Ellipsis aria-hidden strokeWidth={1.75} />
-          <span>Más</span>
-        </button>
-      </nav>
-
-      <dialog
-        ref={hoja}
-        className={css.hoja}
-        aria-labelledby="titulo-hoja-mas"
-        onClose={() => setAbierta(false)}
-        onClick={(e) => {
-          if (e.target === hoja.current) setAbierta(false);
-        }}
-      >
-        {abierta && (
-          <>
-            <div className={css.cabeceraHoja}>
-              <h2 id="titulo-hoja-mas" className={css.tituloHoja}>
-                Más secciones
-              </h2>
-              <button type="button" className={css.cerrar} onClick={() => setAbierta(false)} aria-label="Cerrar menú">
-                <X aria-hidden />
-              </button>
-            </div>
-            <nav aria-label="Más secciones">
-              <ul className={css.listaHoja}>
-                {EN_MAS.map(({ href, texto, icono: Icono }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      className={css.enlaceHoja}
-                      onClick={() => setAbierta(false)}
-                      aria-current={esActual(ruta, href) ? "page" : undefined}
-                    >
-                      <Icono aria-hidden strokeWidth={1.75} />
-                      {texto}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+      {/* Escritorio: riel de iconos de app. */}
+      {/* Con poca altura (p. ej. 1024×600) el riel se desplaza en lugar de esconder Ajustes y la salida. */}
+      <aside className="sticky top-0 hidden h-dvh w-24 shrink-0 flex-col items-center gap-2 overflow-y-auto py-5 [scrollbar-width:none] lg:flex">
+        <Link href="/inicio" aria-label="Blister Fitness, inicio" className="mb-3 rounded-xl">
+          <Marca conNombre={false} />
+        </Link>
+        <ConRuta>
+          {(ruta) => (
+            <nav aria-label="Principal" className="flex w-full flex-1 flex-col items-center gap-1 px-2">
+              {SECCIONES.map((s) => {
+                const activa = esActiva(ruta, s.href);
+                return (
+                  <Link
+                    key={s.href}
+                    href={s.href}
+                    aria-current={activa ? "page" : undefined}
+                    className={`group flex w-full flex-col items-center gap-1 rounded-2xl py-2 transition-colors ${
+                      activa ? "bg-superficie shadow-[0_1px_3px_rgb(18_20_23/0.08)]" : "hover:bg-tinta/[0.04]"
+                    } ${s.href === "/configuracion" ? "mt-auto" : ""}`}
+                  >
+                    <IconoApp
+                      icono={s.icono}
+                      tono={s.tono}
+                      className={`transition-transform group-active:scale-90 ${activa ? "" : "opacity-90"}`}
+                    />
+                    <span className={`text-[0.7rem] leading-tight ${activa ? "font-semibold text-tinta" : "text-tenue"}`}>
+                      {s.texto}
+                    </span>
+                  </Link>
+                );
+              })}
             </nav>
-          </>
+          )}
+        </ConRuta>
+        <div className="mt-2">{avatar}</div>
+      </aside>
+
+      {/* Móvil: dock flotante con las secciones de uso diario + menú en rejilla. */}
+      <ConRuta>
+        {(ruta) => (
+          <nav
+            aria-label="Principal"
+            className="vidrio fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 grid h-[4.25rem] grid-cols-5 rounded-[1.75rem] border border-white/70 px-1 shadow-[0_8px_30px_-6px_rgb(18_20_23/0.25)] lg:hidden"
+          >
+            {SECCIONES.filter((s) => SECCIONES_DOCK.includes(s.href)).map(({ href, texto, icono: Icono, tono }) => {
+              const activa = esActiva(ruta, href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={activa ? "page" : undefined}
+                  className="flex flex-col items-center justify-center gap-0.5 rounded-3xl active:bg-tinta/[0.05]"
+                  style={activa ? { color: tono } : undefined}
+                >
+                  <Icono aria-hidden className={`size-6 ${activa ? "" : "text-tinta/45"}`} strokeWidth={activa ? 2.3 : 2} />
+                  <span className={`text-[0.68rem] ${activa ? "font-semibold" : "text-tenue"}`}>{texto}</span>
+                </Link>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => setMenu(true)}
+              aria-expanded={menu}
+              aria-haspopup="dialog"
+              className="flex flex-col items-center justify-center gap-0.5 rounded-3xl active:bg-tinta/[0.05]"
+            >
+              <LayoutGrid aria-hidden className="size-6 text-tinta/45" strokeWidth={2} />
+              <span className="text-[0.68rem] text-tenue">Menú</span>
+            </button>
+          </nav>
         )}
-      </dialog>
+      </ConRuta>
+
+      <Dialogo abierto={menu} alCerrar={() => setMenu(false)} titulo="Menú">
+        <div className="mb-6">{cuenta}</div>
+        <nav aria-label="Todas las secciones">
+          <ul className="grid grid-cols-4 gap-x-2 gap-y-5">
+            {SECCIONES.map((s) => (
+              <li key={s.href}>
+                <Link
+                  href={s.href}
+                  onClick={() => setMenu(false)}
+                  className="group flex flex-col items-center gap-1.5 rounded-2xl text-center"
+                >
+                  <IconoApp icono={s.icono} tono={s.tono} tamano="lg" className="transition-transform group-active:scale-90" />
+                  <span className="text-xs leading-tight font-medium">{s.texto}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </Dialogo>
     </>
   );
 }

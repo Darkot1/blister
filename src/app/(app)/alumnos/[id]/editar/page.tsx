@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Esqueleto } from "@/components/ui/esqueleto";
-import { Pila } from "@/components/ui/disposicion";
 import { obtenerContexto } from "@/lib/sesion";
 import { FormularioAlumno } from "../../formulario-alumno";
 import { actualizarAlumno } from "../../acciones";
@@ -12,21 +11,9 @@ export const metadata: Metadata = { title: "Editar alumno" };
 
 export default function PaginaEditarAlumno({ params }: PageProps<"/alumnos/[id]/editar">) {
   return (
-    <Suspense fallback={<CargandoEdicion />}>
+    <Suspense fallback={<Esqueleto className="h-[36rem] max-w-2xl" />}>
       <Edicion params={params} />
     </Suspense>
-  );
-}
-
-function CargandoEdicion() {
-  return (
-    <Pila espacio={8} role="status" aria-label="Cargando alumno">
-      <Pila espacio={3}>
-        <Esqueleto forma="texto" ancho="8rem" />
-        <Esqueleto alto="var(--texto-4xl)" ancho="min(100%, 20rem)" />
-      </Pila>
-      <Esqueleto alto="24rem" ancho="min(100%, var(--ancho-lectura))" />
-    </Pila>
   );
 }
 

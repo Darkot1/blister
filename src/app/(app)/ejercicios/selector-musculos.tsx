@@ -1,25 +1,15 @@
 "use client";
 
-import { useId, useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import { MapaCorporal, type MusculoMapa } from "@/components/anatomia/mapa-corporal";
-import { Boton } from "@/components/ui/boton";
-import { Chip } from "@/components/ui/filtros";
-import { cx } from "@/lib/clases";
-import css from "./selector-musculos.module.css";
 
-/**
- * Mapa corporal cuya selección vive en la URL (?m=slug,slug) para que la búsqueda sea compartible.
- * En móvil el mapa se pliega: arriba quedan solo los músculos elegidos y los resultados no quedan enterrados.
- * Desde 1024 px el mapa siempre está visible (columna lateral pegajosa).
- */
+/** Mapa corporal cuya selección vive en la URL (?m=slug,slug) para que la búsqueda sea compartible. */
 export function SelectorMusculos({ musculos, seleccionados }: { musculos: MusculoMapa[]; seleccionados: string[] }) {
   const router = useRouter();
   const [, iniciar] = useTransition();
   const [optimistas, setOptimistas] = useOptimistic(seleccionados);
-  const [abierto, setAbierto] = useState(false);
-  const idMapa = useId();
   const nombre = new Map(musculos.map((m) => [m.slug, m.nombre]));
 
   const aplicar = (siguientes: string[]) => {
@@ -36,61 +26,38 @@ export function SelectorMusculos({ musculos, seleccionados }: { musculos: Muscul
   const alternar = (slug: string) =>
     aplicar(optimistas.includes(slug) ? optimistas.filter((s) => s !== slug) : [...optimistas, slug]);
 
-  const verResultados = () => {
-    setAbierto(false);
-    document.getElementById("resultados")?.scrollIntoView({ block: "start" });
-  };
-
   return (
-    <div className={cx(css.selector, abierto && css.abierto)}>
-      <div className={css.cabecera}>
-        <div className={css.textos}>
-          <h2 className={css.titulo}>Músculos</h2>
-          <p className={css.resumen}>
-            {optimistas.length === 0
-              ? "Elige uno o varios para ver ejercicios sugeridos."
-              : optimistas.length === 1
-                ? "1 elegido"
-                : `${optimistas.length} elegidos`}
-          </p>
-        </div>
-        <Boton
-          variante="secundario"
-          tamano="pequeno"
-          aria-expanded={abierto}
-          aria-controls={idMapa}
-          onClick={() => setAbierto(!abierto)}
-          className={css.alternar}
-        >
-          {abierto ? "Ocultar mapa" : optimistas.length ? "Cambiar" : "Abrir mapa"}
-          <ChevronDown aria-hidden className={css.flecha} />
-        </Boton>
-      </div>
+    <div>
+      <MapaCorporal musculos={musculos} seleccionados={optimistas} alAlternar={alternar} />
 
-      {optimistas.length > 0 && (
-        <div className={css.elegidos}>
-          <ul aria-label="Músculos elegidos" className={css.chips}>
-            {optimistas.map((slug) => (
-              <li key={slug}>
-                <Chip quitable onClick={() => alternar(slug)} aria-label={`Quitar ${nombre.get(slug) ?? slug}`}>
-                  {nombre.get(slug) ?? slug}
-                </Chip>
-              </li>
-            ))}
-            <li>
-              <Boton variante="fantasma" tamano="pequeno" onClick={() => aplicar([])}>
+      <div className="mt-5 border-t border-linea pt-4">
+        {optimistas.length === 0 ? (
+          <p className="text-sm text-tenue">Elige uno o varios músculos para ver los ejercicios sugeridos.</p>
+        ) : (
+          <>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-semibold tracking-wide text-tenue uppercase">Seleccionados</p>
+              <button type="button" onClick={() => aplicar([])} className="text-sm font-semibold text-acento hover:underline">
                 Limpiar
-              </Boton>
-            </li>
-          </ul>
-        </div>
-      )}
-
-      <div id={idMapa} className={css.mapa}>
-        <MapaCorporal musculos={musculos} seleccionados={optimistas} alAlternar={alternar} />
-        <Boton variante="secundario" bloque onClick={verResultados} className={css.listo}>
-          {optimistas.length ? "Ver ejercicios sugeridos" : "Cerrar mapa"}
-        </Boton>
+              </button>
+            </div>
+            <ul className="flex flex-wrap gap-1.5">
+              {optimistas.map((slug) => (
+                <li key={slug}>
+                  <button
+                    type="button"
+                    onClick={() => alternar(slug)}
+                    aria-label={`Quitar ${nombre.get(slug) ?? slug}`}
+                    className="inline-flex h-8 items-center gap-1 rounded-full bg-acento pr-2 pl-3 text-sm font-medium text-white hover:bg-acento-hover"
+                  >
+                    {nombre.get(slug) ?? slug}
+                    <X aria-hidden className="size-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </div>
   );
