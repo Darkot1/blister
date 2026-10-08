@@ -1,0 +1,21 @@
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1-5);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  line-height: 1.2;
+  color: var(--color-tinta);
+  white-space: nowrap;
+
+  & > svg:not(:first-child) {
+    width: var(--tamano-icono-pequeno);
+    height: var(--tamano-icono-pequeno);
+  }
+}
+
+/* Categoría sin estado (p. ej. "En la fase 2"): texto tenue, sin disco ni fondo. */
+.categoria {
+  font-weight: var(--peso-normal);
+  color: var(--color-tenue);
+}

@@ -1,0 +1,37 @@
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espacio-1);
+  padding-block: var(--espacio-6);
+}
+
+.compacto {
+  padding-block: var(--espacio-2);
+}
+
+.titulo {
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+  line-height: 1.3;
+}
+
+.compacto .titulo {
+  font-size: var(--texto-base);
+}
+
+.descripcion {
+  max-width: var(--ancho-lectura);
+  color: var(--color-tenue);
+}
+
+.compacto .descripcion {
+  font-size: var(--texto-sm);
+}
+
+.accion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  margin-top: var(--espacio-4);
+}

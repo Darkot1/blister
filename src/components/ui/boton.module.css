@@ -1,0 +1,105 @@
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  height: var(--alto-control);
+  padding-inline: var(--espacio-4);
+  border: var(--ancho-borde) solid transparent;
+  border-radius: var(--radio-md);
+  font-size: var(--texto-base);
+  font-weight: var(--peso-semi);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--duracion-rapida) var(--curva),
+    border-color var(--duracion-rapida) var(--curva),
+    color var(--duracion-rapida) var(--curva);
+
+  & svg {
+    flex-shrink: 0;
+    width: var(--tamano-icono-pequeno);
+    height: var(--tamano-icono-pequeno);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* Amarillo 15 kg: la acción que toca ahora. Una por vista. */
+.primario {
+  background: var(--color-accion);
+  color: var(--color-sobre-accion);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accion-hover);
+  }
+}
+
+.secundario {
+  background: var(--color-superficie);
+  border-color: var(--color-linea-fuerte);
+  color: var(--color-tinta);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-tinta);
+  }
+}
+
+.fantasma {
+  color: var(--color-tinta);
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-tinta) 7%, transparent);
+  }
+}
+
+.peligro {
+  background: var(--color-superficie);
+  border-color: var(--color-peligro);
+  color: var(--color-peligro);
+
+  &:hover:not(:disabled) {
+    background: var(--color-peligro-suave);
+  }
+}
+
+.pequeno {
+  height: var(--alto-control-pequeno);
+  padding-inline: var(--espacio-3);
+  font-size: var(--texto-sm);
+}
+
+.grande {
+  height: calc(var(--alto-control) + var(--espacio-2));
+  padding-inline: var(--espacio-6);
+}
+
+/* Botón cuadrado con solo un icono: exige aria-label. */
+.soloIcono {
+  width: var(--alto-control);
+  padding-inline: 0;
+
+  &.pequeno {
+    width: var(--alto-control-pequeno);
+  }
+
+  & svg {
+    width: var(--tamano-icono);
+    height: var(--tamano-icono);
+  }
+}
+
+.bloque {
+  width: 100%;
+}

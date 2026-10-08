@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
-import { EnlaceBoton } from "@/components/ui/boton";
+import { Aviso } from "@/components/ui/aviso";
+import { Grupo, Pila } from "@/components/ui/disposicion";
 import { Esqueleto } from "@/components/ui/esqueleto";
 import { obtenerContexto } from "@/lib/sesion";
 import {
@@ -22,7 +22,7 @@ export default function PaginaCalendario({ searchParams }: PageProps<"/calendari
   return (
     <>
       <Encabezado titulo="Calendario" />
-      <Suspense fallback={<Esqueleto className="h-[40rem] w-full" />}>
+      <Suspense fallback={<Cargando />}>
         <Agenda searchParams={searchParams} />
       </Suspense>
     </>
@@ -64,33 +64,33 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
     .filter((a) => a.estado === "activo")
     .map((a) => ({ id: a.id, nombre: `${a.nombres} ${a.apellidos}` }));
 
-  const enCurso = dias.includes(hoy);
-  const pendientes = vista.filter((c) => c.estado === "programada" || c.estado === "confirmada").length;
-
-  const barra = (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-      <nav aria-label="Semanas" className="flex items-center gap-1">
-        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, -7)}`} variante="secundario" className="px-2.5" aria-label="Semana anterior">
-          <ChevronLeft aria-hidden className="size-4" />
-        </EnlaceBoton>
-        <EnlaceBoton href="/calendario" variante={enCurso ? "fantasma" : "secundario"} aria-current={enCurso ? "date" : undefined}>
-          Hoy
-        </EnlaceBoton>
-        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, 7)}`} variante="secundario" className="px-2.5" aria-label="Semana siguiente">
-          <ChevronRight aria-hidden className="size-4" />
-        </EnlaceBoton>
-      </nav>
-      <h2 className="cifra text-2xl font-semibold">{etiquetaSemana(lunes)}</h2>
-      <p className="text-sm text-tenue">
-        {vista.length === 0
-          ? "Semana libre"
-          : `${vista.length} ${vista.length === 1 ? "cita" : "citas"}${pendientes ? `, ${pendientes} por atender` : ""}`}
-      </p>
-    </div>
-  );
-
-  if (error) return <p className="text-peligro">No se pudieron cargar las citas. Recarga la página.</p>;
+  if (error) return <Aviso>No se pudieron cargar las citas. Recarga la página.</Aviso>;
   return (
-    <CalendarioSemana barra={barra} dias={dias} hoy={hoy} citas={vista} alumnos={activos} alumnoInicial={alumnoInicial} />
+    <CalendarioSemana
+      navegacion={{
+        rango: etiquetaSemana(lunes),
+        anterior: `/calendario?semana=${sumarDias(lunes, -7)}`,
+        siguiente: `/calendario?semana=${sumarDias(lunes, 7)}`,
+        enCurso: dias.includes(hoy),
+      }}
+      dias={dias}
+      hoy={hoy}
+      citas={vista}
+      alumnos={activos}
+      alumnoInicial={alumnoInicial}
+    />
+  );
+}
+
+/** Forma aproximada de la barra y la agenda mientras cargan las citas. */
+function Cargando() {
+  return (
+    <Pila espacio={5} role="status" aria-label="Cargando calendario">
+      <Grupo espacio={3}>
+        <Esqueleto alto="var(--alto-control)" ancho="calc(var(--alto-control) * 3.5)" />
+        <Esqueleto alto="var(--texto-2xl)" ancho="12rem" />
+      </Grupo>
+      <Esqueleto alto="40rem" ancho="100%" />
+    </Pila>
   );
 }

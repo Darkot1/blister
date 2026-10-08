@@ -1,0 +1,42 @@
+.enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+  text-decoration-thickness: var(--ancho-borde);
+  text-underline-offset: 0.2em;
+  transition:
+    color var(--duracion-rapida) var(--curva),
+    text-decoration-color var(--duracion-rapida) var(--curva);
+
+  &:hover {
+    text-decoration-thickness: var(--ancho-borde-grueso);
+  }
+
+  & svg {
+    width: var(--tamano-icono-pequeno);
+    height: var(--tamano-icono-pequeno);
+  }
+}
+
+.acento {
+  color: var(--color-acento);
+}
+
+/* Secundario (teléfono, correo, "volver"): sin subrayado hasta el hover. */
+.tenue {
+  font-weight: var(--peso-medio);
+  color: var(--color-tenue);
+  text-decoration-color: transparent;
+
+  &:hover {
+    color: var(--color-tinta);
+    text-decoration-color: currentColor;
+  }
+}
+
+.heredado {
+  font-weight: inherit;
+  color: inherit;
+}

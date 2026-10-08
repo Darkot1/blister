@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Enlace } from "@/components/ui/enlace";
+import { CabeceraAcceso, PieAcceso } from "../acceso";
 import { FormularioRecuperar } from "../formularios";
 
 export const metadata: Metadata = { title: "Recuperar contraseña" };
@@ -7,12 +8,14 @@ export const metadata: Metadata = { title: "Recuperar contraseña" };
 export default function PaginaRecuperar() {
   return (
     <>
-      <h1 className="font-titulo text-4xl font-semibold tracking-tight">Recuperar contraseña</h1>
-      <p className="mt-1 mb-8 text-tenue">Te enviaremos un enlace para crear una nueva.</p>
+      <CabeceraAcceso
+        titulo="Recuperar contraseña"
+        descripcion="Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva."
+      />
       <FormularioRecuperar />
-      <p className="mt-8 text-sm text-tenue">
-        <Link href="/ingresar" className="font-medium text-acento hover:underline">Volver a ingresar</Link>
-      </p>
+      <PieAcceso>
+        ¿La recordaste? <Enlace href="/ingresar">Vuelve a ingresar</Enlace>
+      </PieAcceso>
     </>
   );
 }

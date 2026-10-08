@@ -1,0 +1,33 @@
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  color: var(--color-tinta);
+  text-decoration: none;
+}
+
+.simbolo {
+  flex-shrink: 0;
+  width: calc(var(--espacio-6) + var(--espacio-1));
+  height: calc(var(--espacio-6) + var(--espacio-1));
+}
+
+.disco {
+  fill: currentColor;
+}
+
+/* La pestaña del buje: un aro fino como en los discos de caucho. */
+.aro {
+  fill: none;
+  stroke: var(--color-superficie);
+  stroke-width: 0.9;
+  opacity: 0.4;
+}
+
+.nombre {
+  font-family: var(--fuente-titulo);
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-titulo);
+  line-height: 1;
+  letter-spacing: var(--espaciado-titulo);
+}

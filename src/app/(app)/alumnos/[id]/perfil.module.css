@@ -1,0 +1,63 @@
+.contacto {
+  font-size: var(--texto-sm);
+}
+
+/* Enlace con icono (teléfono, correo, calendario). */
+.dato {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1-5);
+  min-width: 0;
+  overflow-wrap: anywhere;
+
+  & svg {
+    flex-shrink: 0;
+    width: var(--tamano-icono-pequeno);
+    height: var(--tamano-icono-pequeno);
+  }
+}
+
+.enlaceSeccion {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+}
+
+.medida {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--espacio-1) var(--espacio-3);
+
+  & > :first-child {
+    font-size: var(--texto-lg);
+    font-weight: var(--peso-semi);
+  }
+}
+
+.textoArchivar {
+  flex: 1 1 var(--ancho-minimo-tarjeta);
+  min-width: 0;
+}
+
+/* Notas como línea de tiempo: la más reciente arriba. */
+.notas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nota {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  padding-inline-start: var(--espacio-4);
+  border-inline-start: var(--ancho-borde-grueso) solid var(--color-linea);
+}
+
+.contenidoNota {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}

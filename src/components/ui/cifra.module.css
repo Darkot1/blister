@@ -1,0 +1,99 @@
+/* Valor arriba, etiqueta debajo: el orden del DOM (dt, dd) se respeta para lectores de pantalla. */
+.cifra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  min-width: 0;
+}
+
+.valor {
+  order: -1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--espacio-1);
+  font-family: var(--fuente-titulo);
+  font-weight: var(--peso-titulo);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--interlineado-cifra);
+  letter-spacing: var(--espaciado-titulo);
+  overflow-wrap: anywhere;
+}
+
+.normal .valor {
+  font-size: var(--texto-3xl);
+}
+
+.grande .valor {
+  font-size: var(--texto-4xl);
+}
+
+.compacta .valor {
+  font-size: var(--texto-xl);
+  line-height: var(--interlineado-titulo);
+}
+
+.unidad {
+  font-family: var(--fuente-texto);
+  font-size: var(--texto-base);
+  font-weight: var(--peso-normal);
+  letter-spacing: 0;
+  color: var(--color-tenue);
+}
+
+.etiqueta {
+  font-size: var(--texto-sm);
+  color: var(--color-tenue);
+}
+
+.detalle {
+  font-size: var(--texto-sm);
+  color: var(--color-tenue);
+}
+
+.exito {
+  color: var(--color-exito);
+}
+
+.aviso {
+  color: var(--color-aviso);
+}
+
+.peligro {
+  color: var(--color-peligro);
+}
+
+.enlace {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--espacio-1);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--ancho-borde-grueso);
+  text-underline-offset: 0.12em;
+
+  &:hover {
+    color: var(--color-acento);
+    text-decoration-color: currentColor;
+  }
+}
+
+/* GrupoCifras: una fila de definiciones en línea, separadas por espacio. */
+.grupo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espacio-6) var(--espacio-8);
+}
+
+.unaColumna {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .grupo:not(.unaColumna) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espacio-6) var(--espacio-12);
+  }
+}

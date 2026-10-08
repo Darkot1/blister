@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Encabezado } from "@/components/app/encabezado";
 import { FormularioAlumno } from "../formulario-alumno";
 import { crearAlumno } from "../acciones";
@@ -11,8 +10,8 @@ export default function PaginaNuevoAlumno() {
     <>
       <Encabezado
         titulo="Nuevo alumno"
-        descripcion="Solo el nombre es obligatorio; el resto lo puedes completar después."
-        volver={<Link href="/alumnos" className="text-sm text-tenue hover:text-tinta">Alumnos</Link>}
+        descripcion="Con el nombre y el apellido basta para empezar; el resto lo puedes completar después."
+        volver={{ href: "/alumnos", texto: "Alumnos" }}
       />
       <FormularioAlumno accion={crearAlumno} textoBoton="Crear alumno" cancelarHref="/alumnos" />
     </>

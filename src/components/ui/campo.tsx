@@ -1,40 +1,104 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
+import { ChevronDown, CircleAlert } from "lucide-react";
+import { cx } from "@/lib/clases";
+import css from "./campo.module.css";
 
-const claseControl =
-  "w-full h-10 rounded-md border border-linea bg-superficie px-3 text-tinta placeholder:text-tenue/70 " +
-  "focus:border-acento focus:outline-none focus:ring-2 focus:ring-acento/20 aria-[invalid=true]:border-peligro";
+type Base = {
+  etiqueta: string;
+  /** `name` e `id` del control. */
+  nombre: string;
+  /** Errores de Zod (`fieldErrors.x`): se muestra el primero. */
+  errores?: string[];
+  ayuda?: ReactNode;
+  /** Muestra "(opcional)" junto a la etiqueta. */
+  opcional?: boolean;
+};
 
-type Base = { etiqueta: string; nombre: string; errores?: string[]; ayuda?: string };
+function Envoltorio({
+  etiqueta,
+  nombre,
+  opcional,
+  ayuda,
+  idAyuda,
+  idError,
+  error,
+  className,
+  unidad,
+  children,
+}: {
+  etiqueta: string;
+  nombre: string;
+  unidad?: string;
+  opcional?: boolean;
+  ayuda?: ReactNode;
+  idAyuda?: string;
+  idError?: string;
+  error?: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cx(css.campo, className)}>
+      <label htmlFor={nombre} className={css.etiqueta}>
+        {etiqueta}
+        {/* La unidad se ve dentro del campo (aria-hidden); aquí se anuncia al lector de pantalla. */}
+        {unidad && <span className="sr-only">, en {unidad === "%" ? "porcentaje" : unidad}</span>}
+        {opcional && <span className={css.opcional}>(opcional)</span>}
+      </label>
+      {children}
+      {ayuda && !idError && (
+        <p id={idAyuda} className={css.ayuda}>
+          {ayuda}
+        </p>
+      )}
+      {idError && (
+        <p id={idError} className={css.error}>
+          <CircleAlert aria-hidden />
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+const ids = (nombre: string, errores?: string[], ayuda?: ReactNode) => {
+  const idError = errores?.length ? `${nombre}-error` : undefined;
+  const idAyuda = ayuda && !idError ? `${nombre}-ayuda` : undefined;
+  return { idError, idAyuda, describe: idError ?? idAyuda };
+};
 
 export function Campo({
   etiqueta,
   nombre,
   errores,
   ayuda,
+  opcional,
+  unidad,
   className = "",
   ...props
-}: Base & Omit<ComponentProps<"input">, "name">) {
-  const idError = errores?.length ? `${nombre}-error` : undefined;
+}: Base & { /** Unidad dentro del campo, a la derecha: "kg", "cm". */ unidad?: string } & Omit<
+    ComponentProps<"input">,
+    "name"
+  >) {
+  const { idError, idAyuda, describe } = ids(nombre, errores, ayuda);
   return (
-    <div className={className}>
-      <label htmlFor={nombre} className="mb-1.5 block text-sm font-medium text-tinta">
-        {etiqueta}
-      </label>
-      <input
-        id={nombre}
-        name={nombre}
-        aria-invalid={Boolean(idError)}
-        aria-describedby={idError}
-        className={claseControl}
-        {...props}
-      />
-      {ayuda && !idError && <p className="mt-1 text-sm text-tenue">{ayuda}</p>}
-      {idError && (
-        <p id={idError} className="mt-1 text-sm text-peligro">
-          {errores![0]}
-        </p>
-      )}
-    </div>
+    <Envoltorio {...{ etiqueta, nombre, opcional, ayuda, idAyuda, idError, className, unidad }} error={errores?.[0]}>
+      <div className={css.envoltura}>
+        <input
+          id={nombre}
+          name={nombre}
+          aria-invalid={Boolean(idError)}
+          aria-describedby={describe}
+          className={cx(css.control, unidad && css.conUnidad)}
+          {...props}
+        />
+        {unidad && (
+          <span aria-hidden className={css.unidad}>
+            {unidad}
+          </span>
+        )}
+      </div>
+    </Envoltorio>
   );
 }
 
@@ -42,23 +106,23 @@ export function AreaTexto({
   etiqueta,
   nombre,
   errores,
+  ayuda,
+  opcional,
   className = "",
   ...props
 }: Base & Omit<ComponentProps<"textarea">, "name">) {
+  const { idError, idAyuda, describe } = ids(nombre, errores, ayuda);
   return (
-    <div className={className}>
-      <label htmlFor={nombre} className="mb-1.5 block text-sm font-medium text-tinta">
-        {etiqueta}
-      </label>
+    <Envoltorio {...{ etiqueta, nombre, opcional, ayuda, idAyuda, idError, className }} error={errores?.[0]}>
       <textarea
         id={nombre}
         name={nombre}
-        className={`${claseControl} h-auto min-h-24 py-2`}
-        aria-invalid={Boolean(errores?.length)}
+        aria-invalid={Boolean(idError)}
+        aria-describedby={describe}
+        className={cx(css.control, css.area)}
         {...props}
       />
-      {errores?.length ? <p className="mt-1 text-sm text-peligro">{errores[0]}</p> : null}
-    </div>
+    </Envoltorio>
   );
 }
 
@@ -67,34 +131,31 @@ export function Selector({
   nombre,
   opciones,
   errores,
+  ayuda,
+  opcional,
   className = "",
   ...props
 }: Base & { opciones: { valor: string; texto: string }[] } & Omit<ComponentProps<"select">, "name">) {
-  const idError = errores?.length ? `${nombre}-error` : undefined;
+  const { idError, idAyuda, describe } = ids(nombre, errores, ayuda);
   return (
-    <div className={className}>
-      <label htmlFor={nombre} className="mb-1.5 block text-sm font-medium text-tinta">
-        {etiqueta}
-      </label>
-      <select
-        id={nombre}
-        name={nombre}
-        aria-invalid={Boolean(idError)}
-        aria-describedby={idError}
-        className={claseControl}
-        {...props}
-      >
-        {opciones.map((o) => (
-          <option key={o.valor} value={o.valor}>
-            {o.texto}
-          </option>
-        ))}
-      </select>
-      {idError && (
-        <p id={idError} className="mt-1 text-sm text-peligro">
-          {errores![0]}
-        </p>
-      )}
-    </div>
+    <Envoltorio {...{ etiqueta, nombre, opcional, ayuda, idAyuda, idError, className }} error={errores?.[0]}>
+      <div className={css.envoltura}>
+        <select
+          id={nombre}
+          name={nombre}
+          aria-invalid={Boolean(idError)}
+          aria-describedby={describe}
+          className={cx(css.control, css.selector)}
+          {...props}
+        >
+          {opciones.map((o) => (
+            <option key={o.valor} value={o.valor}>
+              {o.texto}
+            </option>
+          ))}
+        </select>
+        <ChevronDown aria-hidden className={css.chevron} />
+      </div>
+    </Envoltorio>
   );
 }

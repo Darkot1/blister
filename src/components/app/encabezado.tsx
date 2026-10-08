@@ -1,3 +1,11 @@
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import css from "./encabezado.module.css";
+
+/**
+ * Cabecera de página: el único h1. Título, descripción opcional, acciones (la primaria al final)
+ * y enlace "volver" opcional ({ href, texto } o un nodo propio).
+ */
 export function Encabezado({
   titulo,
   descripcion,
@@ -7,17 +15,25 @@ export function Encabezado({
   titulo: React.ReactNode;
   descripcion?: React.ReactNode;
   acciones?: React.ReactNode;
-  volver?: React.ReactNode;
+  volver?: { href: string; texto: string } | React.ReactNode;
 }) {
+  const volverEsDestino = typeof volver === "object" && volver !== null && "href" in volver && "texto" in volver;
   return (
-    <header className="mb-8">
-      {volver && <div className="mb-3">{volver}</div>}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="font-titulo text-[2.5rem] leading-none font-semibold tracking-tight">{titulo}</h1>
-          {descripcion && <div className="mt-2 text-tenue">{descripcion}</div>}
+    <header className={css.encabezado}>
+      {volverEsDestino ? (
+        <Link href={volver.href} className={css.volver}>
+          <ChevronLeft aria-hidden />
+          {volver.texto}
+        </Link>
+      ) : (
+        volver && <div className={css.volver}>{volver}</div>
+      )}
+      <div className={css.fila}>
+        <div className={css.textos}>
+          <h1 className={css.titulo}>{titulo}</h1>
+          {descripcion && <div className={css.descripcion}>{descripcion}</div>}
         </div>
-        {acciones && <div className="flex flex-wrap gap-2">{acciones}</div>}
+        {acciones && <div className={css.acciones}>{acciones}</div>}
       </div>
     </header>
   );

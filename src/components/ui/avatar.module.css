@@ -1,0 +1,32 @@
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--alto-control);
+  height: var(--alto-control);
+  border-radius: var(--radio-completo);
+  background: var(--color-superficie-hundida);
+  color: var(--color-tinta);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  line-height: 1;
+  user-select: none;
+}
+
+.pequeno {
+  width: var(--alto-control-pequeno);
+  height: var(--alto-control-pequeno);
+  font-size: var(--texto-xs);
+}
+
+.grande {
+  width: calc(var(--alto-control) * 1.6);
+  height: calc(var(--alto-control) * 1.6);
+  font-size: var(--texto-xl);
+}
+
+/* La cuenta del entrenador: tinta sólida (no es un estado, no lleva color de disco). */
+.acento {
+  background: var(--color-tinta);
+  color: var(--color-superficie);
+}

@@ -2,110 +2,181 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
   CalendarDays,
   Dumbbell,
+  Ellipsis,
   House,
   LineChart,
   ListChecks,
-  Menu,
   Settings,
   Users,
   X,
+  type LucideIcon,
 } from "lucide-react";
+import { cx } from "@/lib/clases";
+import { Marca } from "./marca";
+import css from "./navegacion.module.css";
 
-const SECCIONES = [
-  { href: "/inicio", texto: "Inicio", icono: House },
-  { href: "/alumnos", texto: "Alumnos", icono: Users },
+type Seccion = {
+  href: string;
+  texto: string;
+  icono: LucideIcon;
+  /** Pestaña fija en la barra inferior móvil (las de uso diario en el gimnasio). */
+  diaria?: boolean;
+};
+
+const SECCIONES: Seccion[] = [
+  { href: "/inicio", texto: "Inicio", icono: House, diaria: true },
+  { href: "/alumnos", texto: "Alumnos", icono: Users, diaria: true },
   { href: "/entrenamiento", texto: "Entrenamiento", icono: ListChecks },
-  { href: "/ejercicios", texto: "Ejercicios", icono: Dumbbell },
-  { href: "/calendario", texto: "Calendario", icono: CalendarDays },
+  { href: "/ejercicios", texto: "Ejercicios", icono: Dumbbell, diaria: true },
+  { href: "/calendario", texto: "Calendario", icono: CalendarDays, diaria: true },
   { href: "/progreso", texto: "Progreso", icono: LineChart },
 ];
+const CONFIGURACION: Seccion = { href: "/configuracion", texto: "Configuración", icono: Settings };
+/** Orden de la barra inferior móvil: Inicio, Alumnos, Calendario, Ejercicios (+ Más). */
+const PESTANAS = ["/inicio", "/alumnos", "/calendario", "/ejercicios"].map(
+  (href) => SECCIONES.find((s) => s.href === href)!,
+);
+const EN_MAS = [...SECCIONES.filter((s) => !s.diaria), CONFIGURACION];
 
-/** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, los enlaces se muestran sin resaltar. */
-function Enlaces({ alNavegar }: { alNavegar?: () => void }) {
+const esActual = (ruta: string, href: string) => ruta === href || ruta.startsWith(`${href}/`);
+
+/**
+ * La ruta actual solo se conoce en tiempo de ejecución (Cache Components): mientras llega,
+ * los enlaces se pintan sin resaltar (fallback con ruta "").
+ */
+function ConRuta({ children }: { children: (ruta: string) => React.ReactNode }) {
   return (
-    <Suspense fallback={<ListaEnlaces ruta="" alNavegar={alNavegar} />}>
-      <EnlacesConRuta alNavegar={alNavegar} />
+    <Suspense fallback={children("")}>
+      <LeerRuta>{children}</LeerRuta>
     </Suspense>
   );
 }
 
-function EnlacesConRuta({ alNavegar }: { alNavegar?: () => void }) {
-  return <ListaEnlaces ruta={usePathname()} alNavegar={alNavegar} />;
+function LeerRuta({ children }: { children: (ruta: string) => React.ReactNode }) {
+  return children(usePathname());
 }
 
-function ListaEnlaces({ ruta, alNavegar }: { ruta: string; alNavegar?: () => void }) {
-  const clase = (href: string) => {
-    const activo = ruta === href || ruta.startsWith(`${href}/`);
-    return `flex items-center gap-3 rounded-md px-3 h-10 text-[0.95rem] transition-colors ${
-      activo ? "bg-white/10 text-white font-semibold" : "text-white/70 hover:text-white hover:bg-white/5"
-    }`;
-  };
+/**
+ * Shell de navegación.
+ * - ≥ 1024 px: barra superior blanca con la marca, las secciones (la actual subrayada en amarillo),
+ *   Configuración y la cuenta.
+ * - < 1024 px: la misma barra, compacta (marca + cuenta), y barra de pestañas inferior al alcance del pulgar
+ *   con Inicio, Alumnos, Calendario, Ejercicios y "Más" (hoja con Entrenamiento, Progreso y Configuración).
+ * `cuenta` es el nodo de la cuenta del entrenador (UsuarioActual dentro de Suspense).
+ */
+export function Navegacion({ pie: cuenta }: { pie: React.ReactNode }) {
   return (
-    <nav aria-label="Principal" className="flex flex-1 flex-col gap-1">
-      {SECCIONES.map(({ href, texto, icono: Icono }) => (
-        <Link key={href} href={href} className={clase(href)} onClick={alNavegar}
-          aria-current={ruta === href || ruta.startsWith(`${href}/`) ? "page" : undefined}>
-          <Icono aria-hidden className="size-[18px]" strokeWidth={1.75} />
-          {texto}
-        </Link>
-      ))}
-      <div className="mt-auto border-t border-white/10 pt-3">
-        <Link href="/configuracion" className={clase("/configuracion")} onClick={alNavegar}>
-          <Settings aria-hidden className="size-[18px]" strokeWidth={1.75} />
-          Configuración
-        </Link>
-      </div>
-    </nav>
+    <>
+      <header className={css.barra}>
+        <div className={css.barraInterior}>
+          <Marca className={css.marca} />
+          <ConRuta>
+            {(ruta) => (
+              <nav aria-label="Principal" className={css.secciones}>
+                <ul className={css.listaSecciones}>
+                  {SECCIONES.map(({ href, texto }) => (
+                    <li key={href}>
+                      <Link href={href} className={css.seccion} aria-current={esActual(ruta, href) ? "page" : undefined}>
+                        {texto}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={CONFIGURACION.href}
+                  className={cx(css.seccion, css.configuracion)}
+                  aria-current={esActual(ruta, CONFIGURACION.href) ? "page" : undefined}
+                >
+                  {CONFIGURACION.texto}
+                </Link>
+              </nav>
+            )}
+          </ConRuta>
+          <div className={css.cuenta}>{cuenta}</div>
+        </div>
+      </header>
+
+      <ConRuta>{(ruta) => <PestanasMovil ruta={ruta} />}</ConRuta>
+    </>
   );
 }
 
-export function Navegacion({ pie }: { pie: React.ReactNode }) {
-  const [abierto, setAbierto] = useState(false);
+function PestanasMovil({ ruta }: { ruta: string }) {
+  const [abierta, setAbierta] = useState(false);
+  const hoja = useRef<HTMLDialogElement>(null);
+  const enMas = EN_MAS.some((s) => esActual(ruta, s.href));
+
+  useEffect(() => {
+    const dialogo = hoja.current;
+    if (!dialogo) return;
+    if (abierta && !dialogo.open) dialogo.showModal();
+    if (!abierta && dialogo.open) dialogo.close();
+  }, [abierta]);
+
   return (
     <>
-      {/* Escritorio */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col bg-tinta px-3 py-5 lg:flex">
-        <Link href="/inicio" className="mb-6 px-3 font-titulo text-xl font-semibold tracking-tight text-white">
-          Blister Fitness
-        </Link>
-        <Enlaces />
-        <div className="mt-3">{pie}</div>
-      </aside>
-
-      {/* Móvil */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-tinta px-4 lg:hidden">
-        <Link href="/inicio" className="font-titulo text-lg font-semibold text-white">Blister Fitness</Link>
+      <nav aria-label="Principal" className={css.pestanas}>
+        {PESTANAS.map(({ href, texto, icono: Icono }) => (
+          <Link key={href} href={href} className={css.pestana} aria-current={esActual(ruta, href) ? "page" : undefined}>
+            <Icono aria-hidden strokeWidth={1.75} />
+            <span>{texto}</span>
+          </Link>
+        ))}
         <button
           type="button"
-          onClick={() => setAbierto(true)}
-          className="rounded-md p-2 text-white hover:bg-white/10"
-          aria-label="Abrir menú"
-          aria-expanded={abierto}
+          className={cx(css.pestana, enMas && css.activa)}
+          aria-haspopup="dialog"
+          aria-expanded={abierta}
+          onClick={() => setAbierta(true)}
         >
-          <Menu className="size-5" />
+          <Ellipsis aria-hidden strokeWidth={1.75} />
+          <span>Más</span>
         </button>
-      </header>
-      {abierto && (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menú">
-          <button type="button" aria-label="Cerrar menú" className="absolute inset-0 bg-tinta/50"
-            onClick={() => setAbierto(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-tinta px-3 py-4">
-            <div className="mb-4 flex items-center justify-between px-3">
-              <span className="font-titulo text-lg font-semibold text-white">Blister Fitness</span>
-              <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar menú"
-                className="rounded-md p-2 text-white hover:bg-white/10">
-                <X className="size-5" />
+      </nav>
+
+      <dialog
+        ref={hoja}
+        className={css.hoja}
+        aria-labelledby="titulo-hoja-mas"
+        onClose={() => setAbierta(false)}
+        onClick={(e) => {
+          if (e.target === hoja.current) setAbierta(false);
+        }}
+      >
+        {abierta && (
+          <>
+            <div className={css.cabeceraHoja}>
+              <h2 id="titulo-hoja-mas" className={css.tituloHoja}>
+                Más secciones
+              </h2>
+              <button type="button" className={css.cerrar} onClick={() => setAbierta(false)} aria-label="Cerrar menú">
+                <X aria-hidden />
               </button>
             </div>
-            <Enlaces alNavegar={() => setAbierto(false)} />
-            <div className="mt-3">{pie}</div>
-          </div>
-        </div>
-      )}
+            <nav aria-label="Más secciones">
+              <ul className={css.listaHoja}>
+                {EN_MAS.map(({ href, texto, icono: Icono }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={css.enlaceHoja}
+                      onClick={() => setAbierta(false)}
+                      aria-current={esActual(ruta, href) ? "page" : undefined}
+                    >
+                      <Icono aria-hidden strokeWidth={1.75} />
+                      {texto}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </>
+        )}
+      </dialog>
     </>
   );
 }

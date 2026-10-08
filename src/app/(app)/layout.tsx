@@ -1,10 +1,14 @@
 import { Suspense } from "react";
 import { Navegacion } from "@/components/app/navegacion";
 import { UsuarioActual, UsuarioActualCargando } from "@/components/app/usuario-actual";
+import css from "./layout.module.css";
 
 export default function LayoutApp({ children }: { children: React.ReactNode }) {
   return (
-    <div className="lg:flex">
+    <div className={css.shell}>
+      <a href="#contenido" className={css.saltar}>
+        Saltar al contenido
+      </a>
       <Navegacion
         pie={
           <Suspense fallback={<UsuarioActualCargando />}>
@@ -12,8 +16,8 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
           </Suspense>
         }
       />
-      <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
-        <div className="mx-auto max-w-6xl">{children}</div>
+      <main id="contenido" className={css.contenido}>
+        <div className={css.ancho}>{children}</div>
       </main>
     </div>
   );

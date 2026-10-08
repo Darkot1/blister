@@ -1,0 +1,53 @@
+.disco {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: -0.125em;
+  overflow: visible;
+}
+
+.pequeno {
+  width: var(--espacio-3);
+  height: var(--espacio-3);
+}
+
+.normal {
+  width: var(--espacio-4);
+  height: var(--espacio-4);
+}
+
+.grande {
+  width: var(--espacio-6);
+  height: var(--espacio-6);
+}
+
+.marca {
+  width: calc(var(--espacio-6) + var(--espacio-1));
+  height: calc(var(--espacio-6) + var(--espacio-1));
+}
+
+.verde {
+  fill: var(--disco-verde);
+}
+
+.azul {
+  fill: var(--disco-azul);
+}
+
+.rojo {
+  fill: var(--disco-rojo);
+}
+
+.amarillo {
+  fill: var(--disco-amarillo);
+}
+
+/* Disco blanco de 5 kg: blanco con contorno de tinta (también en el agujero). */
+.vacio {
+  fill: var(--color-superficie);
+  stroke: var(--color-tinta);
+
+  & path {
+    vector-effect: non-scaling-stroke;
+    stroke-width: 1.5;
+  }
+}

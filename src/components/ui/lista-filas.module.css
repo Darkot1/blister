@@ -1,0 +1,111 @@
+/*
+  Lista sobre el papel: filas separadas por una regla fina, sin caja.
+  El fondo de hover y de la fila actual sobresale --espacio-3 a cada lado (margen negativo)
+  para que el texto quede alineado con el resto de la página.
+*/
+.lista {
+  min-width: 0;
+}
+
+.fila + .fila {
+  border-top: var(--ancho-borde) solid var(--color-linea);
+}
+
+.contenido {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3) var(--espacio-4);
+  width: calc(100% + var(--espacio-3) * 2);
+  min-height: var(--alto-fila);
+  margin-inline: calc(var(--espacio-3) * -1);
+  padding: var(--espacio-3);
+  border-radius: var(--radio-md);
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+}
+
+.interactiva {
+  cursor: pointer;
+  transition: background-color var(--duracion-rapida) var(--curva);
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-tinta) 5%, transparent);
+  }
+
+  &:focus-visible {
+    outline-offset: calc(var(--ancho-borde-grueso) * -1);
+  }
+}
+
+/* Fila elegida (aria-current / aria-pressed): fondo azul suave y barra azul. */
+.actual,
+.actual:hover {
+  background: var(--color-acento-suave);
+  box-shadow: inset var(--ancho-indicador) 0 0 var(--color-acento);
+}
+
+.atenuada .titulo {
+  color: var(--color-tenue);
+  text-decoration: line-through;
+}
+
+.inicio {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.principal {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--espacio-0-5);
+  min-width: 0;
+}
+
+.titulo {
+  overflow: hidden;
+  font-weight: var(--peso-semi);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detalle {
+  overflow: hidden;
+  font-size: var(--texto-sm);
+  color: var(--color-tenue);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Datos secundarios: se ocultan en móvil para no apretar la fila. */
+.meta {
+  display: none;
+  flex-shrink: 0;
+  font-size: var(--texto-sm);
+  color: var(--color-tenue);
+}
+
+.fin {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-size: var(--texto-sm);
+  color: var(--color-tenue);
+}
+
+.chevron {
+  flex-shrink: 0;
+  width: var(--tamano-icono-pequeno);
+  height: var(--tamano-icono-pequeno);
+  color: var(--color-tenue);
+}
+
+@media (min-width: 640px) {
+  .meta {
+    display: block;
+    width: 22%;
+  }
+}

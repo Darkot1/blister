@@ -1,0 +1,86 @@
+/* Panel del mapa: arriba y plegable en móvil; columna fija y pegajosa en escritorio. */
+.panel {
+  min-width: 0;
+}
+
+.panelCargando {
+  height: calc(var(--alto-control) + var(--espacio-8));
+}
+
+.resultados {
+  min-width: 0;
+  scroll-margin-top: var(--espacio-4);
+}
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  max-width: var(--ancho-lectura);
+}
+
+.esqueletoBusqueda {
+  max-width: var(--ancho-lectura);
+}
+
+/* Fila de sugerencia: nombre y barra cargada; cómo trabaja los músculos elegidos; tipo y nivel. */
+.sugerencia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  width: 100%;
+  min-width: 0;
+  padding-block: var(--espacio-1);
+}
+
+.cabeceraSugerencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+}
+
+.nombre {
+  min-width: 0;
+  font-weight: var(--peso-semi);
+  overflow-wrap: anywhere;
+}
+
+/* Cómo trabaja los músculos elegidos, en una frase: el motor principal en tinta y negrita. */
+.trabajo {
+  max-width: var(--ancho-lectura);
+  font-size: var(--texto-sm);
+  color: var(--color-tenue);
+}
+
+.motor {
+  font-weight: var(--peso-semi);
+  color: var(--color-tinta);
+}
+
+/* Extremo de una barra cargada: manga y collarín en hierro, discos en tinta. */
+.barra {
+  flex-shrink: 0;
+  width: var(--espacio-10);
+  height: auto;
+}
+
+.manga,
+.collarin {
+  fill: var(--color-sutil);
+}
+
+.discoCargado {
+  fill: var(--color-tinta);
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    position: sticky;
+    top: var(--espacio-8);
+  }
+
+  .panelCargando {
+    height: calc(var(--alto-figura) + var(--espacio-16));
+  }
+}

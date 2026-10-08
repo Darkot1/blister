@@ -1,0 +1,44 @@
+.texto {
+  min-width: 0;
+}
+
+.xs { font-size: var(--texto-xs); }
+.sm { font-size: var(--texto-sm); }
+.base { font-size: var(--texto-base); }
+.lg { font-size: var(--texto-lg); }
+.xl { font-size: var(--texto-xl); }
+
+.tinta { color: var(--color-tinta); }
+.tenue { color: var(--color-tenue); }
+.acento { color: var(--color-acento); }
+.exito { color: var(--color-exito); }
+.aviso { color: var(--color-aviso); }
+.peligro { color: var(--color-peligro); }
+
+.normal { font-weight: var(--peso-normal); }
+.medio { font-weight: var(--peso-medio); }
+.semi { font-weight: var(--peso-semi); }
+
+/* Obsoleto: antes eran mayúsculas espaciadas. Hoy es texto pequeño en negrita, sentence case. */
+.rotulo {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+.cifra {
+  font-family: var(--fuente-titulo);
+  font-weight: var(--peso-titulo);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--espaciado-titulo);
+}
+
+.truncar {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tachado {
+  text-decoration: line-through;
+}

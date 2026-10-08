@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { cx } from "@/lib/clases";
+import { Chip } from "@/components/ui/filtros";
 import { ALTO_FIGURA, ANCHO_FIGURA, CABEZA, DETALLES, SILUETA, SLUGS_DIBUJADOS, TRAZOS, type Vista } from "./trazos";
+import css from "./mapa-corporal.module.css";
 
 export type RolMuscular = "principal" | "secundario" | "estabilizador";
 export type MusculoMapa = { slug: string; nombre: string };
@@ -17,9 +20,9 @@ const VISTAS: { vista: Vista; titulo: string }[] = [
 ];
 
 const RELLENO_ROL: Record<RolMuscular, string> = {
-  principal: "fill-acento",
-  secundario: "fill-acento/45",
-  estabilizador: "fill-acento/20",
+  principal: css.principal,
+  secundario: css.secundario,
+  estabilizador: css.estabilizador,
 };
 
 export const ETIQUETA_ROL: Record<RolMuscular, string> = {
@@ -50,22 +53,23 @@ export function MapaCorporal({
   className?: string;
 }) {
   const [enfocado, setEnfocado] = useState<string | null>(null);
+  const idProfundos = useId();
   const nombre = new Map(musculos.map((m) => [m.slug, m.nombre]));
   const elegidos = new Set(seleccionados);
   const interactivo = Boolean(alAlternar);
   const profundos = musculos.filter((m) => !SLUGS_DIBUJADOS.has(m.slug));
 
   const relleno = (slug: string) => {
-    if (elegidos.has(slug)) return "fill-acento";
+    if (elegidos.has(slug)) return css.seleccionado;
     if (resaltados?.[slug]) return RELLENO_ROL[resaltados[slug]];
-    if (enfocado === slug) return "fill-acento/35";
-    return "fill-tinta/[0.13]";
+    if (enfocado === slug) return css.enfocado;
+    return undefined;
   };
 
   const mitad = (vista: Vista, reflejada: boolean) => (
     <>
-      <path d={SILUETA} className="fill-tinta/[0.06]" />
-      {!reflejada && <ellipse {...CABEZA} className="fill-tinta/[0.06]" />}
+      <path d={SILUETA} className={css.silueta} />
+      {!reflejada && <ellipse {...CABEZA} className={css.silueta} />}
       {Object.entries(TRAZOS[vista]).map(([slug, d]) => {
         if (!nombre.has(slug)) return null;
         const etiqueta = nombre.get(slug)!;
@@ -75,9 +79,7 @@ export function MapaCorporal({
             key={slug}
             d={d}
             data-musculo={slug}
-            className={`${relleno(slug)} stroke-superficie transition-colors duration-150 [stroke-linejoin:round] [stroke-width:1.2] ${
-              interactivo ? "cursor-pointer outline-none focus-visible:stroke-tinta focus-visible:[stroke-width:2]" : ""
-            }`}
+            className={cx(css.musculo, relleno(slug), interactivo && css.interactivo)}
             onPointerEnter={() => setEnfocado(slug)}
             onPointerLeave={() => setEnfocado(null)}
             onClick={alAlternar ? () => alAlternar(slug) : undefined}
@@ -103,7 +105,7 @@ export function MapaCorporal({
         );
       })}
       {DETALLES[vista] && (
-        <path d={DETALLES[vista]} className="pointer-events-none fill-none stroke-superficie [stroke-width:1.2]" />
+        <path d={DETALLES[vista]} className={css.detalles} />
       )}
     </>
   );
@@ -117,13 +119,13 @@ export function MapaCorporal({
 
   return (
     <div className={className}>
-      <p aria-live="polite" className="mb-2 h-6 truncate text-center text-sm font-semibold">
-        {enfocado ? nombre.get(enfocado) : <span className="font-normal text-tenue">{interactivo ? "Toca un músculo" : ""}</span>}
+      <p aria-live="polite" className={css.rotulo}>
+        {enfocado ? nombre.get(enfocado) : <span className={css.ayuda}>{interactivo ? "Toca un músculo" : ""}</span>}
       </p>
 
       <svg
         viewBox={`0 0 ${anchoTotal} ${ALTO_FIGURA + ALTO_ETIQUETA}`}
-        className="mx-auto block max-h-[30rem] w-full select-none"
+        className={css.svg}
         {...(interactivo
           ? { role: "group", "aria-label": "Mapa corporal: elige músculos" }
           : { role: "img", "aria-label": resumen ? `Músculos trabajados: ${resumen}` : "Mapa corporal" })}
@@ -132,8 +134,8 @@ export function MapaCorporal({
           <g key={vista} transform={`translate(${i * (ANCHO_UTIL + SEPARACION) - RECORTE_X} 0)`}>
             {mitad(vista, false)}
             <g transform={`translate(${ANCHO_FIGURA} 0) scale(-1 1)`}>{mitad(vista, true)}</g>
-            <text x={ANCHO_FIGURA / 2} y={ALTO_FIGURA + 12} textAnchor="middle" aria-hidden
-              className="fill-tenue text-[9px] font-semibold tracking-wider uppercase">
+            <text x={ANCHO_FIGURA / 2} y={ALTO_FIGURA + 12} textAnchor="middle" fontSize={9} aria-hidden
+              className={css.tituloVista}>
               {titulo}
             </text>
           </g>
@@ -141,10 +143,10 @@ export function MapaCorporal({
       </svg>
 
       {resaltados && (
-        <ul aria-label="Leyenda" className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-tenue">
+        <ul aria-label="Leyenda" className={css.leyenda}>
           {(Object.keys(RELLENO_ROL) as RolMuscular[]).map((rol) => (
-            <li key={rol} className="flex items-center gap-1.5">
-              <svg aria-hidden viewBox="0 0 10 10" className="size-2.5"><rect width="10" height="10" rx="2" className={RELLENO_ROL[rol]} /></svg>
+            <li key={rol} className={css.itemLeyenda}>
+              <span aria-hidden className={cx(css.muestra, RELLENO_ROL[rol])} />
               {ETIQUETA_ROL[rol]}
             </li>
           ))}
@@ -152,23 +154,13 @@ export function MapaCorporal({
       )}
 
       {interactivo && profundos.length > 0 && (
-        <div className="mt-4">
-          <p className="mb-1.5 text-xs font-semibold tracking-wide text-tenue uppercase">Músculos profundos</p>
-          <div className="flex flex-wrap gap-1.5">
+        <div role="group" aria-labelledby={idProfundos} className={css.profundos}>
+          <p id={idProfundos} className={css.rotuloProfundos}>Músculos profundos</p>
+          <div className={css.listaProfundos}>
             {profundos.map((m) => (
-              <button
-                key={m.slug}
-                type="button"
-                aria-pressed={elegidos.has(m.slug)}
-                onClick={() => alAlternar!(m.slug)}
-                className={`rounded-full border px-2.5 py-1 text-sm transition-colors ${
-                  elegidos.has(m.slug)
-                    ? "border-acento bg-acento text-white"
-                    : "border-linea bg-superficie text-tinta hover:border-tinta/40"
-                }`}
-              >
+              <Chip key={m.slug} activo={elegidos.has(m.slug)} onClick={() => alAlternar!(m.slug)}>
                 {m.nombre}
-              </button>
+              </Chip>
             ))}
           </div>
         </div>

@@ -1,0 +1,164 @@
+/*
+  Identidad visual de Blister: "Disco".
+
+  El código de color real de los discos olímpicos de competición (rojo 25 kg,
+  azul 20, amarillo 15, verde 10, blanco 5) usado con significado:
+  - disco = estado (círculo con agujero central, componente <Disco>);
+  - amarillo 15 kg = la acción principal (botón amarillo con texto en tinta);
+  - azul = enlaces, foco y selección; verde = hecho/activo; rojo = error/destructivo.
+  Fondo de papel frío, texto en tinta azul grisácea (el caucho), nada de tarjetas
+  como patrón: planos separados por espacio y títulos.
+
+  Tipografía: Big Shoulders Display (títulos, horas, cifras) + Atkinson
+  Hyperlegible Next (todo lo demás). Escala modular 1.25 sobre 16 px.
+
+  Reglas:
+  - Los componentes usan SOLO estas variables. Nada de hex, rgb ni medidas sueltas
+    en los .module.css (excepto los breakpoints, ver abajo).
+  - El amarillo nunca es color de texto. Sobre amarillo, siempre tinta.
+  - Matices: color-mix(in srgb, var(--color-tinta) 6%, transparent) o los "-suave".
+
+  Breakpoints (los @media no aceptan variables: escríbelos literales, siempre estos):
+    móvil primero, sin media query  →  0 – 639 px
+    @media (min-width: 640px)       →  tablet / móvil horizontal
+    @media (min-width: 1024px)      →  escritorio: barra superior completa, sin pestañas inferiores
+    @media (min-width: 1280px)      →  escritorio ancho (solo si hace falta)
+    @media (pointer: coarse)        →  pantallas táctiles (ya sube --alto-control)
+*/
+
+:root {
+  color-scheme: light;
+
+  /* ── Discos (paleta literal; úsala a través de los roles de abajo) ── */
+  --disco-amarillo: #f2b300;           /* 15 kg: acción principal */
+  --disco-azul: #1d56d2;               /* 20 kg: enlaces, foco, selección, "confirmada" */
+  --disco-verde: #14824a;              /* 10 kg: hecho, activo, "completada" */
+  --disco-rojo: #c62828;               /* 25 kg: error, destructivo, "no asistió" */
+
+  /* ── Neutros ────────────────────────────────────────────────── */
+  --color-papel: #f6f7f8;              /* fondo general: blanco frío */
+  --color-superficie: #ffffff;         /* campos, menús, diálogos, superficies de trabajo */
+  --color-superficie-hundida: #eceff2; /* pistas (segmentado), cabeceras de tabla, campos desactivados */
+  --color-linea: #d8dde2;              /* reglas entre filas, bordes de superficies */
+  --color-linea-fuerte: #8a949f;       /* borde de campos y botones secundarios (3:1 sobre blanco) */
+  --color-tinta: #1c2530;              /* texto e iconos: gris azulado del caucho */
+  --color-tenue: #5b6774;              /* "hierro": texto secundario (5.6:1 sobre papel) */
+  --color-sutil: #8a949f;              /* placeholders y decoración; nunca texto necesario */
+
+  /* ── Roles ──────────────────────────────────────────────────── */
+  --color-accion: var(--disco-amarillo);           /* fondo del botón primario y marcas de "aquí estás" */
+  --color-accion-hover: #dca300;
+  --color-sobre-accion: var(--color-tinta);        /* 8.7:1 sobre amarillo */
+
+  --color-acento: var(--disco-azul);               /* enlaces, foco, selección (6.4:1 con blanco) */
+  --color-acento-hover: #1745aa;
+  --color-acento-suave: #e6eefc;                   /* fondo de lo seleccionado */
+  --color-sobre-acento: #ffffff;
+
+  --color-exito: var(--disco-verde);
+  --color-exito-suave: #e3f3ea;
+  --color-peligro: var(--disco-rojo);
+  --color-peligro-suave: #fbe9e9;
+  --color-aviso: #8a5a00;                          /* ámbar oscuro, legible como texto (6:1) */
+  --color-aviso-suave: #fdf3d6;
+
+  /* Velo de diálogos y hojas */
+  --color-velo: color-mix(in srgb, var(--color-tinta) 50%, transparent);
+
+  /* ── Tipografía ─────────────────────────────────────────────── */
+  --fuente-texto: "Atkinson Hyperlegible Next Variable", "Atkinson Hyperlegible Next", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --fuente-titulo: "Big Shoulders Display Variable", "Big Shoulders Display", "Arial Narrow", ui-sans-serif, sans-serif;
+
+  /* Escala 1.25 sobre 16 px (xs y sm son pasos intermedios para texto secundario). */
+  --texto-xs: 0.8rem;      /* 12.8 */
+  --texto-sm: 0.875rem;    /* 14 */
+  --texto-base: 1rem;      /* 16 */
+  --texto-lg: 1.25rem;     /* 20 */
+  --texto-xl: 1.5625rem;   /* 25 */
+  --texto-2xl: 1.953rem;   /* 31.25: títulos de sección */
+  --texto-3xl: 2.441rem;   /* 39: cifras clave, título de página en móvil */
+  --texto-4xl: 3.052rem;   /* 48.8 */
+  --texto-5xl: 3.815rem;   /* 61: título de página en escritorio */
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-semi: 650;
+  --peso-negrita: 750;
+  --peso-titulo: 800;      /* Big Shoulders en títulos y cifras */
+
+  --interlineado-cifra: 1;
+  --interlineado-titulo: 0.95;
+  --interlineado-normal: 1.5;
+  --espaciado-titulo: 0.005em;
+
+  /* ── Espaciado (base 4 px) ──────────────────────────────────── */
+  --espacio-0-5: 0.125rem; /* 2 */
+  --espacio-1: 0.25rem;    /* 4 */
+  --espacio-1-5: 0.375rem; /* 6 */
+  --espacio-2: 0.5rem;     /* 8 */
+  --espacio-3: 0.75rem;    /* 12 */
+  --espacio-4: 1rem;       /* 16 */
+  --espacio-5: 1.25rem;    /* 20 */
+  --espacio-6: 1.5rem;     /* 24 */
+  --espacio-8: 2rem;       /* 32 */
+  --espacio-10: 2.5rem;    /* 40 */
+  --espacio-12: 3rem;      /* 48 */
+  --espacio-16: 4rem;      /* 64 */
+
+  /* ── Tamaños de componentes ─────────────────────────────────── */
+  --alto-control: 2.5rem;          /* botones, campos (44 px en táctil) */
+  --alto-control-pequeno: 2rem;
+  --alto-fila: 3.5rem;
+  --tamano-icono: 1.125rem;
+  --tamano-icono-pequeno: 1rem;
+  --alto-barra-superior: 4rem;     /* barra superior de escritorio */
+  --alto-barra-inferior: 4rem;     /* barra de pestañas en móvil */
+  --ancho-contenido: 72rem;        /* ancho máximo del contenido de página */
+  --ancho-lectura: 40rem;          /* formularios y textos largos (≈ 75 caracteres) */
+  --ancho-acceso: 26rem;           /* formularios de ingreso/registro */
+  --ancho-dialogo: 34rem;
+  --ancho-dialogo-amplio: 48rem;
+  --ancho-panel-lateral: 20rem;    /* columna lateral de Rejilla "lateral" (p. ej. mapa corporal) */
+  --ancho-minimo-tarjeta: 16rem;   /* Rejilla "auto" */
+  --alto-figura: 30rem;            /* alto máximo del mapa corporal */
+  --ancho-borde: 1px;
+  --ancho-borde-grueso: 2px;
+  --ancho-indicador: 4px;          /* barra amarilla de la sección actual, borde izquierdo de Aviso */
+
+  /* ── Radios: dos, con jerarquía ─────────────────────────────── */
+  --radio-md: 6px;                 /* controles: botones, campos, chips, avisos */
+  --radio-lg: 10px;                /* diálogos, menús y superficies de trabajo */
+  --radio-completo: 999px;         /* discos y avatares */
+
+  /* ── Sombras: solo para lo que flota sobre la página ────────── */
+  --sombra-flotante: 0 2px 6px color-mix(in srgb, var(--color-tinta) 10%, transparent),
+    0 10px 24px color-mix(in srgb, var(--color-tinta) 12%, transparent);
+  --sombra-dialogo: 0 16px 48px color-mix(in srgb, var(--color-tinta) 28%, transparent);
+
+  /* ── Foco ───────────────────────────────────────────────────── */
+  --anillo-foco: 0 0 0 3px color-mix(in srgb, var(--color-acento) 30%, transparent);
+  --contorno-foco: 2px solid var(--color-acento);
+  --anillo-foco-peligro: 0 0 0 3px color-mix(in srgb, var(--color-peligro) 25%, transparent);
+
+  /* ── Capas ──────────────────────────────────────────────────── */
+  --z-elevado: 10;
+  --z-pegajoso: 20;
+  --z-barra: 30;
+  --z-menu: 40;
+  --z-dialogo: 50;
+
+  /* ── Movimiento (solo como respuesta a una acción) ──────────── */
+  --duracion-rapida: 120ms;
+  --duracion-normal: 200ms;
+  --duracion-lenta: 320ms;
+  --curva: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* En pantallas táctiles (móvil en el gimnasio) los controles crecen a 44 px. */
+@media (pointer: coarse) {
+  :root {
+    --alto-control: 2.75rem;
+    --alto-control-pequeno: 2.25rem;
+  }
+}
