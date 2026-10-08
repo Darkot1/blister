@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { EnlaceBoton } from "@/components/ui/boton";
 import { Esqueleto } from "@/components/ui/esqueleto";
@@ -70,14 +70,14 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
   const barra = (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       <nav aria-label="Semanas" className="flex items-center gap-1">
-        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, -7)}`} variante="secundario" className="w-9 px-0" aria-label="Semana anterior">
-          <ChevronLeft aria-hidden className="size-4" />
+        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, -7)}`} variante="secundario" className="w-9 px-0!" aria-label="Semana anterior">
+          <ArrowLeft aria-hidden className="size-4" />
         </EnlaceBoton>
         <EnlaceBoton href="/calendario" variante={enCurso ? "fantasma" : "secundario"} aria-current={enCurso ? "date" : undefined}>
           Hoy
         </EnlaceBoton>
-        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, 7)}`} variante="secundario" className="w-9 px-0" aria-label="Semana siguiente">
-          <ChevronRight aria-hidden className="size-4" />
+        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, 7)}`} variante="secundario" className="w-9 px-0!" aria-label="Semana siguiente">
+          <ArrowRight aria-hidden className="size-4" />
         </EnlaceBoton>
       </nav>
       <h2 className="text-lg font-semibold tracking-tight">{etiquetaSemana(lunes)}</h2>

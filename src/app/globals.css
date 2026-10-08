@@ -2,22 +2,23 @@
 
 /*
   Identidad visual: "pizarra".
-  Un panel de administración de gimnasio: papel cálido de fondo, tarjetas blancas con borde fino
-  ordenadas en rejilla bento, tinta casi negra y un único acento "volt" (el lima de la cinta de
-  agarre) que solo se usa como relleno, nunca como color de texto sobre blanco.
+  Un panel de administración de gimnasio: fondo gris frío, tarjetas blancas con borde fino
+  ordenadas en rejilla bento, tinta azul pizarra muy oscura y un único acento naranja (energía)
+  que solo se usa como relleno con texto en tinta, nunca como color de texto sobre blanco.
   Instrument Sans para la interfaz; JetBrains Mono para etiquetas de datos y metadatos.
 */
 :root {
-  --fondo: #f3f2ee;
+  --fondo: #eef0f3;
   --superficie: #ffffff;
-  --tinta: #16181b;
-  --tenue: #676a70;
-  --linea: #e4e2dc;
-  --acento: #c6ef3c;
-  --acento-hover: #b5e021;
-  --exito: #17824a;
-  --aviso: #a86400;
-  --peligro: #cc2f27;
+  --tinta: #0f1b2d;
+  --tenue: #5d6878;
+  --linea: #dfe3e9;
+  --acento: #ff6b2c;
+  --acento-hover: #f25a18;
+  /* Estados con contraste AA como texto sobre blanco. */
+  --exito: #16804a;
+  --aviso: #9a6100;
+  --peligro: #c0352e;
 }
 
 @theme inline {

@@ -150,8 +150,8 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         </div>
         <Cifra etiqueta="Edad" valor={anios !== null ? String(anios) : "—"} unidad={anios !== null ? "años" : undefined}
           detalle={alumno.fecha_nacimiento ? fechaCorta(alumno.fecha_nacimiento) : "Sin fecha de nacimiento"} />
-        <Cifra etiqueta="Entrena contigo desde" valor={fechaCorta(alumno.fecha_inicio)} pequena />
-        <Cifra etiqueta="Objetivo principal" valor={objetivo?.nombre ?? "Sin definir"} pequena
+        <Cifra etiqueta="Desde" valor={fechaCorta(alumno.fecha_inicio)} pequena detalle="Entrena contigo" />
+        <Cifra etiqueta="Objetivo principal" valor={objetivo?.nombre ?? "Sin definir"} pequena className="col-span-2 lg:col-span-1"
           detalle={objetivo?.fecha_meta ? `Meta: ${fechaCorta(objetivo.fecha_meta)}` : undefined} />
       </section>
 
@@ -245,15 +245,17 @@ function Cifra({
   unidad,
   detalle,
   pequena = false,
+  className = "",
 }: {
   etiqueta: string;
   valor: string;
   unidad?: string;
   detalle?: string;
   pequena?: boolean;
+  className?: string;
 }) {
   return (
-    <Tarjeta className="flex flex-col p-4">
+    <Tarjeta className={`flex flex-col p-4 ${className}`}>
       <p className="etiqueta">{etiqueta}</p>
       <p className={`mt-auto pt-5 leading-tight ${pequena ? "text-lg font-semibold tracking-tight" : "cifra text-5xl leading-none font-semibold"}`}>
         {valor}

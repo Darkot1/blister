@@ -1,7 +1,7 @@
 import { iniciales } from "@/lib/formato";
 
 // Fondos apagados: el avatar identifica sin competir con los datos.
-const FONDOS = ["#e8f5c0", "#e2e7f2", "#f2e5da", "#e1eee5", "#ede3ee", "#efece2"];
+const FONDOS = ["#ffe3d6", "#dfe6f2", "#e8e2f3", "#dcefe6", "#f4ecd9", "#e3e9ee"];
 
 const TAMANOS = { sm: "size-8 text-xs rounded-md", md: "size-9 text-[0.8rem] rounded-lg", xl: "size-16 text-xl rounded-xl" };
 

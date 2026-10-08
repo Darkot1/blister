@@ -5,7 +5,7 @@ description: Sistema de diseño "pizarra" (panel de administración en rejilla b
 
 # Sistema de diseño: pizarra
 
-Un panel de administración para entrenadores: denso en información útil y rápido de escanear entre sesión y sesión. Fondo de papel cálido, tarjetas blancas con borde fino ordenadas en **rejilla bento**, tinta casi negra y un único acento "volt" (lima de cinta de agarre). Nada de iconos de app de colores ni de degradados.
+Un panel de administración para entrenadores: denso en información útil y rápido de escanear entre sesión y sesión. Fondo gris frío, tarjetas blancas con borde fino ordenadas en **rejilla bento**, tinta azul pizarra muy oscura y un único acento naranja. Nada de iconos de app de colores ni de degradados.
 
 ## Tokens (src/app/globals.css)
 
@@ -16,8 +16,8 @@ Un panel de administración para entrenadores: denso en información útil y rá
 | `text-tinta` / `bg-tinta` | texto principal; botón primario; la celda protagonista de un bento (oscura) |
 | `text-tenue` | texto secundario, metadatos |
 | `border-linea` / `divide-linea` | bordes y separadores (todo lleva borde de 1 px, sin sombras) |
-| `bg-acento` | volt: **solo relleno**, siempre con texto `text-tinta`. Hoy en el calendario, "Siguiente", accesos rápidos, icono activo del menú. Sobre fondo oscuro también vale `text-acento`. Nunca `text-acento` sobre blanco. |
-| `exito` / `aviso` / `peligro` | solo para estado (con punto + texto, nunca solo color) |
+| `bg-acento` | naranja: **solo relleno**, siempre con texto `text-tinta` (6:1; el blanco sobre naranja no pasa AA). Hoy en el calendario, "Siguiente", accesos rápidos, icono activo del menú. Sobre fondo oscuro también vale `text-acento`. Nunca `text-acento` sobre blanco. |
+| `exito` / `aviso` / `peligro` | solo para estado (con punto + texto, nunca solo color); ya están oscurecidos para pasar AA como texto |
 
 Para matices usa opacidad sobre tokens: `bg-tinta/[0.06]`, `bg-exito/10`. Radio de tarjeta: `rounded-[var(--radius-tarjeta)]` (14 px); controles `rounded-lg`.
 
@@ -31,7 +31,7 @@ Tipografía: Instrument Sans para todo. JetBrains Mono para datos: la clase `eti
 - `components/ui/tarjeta.tsx`: `Tarjeta`, `CabeceraTarjeta` (etiqueta + acción, con borde inferior), `EnlaceTarjeta` ("Ver todo ↗"), `Lista` (con `divide-y`), `Vacio` (trama diagonal + acción), `claseSegmentado`/`claseSegmento`.
 - `components/datos/barras-semana.tsx` y `linea-tendencia.tsx`: gráficos de una sola serie en tinta (sin leyenda; valor visible y tabla accesible). Antes de crear otro gráfico, usa la skill `dataviz`.
 - `components/ui/avatar.tsx`: iniciales sobre fondo apagado, estable por id.
-- `components/ui/boton.tsx`: `primario` (tinta, uno por vista), `acento` (volt), `secundario` (borde), `fantasma`, `peligro`.
+- `components/ui/boton.tsx`: `primario` (tinta, uno por vista), `acento` (naranja), `secundario` (borde), `fantasma`, `peligro`.
 - `components/ui/campo.tsx`: `Campo`, `AreaTexto`, `Selector`, `claseControl`.
 - `components/ui/aviso.tsx`, `dialogo.tsx` (`lateral` para cajón), `esqueleto.tsx`, `insignia-estado.tsx`.
 - `app/(app)/calendario/estado-cita.tsx`: `InsigniaCita`, `IconoEstadoCita`, `tonoEstadoCita`, `ESTADOS_VISIBLES`.
@@ -39,7 +39,7 @@ Tipografía: Instrument Sans para todo. JetBrains Mono para datos: la clase `eti
 
 ## Patrones de pantalla
 
-- **Rejilla bento** (panel, ficha del alumno): `grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4`, celdas con `col-span`/`row-span`. Una sola celda oscura protagonista (`bg-tinta`) y como mucho una en volt por pantalla. En móvil, las celdas grandes ocupan `col-span-2`; los KPI pueden ir de a dos.
+- **Rejilla bento** (panel, ficha del alumno): `grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4`, celdas con `col-span`/`row-span`. Una sola celda oscura protagonista (`bg-tinta`) y como mucho una en naranja por pantalla. En móvil, las celdas grandes ocupan `col-span-2`; los KPI pueden ir de a dos.
 - **KPI**: etiqueta arriba, cifra grande abajo y una línea de contexto. Cada cifra debe ayudar a decidir algo hoy.
 - **Tablas/listas**: dentro de `Tarjeta`, cabecera de columnas en `etiqueta` sobre `bg-fondo/60`, filas `px-4 py-2.5` enteras clicables, pie con el conteo en `font-mono`. En móvil se esconden columnas secundarias (`hidden md:block`).
 - **Filtros**: control segmentado (`claseSegmentado`) o botones `rounded-md` con borde, con `aria-pressed`, dentro de `next/form` para que vivan en la URL.

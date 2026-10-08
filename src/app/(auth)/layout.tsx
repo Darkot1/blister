@@ -6,7 +6,7 @@ const FUNCIONES = [
   { icono: Users, titulo: "Fichas de alumnos", texto: "Contacto, notas y objetivos", clase: "col-span-2" },
   { icono: CalendarDays, titulo: "Agenda", texto: "Tu semana de citas", clase: "row-span-2", barras: true },
   { icono: Dumbbell, titulo: "Mapa muscular", texto: "Ejercicios por músculo", clase: "" },
-  { icono: LineChart, titulo: "Mediciones", texto: "Peso y medidas en el tiempo", clase: "", volt: true },
+  { icono: LineChart, titulo: "Mediciones", texto: "Peso y medidas en el tiempo", clase: "", destacada: true },
 ];
 
 export default function LayoutAuth({ children }: { children: React.ReactNode }) {
@@ -16,12 +16,12 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
         <Marca oscuro />
 
         <div aria-hidden className="mx-auto grid w-full max-w-md grid-cols-3 grid-rows-[repeat(2,7.5rem)] gap-3">
-          {FUNCIONES.map(({ icono: Icono, titulo, texto, clase, barras, volt }) => (
+          {FUNCIONES.map(({ icono: Icono, titulo, texto, clase, barras, destacada }) => (
             <div
               key={titulo}
-              className={`flex flex-col rounded-xl border p-4 ${clase} ${volt ? "border-acento bg-acento text-tinta" : "border-white/10 bg-white/[0.04]"}`}
+              className={`flex flex-col rounded-xl border p-4 ${clase} ${destacada ? "border-acento bg-acento text-tinta" : "border-white/10 bg-white/[0.04]"}`}
             >
-              <Icono className={`size-5 ${volt ? "" : "text-acento"}`} />
+              <Icono className={`size-5 ${destacada ? "" : "text-acento"}`} />
               {barras && (
                 <div className="mt-auto flex h-20 items-end gap-1.5 pt-4">
                   {[40, 70, 30, 90, 55, 20, 0].map((h, i) => (
@@ -30,7 +30,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
                 </div>
               )}
               <p className={`text-sm font-semibold ${barras ? "mt-3" : "mt-auto"}`}>{titulo}</p>
-              <p className={`text-xs ${volt ? "text-tinta/60" : "text-white/50"}`}>{texto}</p>
+              <p className={`text-xs ${destacada ? "text-tinta/60" : "text-white/50"}`}>{texto}</p>
             </div>
           ))}
         </div>
