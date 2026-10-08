@@ -41,12 +41,15 @@ export function MapaCorporal({
   seleccionados = [],
   resaltados,
   alAlternar,
+  mostrarProfundos = true,
   className = "",
 }: {
   musculos: MusculoMapa[];
   seleccionados?: string[];
   resaltados?: Record<string, RolMuscular>;
   alAlternar?: (slug: string) => void;
+  /** Con `false`, la lista de músculos sin trazo la pinta quien usa el mapa (p. ej. la barra de filtros). */
+  mostrarProfundos?: boolean;
   className?: string;
 }) {
   const [enfocado, setEnfocado] = useState<string | null>(null);
@@ -151,7 +154,7 @@ export function MapaCorporal({
         </ul>
       )}
 
-      {interactivo && profundos.length > 0 && (
+      {interactivo && mostrarProfundos && profundos.length > 0 && (
         <div className="mt-4">
           <p className="etiqueta mb-2">Músculos profundos</p>
           <div className="flex flex-wrap gap-1.5">
