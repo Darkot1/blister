@@ -47,9 +47,16 @@ async function Resumen() {
   // La hora actual se lee después de un acceso dinámico (Cache Components).
   const ahora = partesLocales(new Date().toISOString());
   const hoy = hoyLocal();
-  const [perfil, { count: activos }, { data: recientes }, { data: citas }, { data: alumnos }] = await Promise.all([
+  const [perfil, { count: activos }, { count: porAtender }, { data: recientes }, { data: citas }, { data: alumnos }] = await Promise.all([
     obtenerPerfil(),
     supabase.from("alumnos").select("id", { count: "exact", head: true }).eq("estado", "activo"),
+    // Conteo aparte: la lista de citas de abajo está limitada y no sirve para contar.
+    supabase
+      .from("citas")
+      .select("id", { count: "exact", head: true })
+      .gte("inicia_en", aInstante(hoy, "00:00"))
+      .lt("inicia_en", aInstante(sumarDias(hoy, 8), "00:00"))
+      .in("estado", ["programada", "confirmada"]),
     supabase.from("alumnos").select("id, nombres, apellidos, creado_en").neq("estado", "archivado")
       .order("creado_en", { ascending: false }).limit(5),
     supabase
@@ -66,7 +73,6 @@ async function Resumen() {
   const nombre = new Map((alumnos ?? []).map((a) => [a.id, `${a.nombres} ${a.apellidos}`]));
   const deHoy = (citas ?? []).filter((c) => partesLocales(c.inicia_en).fecha === hoy);
   const proximas = (citas ?? []).filter((c) => partesLocales(c.inicia_en).fecha !== hoy);
-  const porAtender = (citas ?? []).filter((c) => c.estado === "programada" || c.estado === "confirmada").length;
   const alumnosApp = seccion("/alumnos");
   const calendarioApp = seccion("/calendario");
 
@@ -118,7 +124,7 @@ async function Resumen() {
 
         <Link href="/calendario" className="group rounded-[var(--radius-tarjeta)] bg-superficie p-4 transition-transform active:scale-[0.98]">
           <IconoApp icono={calendarioApp.icono} tono={calendarioApp.tono} tamano="sm" />
-          <p className="cifra mt-5 text-6xl leading-none font-semibold">{porAtender}</p>
+          <p className="cifra mt-5 text-6xl leading-none font-semibold">{porAtender ?? 0}</p>
           <p className="mt-1 text-sm text-tenue">por atender, próximos 7 días</p>
         </Link>
 

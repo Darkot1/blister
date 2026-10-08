@@ -28,7 +28,8 @@ export function Navegacion({ cuenta, avatar }: { cuenta: React.ReactNode; avatar
   return (
     <>
       {/* Escritorio: riel de iconos de app. */}
-      <aside className="sticky top-0 hidden h-dvh w-24 shrink-0 flex-col items-center gap-2 py-5 lg:flex">
+      {/* Con poca altura (p. ej. 1024×600) el riel se desplaza en lugar de esconder Ajustes y la salida. */}
+      <aside className="sticky top-0 hidden h-dvh w-24 shrink-0 flex-col items-center gap-2 overflow-y-auto py-5 [scrollbar-width:none] lg:flex">
         <Link href="/inicio" aria-label="Blister Fitness, inicio" className="mb-3 rounded-xl">
           <Marca conNombre={false} />
         </Link>
