@@ -36,7 +36,7 @@ export function FormularioNota({ accion }: { accion: Accion }) {
 const MEDIDAS: { nombre: string; etiqueta: string; unidad: string }[] = [
   { nombre: "peso_kg", etiqueta: "Peso", unidad: "kg" },
   { nombre: "estatura_cm", etiqueta: "Estatura", unidad: "cm" },
-  { nombre: "grasa_corporal_pct", etiqueta: "Grasa corporal", unidad: "%" },
+  { nombre: "grasa_corporal_pct", etiqueta: "Grasa", unidad: "%" },
   { nombre: "cintura_cm", etiqueta: "Cintura", unidad: "cm" },
   { nombre: "cadera_cm", etiqueta: "Cadera", unidad: "cm" },
   { nombre: "pecho_cm", etiqueta: "Pecho", unidad: "cm" },
@@ -69,7 +69,7 @@ export function FormularioMedicion({ accion, hoy }: { accion: Accion; hoy: strin
       {estado.error && <Aviso>{estado.error}</Aviso>}
       <Campo etiqueta="Fecha" nombre="medido_en" type="date" required className="max-w-48"
         defaultValue={estado.valores?.medido_en ?? hoy} errores={estado.errores?.medido_en} />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-3 2xl:grid-cols-5">
         {MEDIDAS.map((m) => (
           <Campo
             key={m.nombre}

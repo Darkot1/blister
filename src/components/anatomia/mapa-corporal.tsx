@@ -117,8 +117,8 @@ export function MapaCorporal({
 
   return (
     <div className={className}>
-      <p aria-live="polite" className="mb-2 h-6 truncate text-center text-sm font-semibold">
-        {enfocado ? nombre.get(enfocado) : <span className="font-normal text-tenue">{interactivo ? "Toca un músculo" : ""}</span>}
+      <p aria-live="polite" className="mb-2 h-6 truncate text-center text-sm font-medium">
+        {enfocado ? nombre.get(enfocado) : <span className="text-xs font-normal text-tenue">{interactivo ? "Toca un músculo para elegirlo" : ""}</span>}
       </p>
 
       <svg
@@ -133,7 +133,7 @@ export function MapaCorporal({
             {mitad(vista, false)}
             <g transform={`translate(${ANCHO_FIGURA} 0) scale(-1 1)`}>{mitad(vista, true)}</g>
             <text x={ANCHO_FIGURA / 2} y={ALTO_FIGURA + 12} textAnchor="middle" aria-hidden
-              className="fill-tenue text-[9px] font-semibold tracking-wider uppercase">
+              className="fill-tenue font-mono text-[8px] font-medium tracking-[0.08em] uppercase">
               {titulo}
             </text>
           </g>
@@ -153,7 +153,7 @@ export function MapaCorporal({
 
       {interactivo && profundos.length > 0 && (
         <div className="mt-4">
-          <p className="mb-1.5 text-xs font-semibold tracking-wide text-tenue uppercase">Músculos profundos</p>
+          <p className="etiqueta mb-2">Músculos profundos</p>
           <div className="flex flex-wrap gap-1.5">
             {profundos.map((m) => (
               <button
@@ -161,10 +161,10 @@ export function MapaCorporal({
                 type="button"
                 aria-pressed={elegidos.has(m.slug)}
                 onClick={() => alAlternar!(m.slug)}
-                className={`rounded-full border px-2.5 py-1 text-sm transition-colors ${
+                className={`h-7 rounded-md border px-2.5 text-xs font-medium transition-colors ${
                   elegidos.has(m.slug)
                     ? "border-tinta bg-tinta text-white"
-                    : "border-linea bg-superficie text-tinta hover:border-tinta/40"
+                    : "border-linea bg-superficie text-tinta hover:border-tinta/30"
                 }`}
               >
                 {m.nombre}

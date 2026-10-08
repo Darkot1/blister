@@ -4,7 +4,7 @@ import type { ComponentProps } from "react";
 type Variante = "primario" | "acento" | "secundario" | "fantasma" | "peligro";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-3.5 h-9 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap select-none";
+  "inline-flex items-center justify-center gap-2 rounded-lg px-3.5 h-9 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap select-none [&_svg]:shrink-0";
 
 const variantes: Record<Variante, string> = {
   primario: "bg-tinta text-white hover:bg-tinta/85",

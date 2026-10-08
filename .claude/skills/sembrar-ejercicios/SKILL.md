@@ -9,7 +9,11 @@ La calidad de las sugerencias del mapa corporal depende por completo de estas re
 
 ## Formato
 
-Crea una migración nueva (no edites `20261007000400_catalogos_iniciales.sql`) copiando su patrón: tabla temporal `_ejercicios_semilla`, `insert ... on conflict (lower(nombre)) where es_global do nothing`, luego relaciones con `on conflict do nothing`.
+Crea una migración nueva (no edites las anteriores) copiando el patrón de `20261008000800_ejercicios_tren_superior.sql`: tabla temporal `_ejercicios_semilla` con `on commit drop`, bloque `do $$` que falla si algún slug de músculo o equipamiento no existe, `insert ... on conflict (lower(nombre)) where es_global do nothing` y luego relaciones con `on conflict do nothing`.
+
+- **Sin `drop table`**: la herramienta `apply_migration` del MCP de Supabase pide confirmación manual ante sentencias destructivas y se queda esperando hasta agotar el tiempo. `on commit drop` evita el `drop` explícito.
+- **Archivos de menos de ~10 KB**: divide por bloques (tren superior, inferior y core, cardio/movilidad…). Si el tiempo se agota, comprueba en la base si se aplicó antes de reintentar.
+- Si hace falta un músculo nuevo, va en su propia migración antes de los ejercicios (ver `20261008000700_musculos_faltantes.sql`). Un músculo sin trazo en `components/anatomia/trazos.ts` aparece en la lista de "músculos profundos" del mapa.
 
 ```sql
 ('Press de banca con barra', 'fuerza', 'intermedio', false,

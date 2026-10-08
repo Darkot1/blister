@@ -89,17 +89,17 @@ export function VistaPanel({
 
         <Indicador
           href="/alumnos"
-          etiqueta="Alumnos activos"
+          etiqueta="Alumnos"
           valor={activos}
           icono={<Users className="size-4" />}
-          detalle={inactivos ? `${inactivos} en pausa` : "Ninguno en pausa"}
+          detalle={`${activos === 1 ? "activo" : "activos"} · ${inactivos ? `${inactivos} en pausa` : "ninguno en pausa"}`}
         />
         <Indicador
           href="/calendario"
-          etiqueta="Por atender"
+          etiqueta="Citas"
           valor={porAtender}
           icono={<CalendarClock className="size-4" />}
-          detalle="Hoy y los próximos 7 días"
+          detalle="por atender en 8 días"
         />
 
         <Tarjeta className="col-span-2 flex flex-col">
@@ -120,7 +120,7 @@ export function VistaPanel({
             <CabeceraTarjeta id="titulo-proximos" titulo="Próximos días" accion={<EnlaceTarjeta href="/calendario">Semana</EnlaceTarjeta>} />
             {proximas.length ? (
               <Lista ordenada>
-                {proximas.slice(0, 6).map((c) => <FilaCita key={c.id} cita={c} alumno={nombre.get(c.alumno_id)} conFecha />)}
+                {proximas.slice(0, 5).map((c) => <FilaCita key={c.id} cita={c} alumno={nombre.get(c.alumno_id)} conFecha />)}
               </Lista>
             ) : (
               <p className="px-4 py-6 text-sm text-tenue">Nada agendado en la próxima semana.</p>
@@ -149,9 +149,13 @@ export function VistaPanel({
           </section>
         </Tarjeta>
 
-        {/* Accesos rápidos: la única celda en volt. */}
-        <nav aria-labelledby="titulo-accesos" className="col-span-2 flex flex-col rounded-[var(--radius-tarjeta)] bg-acento p-2 sm:col-span-1">
-          <h2 id="titulo-accesos" className="etiqueta px-2.5 pt-2.5 pb-2 text-tinta/60">Accesos rápidos</h2>
+        {/* Accesos rápidos: la única celda en naranja. */}
+        <nav aria-labelledby="titulo-accesos" className="col-span-2 flex flex-col justify-between gap-4 rounded-[var(--radius-tarjeta)] bg-acento p-2 sm:col-span-1">
+          <div className="px-2.5 pt-2.5">
+            <h2 id="titulo-accesos" className="etiqueta text-tinta/70">Accesos rápidos</h2>
+            <p className="mt-2 hidden text-xl leading-tight font-semibold tracking-tight text-tinta sm:block">¿Qué hacemos ahora?</p>
+          </div>
+          <div>
           {[
             { href: "/alumnos/nuevo", texto: "Nuevo alumno", icono: UserPlus },
             { href: "/calendario", texto: "Agendar cita", icono: CalendarPlus },
@@ -169,6 +173,7 @@ export function VistaPanel({
               <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           ))}
+          </div>
         </nav>
       </div>
     </>

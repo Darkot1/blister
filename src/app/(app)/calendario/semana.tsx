@@ -13,7 +13,7 @@ import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita";
 import { cambiarEstadoCita, crearCita } from "./acciones";
-import { ESTADOS_VISIBLES, IconoEstadoCita, InsigniaCita, tonoEstadoCita } from "./estado-cita";
+import { ESTADOS_VISIBLES, IconoEstadoCita, InsigniaCita, puntoEstadoCita, tonoEstadoCita } from "./estado-cita";
 
 export type CitaVista = {
   id: string;
@@ -256,7 +256,7 @@ function AgendaMovil({
                   <li key={c.id}>
                     <button type="button" onClick={() => alElegirCita(c.id)}
                       className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-fondo/70">
-                      <span aria-hidden className={`h-9 w-1 shrink-0 rounded-full ${tonoEstadoCita(c.estado)}`} />
+                      <span aria-hidden className={`h-9 w-1 shrink-0 rounded-full ${puntoEstadoCita(c.estado)}`} />
                       <span className="w-[5.5rem] shrink-0 font-mono text-[0.8rem] whitespace-nowrap">{hora(c.iniciaEn)}</span>
                       <span className="min-w-0 flex-1">
                         <span className={`block truncate ${c.estado === "no_asistio" ? "text-tenue line-through" : "font-semibold"}`}>{c.alumno}</span>
@@ -295,7 +295,7 @@ function FormularioCita({
     return (
       <p className="text-tenue">
         Necesitas al menos un alumno activo para agendar.{" "}
-        <Link href="/alumnos/nuevo" className="font-semibold text-acento hover:underline">Registrar alumno</Link>
+        <Link href="/alumnos/nuevo" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">Registrar alumno</Link>
       </p>
     );
   }
@@ -377,7 +377,7 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
             {a.texto}
           </Boton>
         ))}
-        <Link href={`/alumnos/${cita.alumnoId}`} className="ml-auto self-center text-sm font-semibold text-acento hover:underline">
+        <Link href={`/alumnos/${cita.alumnoId}`} className="ml-auto self-center text-sm font-medium text-tinta underline underline-offset-2 hover:no-underline">
           Ver alumno
         </Link>
       </div>
