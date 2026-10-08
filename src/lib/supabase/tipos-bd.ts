@@ -112,6 +112,19 @@ export type EjercicioFila = {
   actualizado_en: string;
 };
 
+export type MusculoFila = {
+  id: string;
+  grupo_muscular_id: string;
+  nombre: string;
+  slug: string;
+  descripcion: string | null;
+  orden: number;
+  /** Vacío = catálogo global; con valor = músculo propio de esa organización. */
+  organizacion_id: string | null;
+  creado_por: string | null;
+  creado_en: string;
+};
+
 export type CitaFila = {
   id: string;
   organizacion_id: string;
@@ -151,15 +164,24 @@ export type Database = {
         CitaFila,
         Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "creado_en" | "actualizado_en">
       >;
-      ejercicios: Tabla<EjercicioFila, Opcional<EjercicioFila, "id">>;
+      ejercicios: Tabla<
+        EjercicioFila,
+        Opcional<EjercicioFila, "id" | "creado_por" | "descripcion" | "instrucciones" | "errores_comunes" | "consejos_entrenador" | "dificultad" | "tipo" | "es_unilateral" | "video_url" | "imagen_url" | "es_global" | "estado" | "creado_en" | "actualizado_en">
+      >;
+      ejercicios_equipamiento: Tabla<
+        { ejercicio_id: string; equipamiento_id: string },
+        { ejercicio_id: string; equipamiento_id: string }
+      >;
+      equipamiento: Tabla<{ id: string; nombre: string; slug: string }, { id?: string; nombre: string; slug: string }>;
+      grupos_musculares: Tabla<
+        { id: string; nombre: string; slug: string; region_corporal_id: string; orden: number },
+        { id?: string; nombre: string; slug: string; region_corporal_id: string; orden?: number }
+      >;
       ejercicios_musculos: Tabla<
         { ejercicio_id: string; musculo_id: string; rol: string },
         { ejercicio_id: string; musculo_id: string; rol: string }
       >;
-      musculos: Tabla<
-        { id: string; grupo_muscular_id: string; nombre: string; slug: string; descripcion: string | null; orden: number },
-        { id?: string; grupo_muscular_id: string; nombre: string; slug: string; descripcion?: string | null; orden?: number }
-      >;
+      musculos: Tabla<MusculoFila, Opcional<MusculoFila, "id" | "descripcion" | "orden" | "organizacion_id" | "creado_por" | "creado_en">>;
     };
     Views: { [_ in never]: never };
     Functions: {

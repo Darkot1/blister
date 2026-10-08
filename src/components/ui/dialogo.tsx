@@ -42,8 +42,8 @@ export function Dialogo({
       }}
       className={
         lateral
-          ? "my-0 mr-auto ml-0 h-dvh max-h-dvh w-[min(18rem,85vw)] border-r border-linea bg-superficie p-0 text-tinta backdrop:bg-tinta/40"
-          : "mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-full rounded-t-2xl border border-linea bg-superficie p-0 text-tinta shadow-2xl backdrop:bg-tinta/40 sm:m-auto sm:w-[min(32rem,calc(100vw-2rem))] sm:rounded-2xl"
+          ? "my-0 mr-auto ml-0 h-dvh max-h-dvh w-[min(18rem,85vw)] border-r border-linea bg-superficie p-0 text-tinta backdrop:bg-black/50"
+          : "mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-full rounded-t-2xl border border-linea bg-superficie p-0 text-tinta shadow-2xl backdrop:bg-black/50 sm:m-auto sm:w-[min(32rem,calc(100vw-2rem))] sm:rounded-2xl"
       }
     >
       {abierto && (

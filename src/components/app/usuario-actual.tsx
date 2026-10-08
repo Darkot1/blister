@@ -9,7 +9,7 @@ export async function UsuarioActual() {
   const nombre = perfil ? `${perfil.nombres} ${perfil.apellidos}`.trim() : "";
   return (
     <div className="flex items-center gap-2.5 px-1">
-      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-acento text-xs font-semibold text-tinta">
+      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-acento text-xs font-semibold text-sobre-acento">
         {perfil ? iniciales(perfil.nombres || "?", perfil.apellidos || "") : "?"}
       </span>
       <div className="min-w-0 flex-1 leading-tight">

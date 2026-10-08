@@ -4,7 +4,7 @@ export function Marca({ oscuro = false, className = "" }: { oscuro?: boolean; cl
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <span
         aria-hidden
-        className={`grid size-8 shrink-0 place-items-center rounded-lg ${oscuro ? "bg-acento text-tinta" : "bg-tinta text-acento"}`}
+        className={`grid size-8 shrink-0 place-items-center rounded-lg ${oscuro ? "bg-acento text-sobre-acento" : "bg-panel text-acento"}`}
       >
         <svg viewBox="0 0 20 20" className="size-[18px]" fill="currentColor">
           <rect x="2" y="7.5" width="16" height="5" rx="1" opacity="0.35" />

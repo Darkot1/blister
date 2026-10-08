@@ -8,7 +8,7 @@ const ESTILOS: Record<string, { bloque: string; punto: string; icono: LucideIcon
   // Pendiente: tinta clara con filo oscuro.
   programada: { bloque: "bg-tinta/[0.06] text-tinta shadow-[inset_3px_0_0_var(--tinta)]", punto: "bg-tinta/40", icono: Clock },
   // Confirmada: bloque oscuro con filo naranja, lo que más destaca en la semana.
-  confirmada: { bloque: "bg-tinta text-white shadow-[inset_3px_0_0_var(--acento)]", punto: "bg-tinta", icono: CalendarCheck },
+  confirmada: { bloque: "bg-tinta text-sobre-tinta shadow-[inset_3px_0_0_var(--acento)]", punto: "bg-tinta", icono: CalendarCheck },
   completada: { bloque: "bg-exito/10 text-tinta shadow-[inset_3px_0_0_var(--exito)]", punto: "bg-exito", icono: CircleCheck },
   no_asistio: { bloque: "trama bg-superficie text-tenue line-through shadow-[inset_3px_0_0_var(--peligro)]", punto: "bg-peligro", icono: UserX },
 };

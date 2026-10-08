@@ -6,6 +6,7 @@ import { Suspense, useState } from "react";
 import { Menu } from "lucide-react";
 import { Dialogo } from "@/components/ui/dialogo";
 import { Marca } from "./marca";
+import { SelectorTema } from "./selector-tema";
 import { AJUSTES, GRUPOS, esActiva, type Seccion } from "./secciones";
 
 /** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, nada se muestra resaltado. */
@@ -30,7 +31,7 @@ function Enlace({ s, ruta, alNavegar }: { s: Seccion; ruta: string; alNavegar?: 
       onClick={alNavegar}
       aria-current={activa ? "page" : undefined}
       className={`group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors ${
-        activa ? "bg-tinta font-medium text-white" : "text-tinta/75 hover:bg-tinta/[0.05] hover:text-tinta"
+        activa ? "bg-tinta font-medium text-sobre-tinta" : "text-tinta/75 hover:bg-tinta/[0.05] hover:text-tinta"
       }`}
     >
       <Icono aria-hidden className={`size-[17px] shrink-0 ${activa ? "text-acento" : "text-tenue group-hover:text-tinta"}`} />
@@ -70,7 +71,10 @@ export function Navegacion({ cuenta }: { cuenta: React.ReactNode }) {
           <Marca />
         </Link>
         <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} />}</ConRuta>
-        <div className="mt-3 border-t border-linea pt-3">{cuenta}</div>
+        <div className="mt-3 space-y-3 border-t border-linea pt-3">
+          <SelectorTema />
+          {cuenta}
+        </div>
       </aside>
 
       {/* Móvil: barra superior y cajón lateral. */}
@@ -93,7 +97,10 @@ export function Navegacion({ cuenta }: { cuenta: React.ReactNode }) {
       <Dialogo abierto={abierto} alCerrar={() => setAbierto(false)} titulo="Menú" lateral>
         <div className="flex min-h-full flex-col px-3 py-4">
           <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} alNavegar={() => setAbierto(false)} />}</ConRuta>
-          <div className="mt-3 border-t border-linea pt-3">{cuenta}</div>
+          <div className="mt-3 space-y-3 border-t border-linea pt-3">
+          <SelectorTema />
+          {cuenta}
+        </div>
         </div>
       </Dialogo>
     </>

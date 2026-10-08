@@ -152,7 +152,7 @@ function RejillaSemana({
             className="border-b border-l border-linea px-2 py-2.5 text-center text-sm capitalize"
           >
             <span className={`inline-flex h-7 items-center rounded-full px-2.5 ${
-              d === hoy ? "bg-acento font-semibold text-tinta" : "text-tenue"
+              d === hoy ? "bg-acento font-semibold text-sobre-acento" : "text-tenue"
             }`}>
               {etiquetaDia(d)}
             </span>
@@ -246,7 +246,7 @@ function AgendaMovil({
           <li key={d}>
             <h3 className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold">
               <span>{etiquetaDiaLarga(d)}</span>
-              {d === hoy && <span className="rounded-md bg-acento px-1.5 py-0.5 text-xs font-semibold text-tinta">Hoy</span>}
+              {d === hoy && <span className="rounded-md bg-acento px-1.5 py-0.5 text-xs font-semibold text-sobre-acento">Hoy</span>}
             </h3>
             {lista.length === 0 ? (
               <p className="px-1 text-sm text-tenue">Sin citas</p>

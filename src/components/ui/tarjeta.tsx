@@ -81,4 +81,4 @@ export function Vacio({
 /** Control segmentado: opciones excluyentes como botones dentro de una cápsula. */
 export const claseSegmentado = "inline-flex rounded-lg border border-linea bg-superficie p-0.5";
 export const claseSegmento = (activo: boolean) =>
-  `h-8 rounded-md px-3 text-sm transition-colors ${activo ? "bg-tinta font-medium text-white" : "text-tenue hover:text-tinta"}`;
+  `h-8 rounded-md px-3 text-sm transition-colors ${activo ? "bg-tinta font-medium text-sobre-tinta" : "text-tenue hover:text-tinta"}`;

@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   CalendarDays,
   Dumbbell,
   LayoutDashboard,
@@ -37,6 +38,10 @@ export const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
       { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell },
       { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart },
     ],
+  },
+  {
+    titulo: "Catálogo",
+    secciones: [{ href: "/maestros", texto: "Maestros", resumen: "Ejercicios y músculos propios", icono: BookOpen }],
   },
 ];
 

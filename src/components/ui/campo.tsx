@@ -5,6 +5,10 @@ export const claseControl =
   "hover:border-tinta/25 focus:border-tinta focus:outline-none focus:ring-[3px] focus:ring-tinta/10 " +
   "aria-[invalid=true]:border-peligro aria-[invalid=true]:ring-peligro/10";
 
+/** Desplegable con la misma flecha en todos los navegadores; `claseSelector.replace("w-full", …)` para otro ancho. */
+export const claseSelector =
+  `${claseControl} appearance-none bg-[url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%238a94a5'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m7%2010%205%205%205-5'/%3E%3C/svg%3E")] bg-[length:1rem] bg-[right_0.7rem_center] bg-no-repeat pr-9`;
+
 const claseEtiqueta = "mb-1.5 block text-sm font-medium";
 
 type Base = { etiqueta: string; nombre: string; errores?: string[]; ayuda?: string };
@@ -83,7 +87,7 @@ export function Selector({
         name={nombre}
         aria-invalid={Boolean(idError)}
         aria-describedby={idError}
-        className={`${claseControl} appearance-none bg-[url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23676a70'%20stroke-width='2.2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m7%2010%205%205%205-5'/%3E%3C/svg%3E")] bg-[length:1rem] bg-[right_0.7rem_center] bg-no-repeat pr-9`}
+        className={claseSelector}
         {...props}
       >
         {opciones.map((o) => (
