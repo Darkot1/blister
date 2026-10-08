@@ -5,7 +5,7 @@ import { iniciales } from "@/lib/formato";
 import { Avatar } from "@/components/ui/avatar";
 import css from "./usuario-actual.module.css";
 
-async function datosUsuario() {
+export async function UsuarioActual() {
   const perfil = await obtenerPerfil();
   const nombre = perfil ? `${perfil.nombres} ${perfil.apellidos}`.trim() : "";
   return <TarjetaUsuario nombre={nombre} iniciales={perfil ? iniciales(perfil.nombres || "?", perfil.apellidos || "") : "?"} />;

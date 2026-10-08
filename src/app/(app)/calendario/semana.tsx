@@ -16,7 +16,7 @@ import { ListaDatos } from "@/components/ui/lista-datos";
 import { Texto } from "@/components/ui/texto";
 import { cx } from "@/lib/clases";
 import { HORA_FIN_DIA, HORA_INICIO_DIA, etiquetaDia, etiquetaDiaLarga, partesLocales } from "@/lib/calendario";
-import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
+import { ETIQUETA_ESTADO_CITA, ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita";
 import { cambiarEstadoCita, crearCita } from "./acciones";

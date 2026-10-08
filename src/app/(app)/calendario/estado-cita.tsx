@@ -26,6 +26,8 @@ export function DiscoEstadoCita({ estado, className }: { estado: string; classNa
   return <Disco tono={tonoEstadoCita(estado)} tamano="pequeno" className={className} />;
 }
 
+export const IconoEstadoCita = DiscoEstadoCita;
+
 /** Disco + texto del estado de una cita. */
 export function InsigniaCita({ estado, className }: { estado: string; className?: string }) {
   return (

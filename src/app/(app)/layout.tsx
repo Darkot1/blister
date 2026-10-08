@@ -10,14 +10,9 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
         Saltar al contenido
       </a>
       <Navegacion
-        avatar={
-          <Suspense fallback={<CuentaCargando compacta />}>
-            <AvatarCuenta />
-          </Suspense>
-        }
-        cuenta={
-          <Suspense fallback={<CuentaCargando />}>
-            <TarjetaCuenta />
+        pie={
+          <Suspense fallback={<UsuarioActualCargando />}>
+            <UsuarioActual />
           </Suspense>
         }
       />

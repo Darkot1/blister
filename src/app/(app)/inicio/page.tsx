@@ -55,7 +55,6 @@ const instanteActual = () => Date.now();
 async function Resumen() {
   const { supabase } = await obtenerContexto();
   // La hora actual se lee después de un acceso dinámico (Cache Components).
-  const ahora = partesLocales(new Date().toISOString());
   const hoy = hoyLocal();
   const ahora = instanteActual();
   const [{ count: activos }, { data: recientes }, { data: citas, error }, { data: alumnos }] = await Promise.all([
@@ -68,7 +67,7 @@ async function Resumen() {
       .limit(5),
     supabase
       .from("citas")
-      .select("id, alumno_id, tipo, estado, inicia_en")
+      .select("id, alumno_id, tipo, estado, inicia_en, termina_en")
       .gte("inicia_en", aInstante(hoy, "00:00"))
       .lt("inicia_en", aInstante(sumarDias(hoy, 8), "00:00"))
       .not("estado", "in", "(cancelada,reprogramada)")
