@@ -39,7 +39,7 @@ Rutas: `/inicio`, `/alumnos`, `/entrenamiento`, `/ejercicios`, `/calendario`, `/
 | # | Milestone | Estado |
 |---|---|---|
 | 1 | Auth, organizaciones, RLS, alumnos, perfil | ✅ Hecho (Google OAuth incluido). Falta en el perfil: objetivos y condiciones editables. |
-| 2 | Anatomía, ejercicios, relación muscular, búsqueda | 🟡 Mapa corporal SVG + búsqueda por músculo con ranking hechos. Faltan ejercicios propios de la organización y filtro por equipamiento. |
+| 2 | Anatomía, ejercicios, relación muscular, búsqueda | 🟡 Mapa corporal SVG + búsqueda por músculo con ranking hechos. Biblioteca global: 121 ejercicios y 39 músculos (migraciones 007–010). Faltan ejercicios propios de la organización y filtro por equipamiento. |
 | 3 | Constructor de rutinas: mapa, sugerencias, DnD, bloques, prescripción | ⬜ Siguiente. Reutiliza `MapaCorporal` y `rankearEjercicios`. Requiere instalar `@dnd-kit`. |
 | 4 | Plantillas, planes, asignación, calendario | 🟡 Calendario semanal de citas hecho. Faltan plantillas, planes y asignación (la RPC `asignar_plantilla` ya existe). |
 | 5 | Sesiones, series, mediciones, progreso | 🟡 Mediciones hechas. Faltan registro de sesión (`iniciar_sesion_desde_plan` ya existe) y gráficas. |
