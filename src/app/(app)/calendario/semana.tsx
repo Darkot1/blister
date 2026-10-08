@@ -333,10 +333,12 @@ function FormularioCita({
 
 function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => void }) {
   const [pendiente, iniciar] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const fecha = partesLocales(cita.iniciaEn).fecha;
 
   return (
     <div className="space-y-5">
+      {error && <Aviso>{error}</Aviso>}
       <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 rounded-2xl bg-tinta/[0.04] p-4">
         <dt className="text-tenue">Cuándo</dt>
         <dd>
@@ -363,9 +365,12 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
             disabled={pendiente}
             onClick={() => {
               if (a.estado === "cancelada" && !window.confirm("¿Cancelar esta cita? El horario quedará libre.")) return;
+              setError(null);
               iniciar(async () => {
-                await cambiarEstadoCita(cita.id, a.estado);
-                alTerminar();
+                const resultado = await cambiarEstadoCita(cita.id, a.estado);
+                // Si falla, el diálogo sigue abierto con el error: el entrenador no debe creer que se guardó.
+                if (resultado.error) setError(resultado.error);
+                else alTerminar();
               });
             }}
           >
