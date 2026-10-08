@@ -2,7 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { RotateCcw, X } from "lucide-react";
 import { MapaCorporal, type MusculoMapa } from "@/components/anatomia/mapa-corporal";
 import { SLUGS_DIBUJADOS } from "@/components/anatomia/trazos";
 import { claseSelector } from "@/components/ui/campo";
@@ -103,8 +103,10 @@ export function ExploradorEjercicios({
                 <button
                   type="button"
                   onClick={() => aplicar([])}
-                  className="h-8 rounded-md px-2 text-sm font-medium text-tenue underline-offset-2 hover:text-tinta hover:underline"
+                  aria-label="Quitar todos los músculos elegidos"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-dashed border-linea bg-superficie px-2.5 text-sm text-tenue transition-colors hover:border-peligro/40 hover:bg-peligro/[0.06] hover:text-peligro"
                 >
+                  <RotateCcw aria-hidden className="size-3.5" />
                   Limpiar
                 </button>
               </li>
