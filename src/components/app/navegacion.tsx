@@ -3,109 +3,121 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
-import {
-  CalendarDays,
-  Dumbbell,
-  House,
-  LineChart,
-  ListChecks,
-  Menu,
-  Settings,
-  Users,
-  X,
-} from "lucide-react";
+import { LayoutGrid } from "lucide-react";
+import { Dialogo } from "@/components/ui/dialogo";
+import { IconoApp } from "@/components/ui/icono-app";
+import { Marca } from "./marca";
+import { SECCIONES, SECCIONES_DOCK, esActiva } from "./secciones";
 
-const SECCIONES = [
-  { href: "/inicio", texto: "Inicio", icono: House },
-  { href: "/alumnos", texto: "Alumnos", icono: Users },
-  { href: "/entrenamiento", texto: "Entrenamiento", icono: ListChecks },
-  { href: "/ejercicios", texto: "Ejercicios", icono: Dumbbell },
-  { href: "/calendario", texto: "Calendario", icono: CalendarDays },
-  { href: "/progreso", texto: "Progreso", icono: LineChart },
-];
-
-/** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, los enlaces se muestran sin resaltar. */
-function Enlaces({ alNavegar }: { alNavegar?: () => void }) {
+/** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, nada se muestra resaltado. */
+function ConRuta({ children }: { children: (ruta: string) => React.ReactNode }) {
   return (
-    <Suspense fallback={<ListaEnlaces ruta="" alNavegar={alNavegar} />}>
-      <EnlacesConRuta alNavegar={alNavegar} />
+    <Suspense fallback={children("")}>
+      <RutaActual>{children}</RutaActual>
     </Suspense>
   );
 }
 
-function EnlacesConRuta({ alNavegar }: { alNavegar?: () => void }) {
-  return <ListaEnlaces ruta={usePathname()} alNavegar={alNavegar} />;
+function RutaActual({ children }: { children: (ruta: string) => React.ReactNode }) {
+  return children(usePathname());
 }
 
-function ListaEnlaces({ ruta, alNavegar }: { ruta: string; alNavegar?: () => void }) {
-  const clase = (href: string) => {
-    const activo = ruta === href || ruta.startsWith(`${href}/`);
-    return `flex items-center gap-3 rounded-md px-3 h-10 text-[0.95rem] transition-colors ${
-      activo ? "bg-white/10 text-white font-semibold" : "text-white/70 hover:text-white hover:bg-white/5"
-    }`;
-  };
-  return (
-    <nav aria-label="Principal" className="flex flex-1 flex-col gap-1">
-      {SECCIONES.map(({ href, texto, icono: Icono }) => (
-        <Link key={href} href={href} className={clase(href)} onClick={alNavegar}
-          aria-current={ruta === href || ruta.startsWith(`${href}/`) ? "page" : undefined}>
-          <Icono aria-hidden className="size-[18px]" strokeWidth={1.75} />
-          {texto}
-        </Link>
-      ))}
-      <div className="mt-auto border-t border-white/10 pt-3">
-        <Link href="/configuracion" className={clase("/configuracion")} onClick={alNavegar}>
-          <Settings aria-hidden className="size-[18px]" strokeWidth={1.75} />
-          Configuración
-        </Link>
-      </div>
-    </nav>
-  );
-}
+export function Navegacion({ cuenta, avatar }: { cuenta: React.ReactNode; avatar: React.ReactNode }) {
+  const [menu, setMenu] = useState(false);
 
-export function Navegacion({ pie }: { pie: React.ReactNode }) {
-  const [abierto, setAbierto] = useState(false);
   return (
     <>
-      {/* Escritorio */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col bg-tinta px-3 py-5 lg:flex">
-        <Link href="/inicio" className="mb-6 px-3 font-titulo text-xl font-semibold tracking-tight text-white">
-          Blister Fitness
+      {/* Escritorio: riel de iconos de app. */}
+      <aside className="sticky top-0 hidden h-dvh w-24 shrink-0 flex-col items-center gap-2 py-5 lg:flex">
+        <Link href="/inicio" aria-label="Blister Fitness, inicio" className="mb-3 rounded-xl">
+          <Marca conNombre={false} />
         </Link>
-        <Enlaces />
-        <div className="mt-3">{pie}</div>
+        <ConRuta>
+          {(ruta) => (
+            <nav aria-label="Principal" className="flex w-full flex-1 flex-col items-center gap-1 px-2">
+              {SECCIONES.map((s) => {
+                const activa = esActiva(ruta, s.href);
+                return (
+                  <Link
+                    key={s.href}
+                    href={s.href}
+                    aria-current={activa ? "page" : undefined}
+                    className={`group flex w-full flex-col items-center gap-1 rounded-2xl py-2 transition-colors ${
+                      activa ? "bg-superficie shadow-[0_1px_3px_rgb(18_20_23/0.08)]" : "hover:bg-tinta/[0.04]"
+                    } ${s.href === "/configuracion" ? "mt-auto" : ""}`}
+                  >
+                    <IconoApp
+                      icono={s.icono}
+                      tono={s.tono}
+                      className={`transition-transform group-active:scale-90 ${activa ? "" : "opacity-90"}`}
+                    />
+                    <span className={`text-[0.7rem] leading-tight ${activa ? "font-semibold text-tinta" : "text-tenue"}`}>
+                      {s.texto}
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+        </ConRuta>
+        <div className="mt-2">{avatar}</div>
       </aside>
 
-      {/* Móvil */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-tinta px-4 lg:hidden">
-        <Link href="/inicio" className="font-titulo text-lg font-semibold text-white">Blister Fitness</Link>
-        <button
-          type="button"
-          onClick={() => setAbierto(true)}
-          className="rounded-md p-2 text-white hover:bg-white/10"
-          aria-label="Abrir menú"
-          aria-expanded={abierto}
-        >
-          <Menu className="size-5" />
-        </button>
-      </header>
-      {abierto && (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menú">
-          <button type="button" aria-label="Cerrar menú" className="absolute inset-0 bg-tinta/50"
-            onClick={() => setAbierto(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-tinta px-3 py-4">
-            <div className="mb-4 flex items-center justify-between px-3">
-              <span className="font-titulo text-lg font-semibold text-white">Blister Fitness</span>
-              <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar menú"
-                className="rounded-md p-2 text-white hover:bg-white/10">
-                <X className="size-5" />
-              </button>
-            </div>
-            <Enlaces alNavegar={() => setAbierto(false)} />
-            <div className="mt-3">{pie}</div>
-          </div>
-        </div>
-      )}
+      {/* Móvil: dock flotante con las secciones de uso diario + menú en rejilla. */}
+      <ConRuta>
+        {(ruta) => (
+          <nav
+            aria-label="Principal"
+            className="vidrio fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 grid h-[4.25rem] grid-cols-5 rounded-[1.75rem] border border-white/70 px-1 shadow-[0_8px_30px_-6px_rgb(18_20_23/0.25)] lg:hidden"
+          >
+            {SECCIONES.filter((s) => SECCIONES_DOCK.includes(s.href)).map(({ href, texto, icono: Icono, tono }) => {
+              const activa = esActiva(ruta, href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={activa ? "page" : undefined}
+                  className="flex flex-col items-center justify-center gap-0.5 rounded-3xl active:bg-tinta/[0.05]"
+                  style={activa ? { color: tono } : undefined}
+                >
+                  <Icono aria-hidden className={`size-6 ${activa ? "" : "text-tinta/45"}`} strokeWidth={activa ? 2.3 : 2} />
+                  <span className={`text-[0.68rem] ${activa ? "font-semibold" : "text-tenue"}`}>{texto}</span>
+                </Link>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => setMenu(true)}
+              aria-expanded={menu}
+              aria-haspopup="dialog"
+              className="flex flex-col items-center justify-center gap-0.5 rounded-3xl active:bg-tinta/[0.05]"
+            >
+              <LayoutGrid aria-hidden className="size-6 text-tinta/45" strokeWidth={2} />
+              <span className="text-[0.68rem] text-tenue">Menú</span>
+            </button>
+          </nav>
+        )}
+      </ConRuta>
+
+      <Dialogo abierto={menu} alCerrar={() => setMenu(false)} titulo="Menú">
+        <div className="mb-6">{cuenta}</div>
+        <nav aria-label="Todas las secciones">
+          <ul className="grid grid-cols-4 gap-x-2 gap-y-5">
+            {SECCIONES.map((s) => (
+              <li key={s.href}>
+                <Link
+                  href={s.href}
+                  onClick={() => setMenu(false)}
+                  className="group flex flex-col items-center gap-1.5 rounded-2xl text-center"
+                >
+                  <IconoApp icono={s.icono} tono={s.tono} tamano="lg" className="transition-transform group-active:scale-90" />
+                  <span className="text-xs leading-tight font-medium">{s.texto}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </Dialogo>
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { Plus } from "lucide-react";
 import { AreaTexto, Campo } from "@/components/ui/campo";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { Boton } from "@/components/ui/boton";
@@ -57,14 +58,14 @@ export function FormularioMedicion({ accion, hoy }: { accion: Accion; hoy: strin
   if (!abierto) {
     return (
       <div className="flex flex-wrap items-center gap-3">
-        <Boton variante="secundario" onClick={() => setAbierto(true)}>Registrar medición</Boton>
+        <Boton variante="secundario" onClick={() => setAbierto(true)}><Plus aria-hidden className="size-4" /> Registrar medición</Boton>
         {estado.ok && <span role="status" className="text-sm text-exito">Medición guardada.</span>}
       </div>
     );
   }
 
   return (
-    <form action={enviar} className="space-y-4 rounded-lg border border-linea bg-fondo/50 p-4" noValidate>
+    <form action={enviar} className="space-y-4 rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-5" noValidate>
       {estado.error && <Aviso>{estado.error}</Aviso>}
       <Campo etiqueta="Fecha" nombre="medido_en" type="date" required className="max-w-48"
         defaultValue={estado.valores?.medido_en ?? hoy} errores={estado.errores?.medido_en} />
@@ -96,16 +97,19 @@ export function BotonCambioEstado({
   texto,
   confirmacion,
   variante = "secundario",
+  className = "w-full",
 }: {
   accion: () => Promise<void>;
   texto: string;
   confirmacion?: string;
   variante?: "secundario" | "peligro";
+  className?: string;
 }) {
   const [pendiente, iniciar] = useTransition();
   return (
     <Boton
       variante={variante}
+      className={className}
       disabled={pendiente}
       onClick={() => {
         if (confirmacion && !window.confirm(confirmacion)) return;

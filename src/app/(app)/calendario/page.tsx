@@ -70,17 +70,17 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
   const barra = (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       <nav aria-label="Semanas" className="flex items-center gap-1">
-        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, -7)}`} variante="secundario" className="px-2.5" aria-label="Semana anterior">
+        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, -7)}`} variante="secundario" className="w-11 px-0" aria-label="Semana anterior">
           <ChevronLeft aria-hidden className="size-4" />
         </EnlaceBoton>
         <EnlaceBoton href="/calendario" variante={enCurso ? "fantasma" : "secundario"} aria-current={enCurso ? "date" : undefined}>
           Hoy
         </EnlaceBoton>
-        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, 7)}`} variante="secundario" className="px-2.5" aria-label="Semana siguiente">
+        <EnlaceBoton href={`/calendario?semana=${sumarDias(lunes, 7)}`} variante="secundario" className="w-11 px-0" aria-label="Semana siguiente">
           <ChevronRight aria-hidden className="size-4" />
         </EnlaceBoton>
       </nav>
-      <h2 className="cifra text-2xl font-semibold">{etiquetaSemana(lunes)}</h2>
+      <h2 className="text-xl font-bold tracking-tight">{etiquetaSemana(lunes)}</h2>
       <p className="text-sm text-tenue">
         {vista.length === 0
           ? "Semana libre"

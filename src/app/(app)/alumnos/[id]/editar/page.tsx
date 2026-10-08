@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Encabezado } from "@/components/app/encabezado";
@@ -12,7 +11,7 @@ export const metadata: Metadata = { title: "Editar alumno" };
 
 export default function PaginaEditarAlumno({ params }: PageProps<"/alumnos/[id]/editar">) {
   return (
-    <Suspense fallback={<Esqueleto className="h-96 max-w-2xl" />}>
+    <Suspense fallback={<Esqueleto className="h-[36rem] max-w-2xl" />}>
       <Edicion params={params} />
     </Suspense>
   );
@@ -34,7 +33,7 @@ async function Edicion({ params }: { params: PageProps<"/alumnos/[id]/editar">["
     <>
       <Encabezado
         titulo="Editar alumno"
-        volver={<Link href={`/alumnos/${id}`} className="text-sm text-tenue hover:text-tinta">{alumno.nombres} {alumno.apellidos}</Link>}
+        volver={{ href: `/alumnos/${id}`, texto: `${alumno.nombres} ${alumno.apellidos}` }}
       />
       <FormularioAlumno
         accion={actualizarAlumno.bind(null, id)}

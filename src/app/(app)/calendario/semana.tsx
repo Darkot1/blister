@@ -9,10 +9,11 @@ import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/aviso";
 import { Dialogo } from "@/components/ui/dialogo";
 import { HORA_FIN_DIA, HORA_INICIO_DIA, etiquetaDia, etiquetaDiaLarga, partesLocales } from "@/lib/calendario";
-import { ETIQUETA_ESTADO_CITA, ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
+import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita";
 import { cambiarEstadoCita, crearCita } from "./acciones";
+import { ESTADOS_VISIBLES, IconoEstadoCita, InsigniaCita, tonoEstadoCita } from "./estado-cita";
 
 export type CitaVista = {
   id: string;
@@ -31,13 +32,6 @@ const PX_HORA = 56;
 const HORAS = Array.from({ length: HORA_FIN_DIA - HORA_INICIO_DIA }, (_, i) => HORA_INICIO_DIA + i);
 const MIN_INICIO = HORA_INICIO_DIA * 60;
 const MIN_FIN = HORA_FIN_DIA * 60;
-
-const ESTILO_ESTADO: Record<string, string> = {
-  programada: "border-l-4 border-acento bg-acento/10 text-tinta",
-  confirmada: "border-l-4 border-acento-hover bg-acento text-white",
-  completada: "border-l-4 border-exito bg-exito/10 text-tinta",
-  no_asistio: "border-l-4 border-tenue bg-tinta/5 text-tenue line-through",
-};
 
 const ACCIONES: Record<string, { estado: EstadoCita; texto: string; variante?: "primario" | "secundario" | "peligro" }[]> = {
   programada: [
@@ -103,12 +97,9 @@ export function CalendarioSemana({
       <RejillaSemana dias={dias} hoy={hoy} porDia={porDia} alElegirHueco={setBorrador} alElegirCita={setIdSeleccionada} />
       <AgendaMovil dias={dias} hoy={hoy} porDia={porDia} alElegirCita={setIdSeleccionada} />
 
-      <ul aria-label="Leyenda" className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-tenue">
-        {Object.keys(ESTILO_ESTADO).map((estado) => (
-          <li key={estado} className="flex items-center gap-2">
-            <span aria-hidden className={`h-3.5 w-5 rounded-sm ${ESTILO_ESTADO[estado]}`} />
-            {ETIQUETA_ESTADO_CITA[estado]}
-          </li>
+      <ul aria-label="Leyenda" className="mt-4 flex flex-wrap gap-2 text-sm">
+        {ESTADOS_VISIBLES.map((estado) => (
+          <li key={estado}><InsigniaCita estado={estado} /></li>
         ))}
       </ul>
 
@@ -151,32 +142,34 @@ function RejillaSemana({
   const ahora = minuto === null ? null : partesLocales(new Date(minuto * 60_000).toISOString());
 
   return (
-    <div className="hidden overflow-x-auto rounded-lg border border-linea bg-superficie md:block">
+    <div className="hidden overflow-x-auto rounded-[var(--radius-tarjeta)] bg-superficie md:block">
       <div className="grid min-w-[46rem] grid-cols-[3.5rem_repeat(7,minmax(0,1fr))]">
         {/* Encabezado de días */}
         <div className="border-b border-linea" />
         {dias.map((d) => (
           <div
             key={d}
-            className={`border-b border-l border-linea px-2 py-2.5 text-center text-sm capitalize ${
-              d === hoy ? "font-semibold text-acento" : "text-tenue"
-            }`}
+            className="border-b border-l border-linea px-2 py-2.5 text-center text-sm capitalize"
           >
-            {etiquetaDia(d)}
+            <span className={`inline-flex h-7 items-center rounded-full px-2.5 ${
+              d === hoy ? "bg-app-calendario font-semibold text-white" : "text-tenue"
+            }`}>
+              {etiquetaDia(d)}
+            </span>
           </div>
         ))}
 
         {/* Horas */}
         <div className="relative" style={{ height: HORAS.length * PX_HORA }}>
           {HORAS.map((h, i) => (
-            <span key={h} className="cifra absolute right-2 -translate-y-1/2 text-sm text-tenue" style={{ top: i * PX_HORA }}>
+            <span key={h} className="cifra absolute right-2 -translate-y-1/2 text-[0.9rem] text-tenue" style={{ top: i * PX_HORA }}>
               {i === 0 ? "" : `${h}:00`}
             </span>
           ))}
         </div>
 
         {dias.map((d) => (
-          <div key={d} className={`relative border-l border-linea ${d === hoy ? "bg-acento/[0.03]" : ""}`}>
+          <div key={d} className={`relative border-l border-linea ${d === hoy ? "bg-app-calendario/[0.03]" : ""}`}>
             {/* Clic en un hueco: crea una cita en esa media hora. El teclado usa el botón "Nueva cita". */}
             <button
               type="button"
@@ -212,10 +205,13 @@ function RejillaSemana({
                   key={c.id}
                   type="button"
                   onClick={() => alElegirCita(c.id)}
-                  className={`absolute inset-x-1 z-20 overflow-hidden rounded-md px-2 py-1 text-left text-sm leading-tight shadow-sm transition-[filter] hover:brightness-95 ${ESTILO_ESTADO[c.estado] ?? ESTILO_ESTADO.programada}`}
+                  className={`absolute inset-x-1 z-20 overflow-hidden rounded-xl px-2 py-1 text-left text-sm leading-tight transition-[filter] hover:brightness-95 ${tonoEstadoCita(c.estado)}`}
                   style={{ top: ((inicio - MIN_INICIO) / 60) * PX_HORA + 1, height: alto }}
                 >
-                  <span className="block truncate font-semibold">{c.alumno}</span>
+                  <span className="flex items-center gap-1 truncate font-semibold">
+                    <IconoEstadoCita estado={c.estado} className="size-3 shrink-0" />
+                    <span className="truncate">{c.alumno}</span>
+                  </span>
                   {alto > 36 && (
                     <span className="block truncate opacity-80">
                       {hora(c.iniciaEn)} · {ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}
@@ -243,28 +239,30 @@ function AgendaMovil({
   alElegirCita: (id: string) => void;
 }) {
   return (
-    <ol className="space-y-5 md:hidden">
+    <ol className="space-y-6 md:hidden">
       {dias.map((d) => {
         const lista = porDia.get(d) ?? [];
         return (
           <li key={d}>
-            <h3 className={`mb-2 flex items-center gap-2 text-sm font-semibold ${d === hoy ? "text-acento" : "text-tenue"}`}>
-              {etiquetaDiaLarga(d)}
-              {d === hoy && <span className="rounded bg-acento px-1.5 py-0.5 text-xs text-white">Hoy</span>}
+            <h3 className="mb-2 flex items-center gap-2 px-1 font-bold tracking-tight">
+              <span className={d === hoy ? "text-app-calendario" : ""}>{etiquetaDiaLarga(d)}</span>
+              {d === hoy && <span className="rounded-full bg-app-calendario px-2 py-0.5 text-xs font-semibold text-white">Hoy</span>}
             </h3>
             {lista.length === 0 ? (
-              <p className="text-sm text-tenue/80">Sin citas</p>
+              <p className="px-1 text-sm text-tenue">Sin citas</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="lista-agrupada overflow-hidden rounded-[var(--radius-tarjeta)] bg-superficie">
                 {lista.map((c) => (
                   <li key={c.id}>
                     <button type="button" onClick={() => alElegirCita(c.id)}
-                      className={`flex w-full items-baseline gap-3 rounded-md px-3 py-2.5 text-left ${ESTILO_ESTADO[c.estado] ?? ESTILO_ESTADO.programada}`}>
-                      <span className="cifra w-20 shrink-0 text-base">{hora(c.iniciaEn)}</span>
-                      <span className="min-w-0">
-                        <span className="block truncate font-semibold">{c.alumno}</span>
-                        <span className="block text-sm opacity-80">{ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}</span>
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-tinta/[0.04]">
+                      <span aria-hidden className={`h-9 w-1 shrink-0 rounded-full ${tonoEstadoCita(c.estado)}`} />
+                      <span className="cifra w-[5.25rem] shrink-0 text-[1.2rem] leading-none font-semibold whitespace-nowrap">{hora(c.iniciaEn)}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className={`block truncate ${c.estado === "no_asistio" ? "text-tenue line-through" : "font-semibold"}`}>{c.alumno}</span>
+                        <span className="block text-sm text-tenue">{ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}</span>
                       </span>
+                      <IconoEstadoCita estado={c.estado} className="size-[18px] shrink-0 text-tenue" />
                     </button>
                   </li>
                 ))}
@@ -339,7 +337,7 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
 
   return (
     <div className="space-y-5">
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 rounded-2xl bg-tinta/[0.04] p-4">
         <dt className="text-tenue">Cuándo</dt>
         <dd>
           {etiquetaDiaLarga(fecha)}
@@ -348,7 +346,7 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
         <dt className="text-tenue">Tipo</dt>
         <dd>{ETIQUETA_TIPO_CITA[cita.tipo] ?? cita.tipo}</dd>
         <dt className="text-tenue">Estado</dt>
-        <dd>{ETIQUETA_ESTADO_CITA[cita.estado] ?? cita.estado}</dd>
+        <dd><InsigniaCita estado={cita.estado} /></dd>
         {cita.notas && (
           <>
             <dt className="text-tenue">Notas</dt>

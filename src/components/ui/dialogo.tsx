@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 /**
  * Diálogo modal sobre <dialog> nativo: atrapa el foco, cierra con Escape y
  * devuelve el foco al elemento que lo abrió. Clic en el fondo también cierra.
+ * En móvil sube desde abajo como una hoja; en pantallas grandes queda centrado.
  */
 export function Dialogo({
   abierto,
@@ -36,19 +37,20 @@ export function Dialogo({
       onClick={(e) => {
         if (e.target === ref.current) alCerrar();
       }}
-      className="m-auto w-[min(34rem,calc(100vw-2rem))] rounded-lg border border-linea bg-superficie p-0 text-tinta shadow-2xl backdrop:bg-tinta/45"
+      className="mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-full rounded-t-[1.75rem] bg-superficie p-0 text-tinta shadow-2xl backdrop:bg-tinta/40 backdrop:backdrop-blur-[2px] sm:m-auto sm:w-[min(34rem,calc(100vw-2rem))] sm:rounded-[1.75rem]"
     >
       {abierto && (
-        <div className="p-6">
+        <div className="px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:p-6">
+          <span aria-hidden className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-tinta/15 sm:hidden" />
           <div className="mb-5 flex items-start justify-between gap-4">
-            <h2 id={idTitulo} className="font-titulo text-2xl leading-tight font-semibold">{titulo}</h2>
+            <h2 id={idTitulo} className="text-[1.6rem] leading-tight font-bold tracking-tight">{titulo}</h2>
             <button
               type="button"
               onClick={alCerrar}
               aria-label="Cerrar"
-              className="-m-1.5 rounded-md p-1.5 text-tenue hover:bg-tinta/5 hover:text-tinta"
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-tinta/[0.07] text-tenue hover:bg-tinta/[0.11] hover:text-tinta"
             >
-              <X aria-hidden className="size-5" />
+              <X aria-hidden className="size-[18px]" strokeWidth={2.4} />
             </button>
           </div>
           {children}

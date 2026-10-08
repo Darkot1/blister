@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarPlus, Pencil } from "lucide-react";
-import { Encabezado } from "@/components/app/encabezado";
-import { EnlaceBoton } from "@/components/ui/boton";
+import { CalendarPlus, ChevronLeft, Mail, Pencil, Phone, type LucideIcon } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
 import { InsigniaEstado } from "@/components/ui/insignia-estado";
+import { ListaAgrupada, Tarjeta, TituloGrupo } from "@/components/ui/tarjeta";
 import { Esqueleto, EsqueletoLista } from "@/components/ui/esqueleto";
 import { obtenerContexto } from "@/lib/sesion";
 import { edad, fechaCorta, fechaHora, numero } from "@/lib/formato";
@@ -25,8 +25,8 @@ export default function PaginaAlumno({ params }: PageProps<"/alumnos/[id]">) {
 
 function CargandoPerfil() {
   return (
-    <div className="space-y-6" role="status" aria-label="Cargando alumno">
-      <Esqueleto className="h-12 w-72" />
+    <div className="space-y-4" role="status" aria-label="Cargando alumno">
+      <Esqueleto className="h-64 w-full" />
       <Esqueleto className="h-28 w-full" />
       <EsqueletoLista filas={3} />
     </div>
@@ -92,42 +92,39 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
 
   return (
     <>
-      <Encabezado
-        volver={<Link href="/alumnos" className="text-sm text-tenue hover:text-tinta">Alumnos</Link>}
-        titulo={`${alumno.nombres} ${alumno.apellidos}`}
-        descripcion={
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <InsigniaEstado estado={alumno.estado} />
-            {alumno.telefono && <a href={`tel:${alumno.telefono}`} className="hover:text-tinta">{alumno.telefono}</a>}
-            {alumno.correo && <a href={`mailto:${alumno.correo}`} className="hover:text-tinta">{alumno.correo}</a>}
-          </div>
-        }
-        acciones={
-          <>
-            {!archivado && (
-              <EnlaceBoton href={`/calendario?alumno=${alumno.id}`} variante="secundario">
-                <CalendarPlus aria-hidden className="size-4" /> Agendar
-              </EnlaceBoton>
-            )}
-            <EnlaceBoton href={`/alumnos/${alumno.id}/editar`} variante="secundario">
-              <Pencil aria-hidden className="size-4" /> Editar
-            </EnlaceBoton>
-            {archivado ? (
-              <BotonCambioEstado accion={cambiarEstadoAlumno.bind(null, alumno.id, "activo")} texto="Reactivar" />
-            ) : (
-              <BotonCambioEstado
-                accion={cambiarEstadoAlumno.bind(null, alumno.id, "archivado")}
-                texto="Archivar"
-                variante="peligro"
-                confirmacion={`¿Archivar a ${alumno.nombres}? Su historial se conserva y podrás reactivarlo cuando quieras.`}
-              />
-            )}
-          </>
-        }
-      />
+      <Link
+        href="/alumnos"
+        className="-ml-1.5 mb-3 inline-flex items-center gap-0.5 rounded-full py-1 pr-2 text-[0.95rem] font-medium text-acento hover:bg-acento/10"
+      >
+        <ChevronLeft aria-hidden className="size-5" strokeWidth={2.4} />
+        Alumnos
+      </Link>
 
-      {/* Las cifras clave, grandes y en condensada: lo primero que el entrenador busca. */}
-      <section aria-label="Resumen" className="mb-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-linea bg-linea md:grid-cols-4">
+      {/* Ficha de contacto, como en la agenda del teléfono. */}
+      <Tarjeta className="mb-4 px-5 pt-7 pb-5 sm:px-7">
+        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+          <Avatar id={alumno.id} nombres={alumno.nombres} apellidos={alumno.apellidos} tamano="xl" />
+          <div className="min-w-0">
+            <h1 className="text-[2rem] leading-tight font-bold tracking-[-0.03em] sm:text-[2.4rem]">
+              {alumno.nombres} {alumno.apellidos}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-tenue sm:justify-start">
+              <InsigniaEstado estado={alumno.estado} />
+              {objetivo?.nombre && <span>Objetivo: <span className="font-medium text-tinta">{objetivo.nombre}</span></span>}
+            </div>
+          </div>
+        </div>
+
+        <nav aria-label="Acciones del alumno" className="mt-6 grid grid-cols-4 gap-2 sm:max-w-md">
+          <AccionContacto icono={Phone} texto="Llamar" href={alumno.telefono ? `tel:${alumno.telefono}` : undefined} />
+          <AccionContacto icono={Mail} texto="Correo" href={alumno.correo ? `mailto:${alumno.correo}` : undefined} />
+          <AccionContacto icono={CalendarPlus} texto="Agendar" href={archivado ? undefined : `/calendario?alumno=${alumno.id}`} />
+          <AccionContacto icono={Pencil} texto="Editar" href={`/alumnos/${alumno.id}/editar`} />
+        </nav>
+      </Tarjeta>
+
+      {/* Las cifras clave en widgets: lo primero que el entrenador busca. */}
+      <section aria-label="Resumen" className="mb-10 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <Cifra etiqueta="Peso actual" valor={numero(pesoActual)} unidad={pesoActual !== null ? "kg" : undefined}
           detalle={cambioPeso !== null ? `${cambioPeso > 0 ? "+" : ""}${numero(cambioPeso)} kg desde la primera medición` : conPeso.length ? `Medido el ${fechaCorta(conPeso[0].medido_en)}` : "Sin mediciones"} />
         <Cifra etiqueta="Edad" valor={anios !== null ? String(anios) : "—"} unidad={anios !== null ? "años" : undefined}
@@ -138,57 +135,94 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
       </section>
 
       <div className="grid gap-10 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <section aria-labelledby="titulo-mediciones">
-          <h2 id="titulo-mediciones" className="mb-4 font-titulo text-2xl font-semibold">Mediciones</h2>
-          {!archivado && <div className="mb-5"><FormularioMedicion accion={registrarMedicion.bind(null, alumno.id)} hoy={hoy} /></div>}
+        <section aria-labelledby="titulo-mediciones" className="min-w-0">
+          <TituloGrupo id="titulo-mediciones">Mediciones</TituloGrupo>
+          {!archivado && <div className="mb-4"><FormularioMedicion accion={registrarMedicion.bind(null, alumno.id)} hoy={hoy} /></div>}
           {historial.length === 0 ? (
-            <p className="text-tenue">Todavía no hay mediciones. La primera servirá como punto de partida para ver el progreso.</p>
+            <Tarjeta className="px-5 py-6 text-tenue">
+              Todavía no hay mediciones. La primera servirá como punto de partida para ver el progreso.
+            </Tarjeta>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-linea bg-superficie">
+            <Tarjeta className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-linea text-left text-tenue">
+                <thead className="text-left text-xs tracking-wide text-tenue uppercase">
                   <tr>
-                    <th scope="col" className="px-3 py-2 font-medium">Fecha</th>
+                    <th scope="col" className="px-4 pt-4 pb-2 font-semibold">Fecha</th>
                     {columnas.map((c) => (
-                      <th key={c.clave} scope="col" className="px-3 py-2 text-right font-medium whitespace-nowrap">{c.titulo}</th>
+                      <th key={c.clave} scope="col" className="px-3 pt-4 pb-2 text-right font-semibold whitespace-nowrap">{c.titulo}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-linea">
+                <tbody>
                   {historial.map((m) => (
-                    <tr key={m.id}>
-                      <th scope="row" className="px-3 py-2 text-left font-normal whitespace-nowrap">{fechaCorta(m.medido_en)}</th>
+                    <tr key={m.id} className="border-t border-linea first:border-t-0">
+                      <th scope="row" className="px-4 py-2.5 text-left font-medium whitespace-nowrap">{fechaCorta(m.medido_en)}</th>
                       {columnas.map((c) => (
-                        <td key={c.clave} className="cifra px-3 py-2 text-right text-base">{numero(m[c.clave] as number | null)}</td>
+                        <td key={c.clave} className="cifra px-3 py-2.5 text-right text-[1.05rem]">{numero(m[c.clave] as number | null)}</td>
                       ))}
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
+            </Tarjeta>
           )}
         </section>
 
-        <section aria-labelledby="titulo-notas">
-          <h2 id="titulo-notas" className="mb-4 font-titulo text-2xl font-semibold">Notas</h2>
-          <div className="mb-6"><FormularioNota accion={agregarNota.bind(null, alumno.id)} /></div>
+        <section aria-labelledby="titulo-notas" className="min-w-0">
+          <TituloGrupo id="titulo-notas">Notas</TituloGrupo>
+          <Tarjeta className="mb-4 p-4"><FormularioNota accion={agregarNota.bind(null, alumno.id)} /></Tarjeta>
           {notas?.length ? (
-            <ol className="space-y-4">
+            <ListaAgrupada ordenada>
               {notas.map((n) => (
-                <li key={n.id} className="border-l-2 border-linea pl-4">
-                  <p className="whitespace-pre-line">{n.contenido}</p>
-                  <p className="mt-1 text-sm text-tenue">
-                    {fechaHora(n.creado_en)}{autores.get(n.autor_id) ? `, ${autores.get(n.autor_id)}` : ""}
-                  </p>
+                <li key={n.id}>
+                  <div className="px-4 py-3">
+                    <p className="whitespace-pre-line">{n.contenido}</p>
+                    <p className="mt-1 text-xs text-tenue">
+                      {fechaHora(n.creado_en)}{autores.get(n.autor_id) ? ` · ${autores.get(n.autor_id)}` : ""}
+                    </p>
+                  </div>
                 </li>
               ))}
-            </ol>
+            </ListaAgrupada>
           ) : (
-            <p className="text-tenue">Sin notas todavía.</p>
+            <p className="px-1 text-sm text-tenue">Sin notas todavía.</p>
           )}
         </section>
       </div>
+
+      {/* Acción destructiva aparte, al final, como en los ajustes del teléfono. */}
+      <div className="mt-10 max-w-md">
+        {archivado ? (
+          <BotonCambioEstado accion={cambiarEstadoAlumno.bind(null, alumno.id, "activo")} texto="Reactivar alumno" />
+        ) : (
+          <BotonCambioEstado
+            accion={cambiarEstadoAlumno.bind(null, alumno.id, "archivado")}
+            texto="Archivar alumno"
+            variante="peligro"
+            confirmacion={`¿Archivar a ${alumno.nombres}? Su historial se conserva y podrás reactivarlo cuando quieras.`}
+          />
+        )}
+      </div>
     </>
+  );
+}
+
+/** Botón redondo de la ficha (llamar, correo…); sin destino se muestra desactivado. */
+function AccionContacto({ icono: Icono, texto, href }: { icono: LucideIcon; texto: string; href?: string }) {
+  const clase = "flex flex-col items-center gap-1 rounded-2xl bg-tinta/[0.045] py-2.5 text-xs font-semibold";
+  const contenido = (
+    <>
+      <Icono aria-hidden className="size-5" strokeWidth={2.2} />
+      {texto}
+    </>
+  );
+  if (!href) {
+    return <span aria-disabled className={`${clase} text-tinta/30`}>{contenido}</span>;
+  }
+  return (
+    <Link href={href} className={`${clase} text-acento transition-colors hover:bg-acento/10 active:scale-[0.97]`}>
+      {contenido}
+    </Link>
   );
 }
 
@@ -206,13 +240,13 @@ function Cifra({
   pequena?: boolean;
 }) {
   return (
-    <div className="bg-superficie px-5 py-4">
-      <p className="text-sm text-tenue">{etiqueta}</p>
-      <p className={`cifra mt-1 leading-none font-semibold ${pequena ? "text-2xl" : "text-5xl"}`}>
+    <Tarjeta className="flex flex-col p-4">
+      <p className="text-sm font-medium text-tenue">{etiqueta}</p>
+      <p className={`mt-auto pt-3 leading-none ${pequena ? "text-xl font-bold tracking-tight" : "cifra text-5xl font-semibold"}`}>
         {valor}
-        {unidad && <span className="ml-1 text-lg font-medium text-tenue">{unidad}</span>}
+        {unidad && <span className="ml-1 font-sans text-base font-medium text-tenue">{unidad}</span>}
       </p>
-      {detalle && <p className="mt-2 text-sm text-tenue">{detalle}</p>}
-    </div>
+      {detalle && <p className="mt-2 text-xs text-tenue">{detalle}</p>}
+    </Tarjeta>
   );
 }

@@ -27,29 +27,29 @@ export function FormularioAlumno({
   const e = estado.errores ?? {};
 
   return (
-    <form action={enviar} className="max-w-2xl space-y-8" noValidate>
+    <form action={enviar} className="max-w-2xl space-y-6" noValidate>
       {estado.error && <Aviso>{estado.error}</Aviso>}
 
-      <fieldset className="space-y-4">
-        <legend className="mb-4 font-titulo text-xl font-semibold">Datos personales</legend>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <fieldset className="rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-6">
+        <legend className="float-left mb-4 w-full text-[1.15rem] font-bold tracking-tight">Datos personales</legend>
+        <div className="clear-both grid gap-4 sm:grid-cols-2">
           <Campo etiqueta="Nombre" nombre="nombres" required autoComplete="off" defaultValue={v("nombres")} errores={e.nombres} />
           <Campo etiqueta="Apellido" nombre="apellidos" required autoComplete="off" defaultValue={v("apellidos")} errores={e.apellidos} />
           <Campo etiqueta="Fecha de nacimiento" nombre="fecha_nacimiento" type="date" defaultValue={v("fecha_nacimiento")} errores={e.fecha_nacimiento} />
         </div>
       </fieldset>
 
-      <fieldset className="space-y-4">
-        <legend className="mb-4 font-titulo text-xl font-semibold">Contacto</legend>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <fieldset className="rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-6">
+        <legend className="float-left mb-4 w-full text-[1.15rem] font-bold tracking-tight">Contacto</legend>
+        <div className="clear-both grid gap-4 sm:grid-cols-2">
           <Campo etiqueta="Teléfono" nombre="telefono" type="tel" inputMode="tel" placeholder="300 123 4567" defaultValue={v("telefono")} errores={e.telefono} />
           <Campo etiqueta="Correo" nombre="correo" type="email" placeholder="opcional" defaultValue={v("correo")} errores={e.correo} />
         </div>
       </fieldset>
 
-      <fieldset className="space-y-4">
-        <legend className="mb-4 font-titulo text-xl font-semibold">Entrenamiento</legend>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <fieldset className="rounded-[var(--radius-tarjeta)] bg-superficie p-4 sm:p-6">
+        <legend className="float-left mb-4 w-full text-[1.15rem] font-bold tracking-tight">Entrenamiento</legend>
+        <div className="clear-both grid gap-4 sm:grid-cols-2">
           <Campo etiqueta="Entrena contigo desde" nombre="fecha_inicio" type="date" defaultValue={v("fecha_inicio")} errores={e.fecha_inicio} />
           <Selector
             etiqueta="Estado"
@@ -64,7 +64,7 @@ export function FormularioAlumno({
         </div>
       </fieldset>
 
-      <div className="flex gap-3 border-t border-linea pt-6">
+      <div className="flex gap-3 pt-2">
         <BotonEnvio textoPendiente="Guardando…">{textoBoton}</BotonEnvio>
         <EnlaceBoton href={cancelarHref} variante="fantasma">Cancelar</EnlaceBoton>
       </div>

@@ -3,7 +3,9 @@ import Form from "next/form";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
+import { claseControl } from "@/components/ui/campo";
 import { Esqueleto, EsqueletoLista } from "@/components/ui/esqueleto";
+import { ListaAgrupada, TituloGrupo, Vacio as VacioBase } from "@/components/ui/tarjeta";
 import { obtenerContexto } from "@/lib/sesion";
 import { rankearEjercicios, type Rol } from "@/lib/ejercicios/ranking";
 import { SelectorMusculos } from "./selector-musculos";
@@ -47,7 +49,7 @@ export default function PaginaEjercicios({ searchParams }: PageProps<"/ejercicio
 
 function Cargando() {
   return (
-    <div className="grid gap-8 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
       <Esqueleto className="h-[30rem] w-full" />
       <EsqueletoLista filas={8} />
     </div>
@@ -93,8 +95,8 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
   const tiposPresentes = Object.keys(TIPOS).filter((t) => (ejercicios ?? []).some((e) => e.tipo === t));
 
   return (
-    <div className="grid items-start gap-8 lg:grid-cols-[20rem_minmax(0,1fr)]">
-      <aside aria-label="Buscar por músculo" className="rounded-lg border border-linea bg-superficie p-5 lg:sticky lg:top-8">
+    <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+      <aside aria-label="Buscar por músculo" className="rounded-[var(--radius-tarjeta)] bg-superficie p-5 lg:sticky lg:top-8">
         <SelectorMusculos musculos={listaMusculos.map(({ slug, nombre }) => ({ slug, nombre }))} seleccionados={seleccionados} />
       </aside>
 
@@ -103,13 +105,8 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
           {seleccionados.length > 0 && <input type="hidden" name="m" value={seleccionados.join(",")} />}
           <label className="relative block sm:max-w-sm">
             <span className="sr-only">Buscar ejercicio</span>
-            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tenue" />
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="Buscar por nombre"
-              className="h-10 w-full rounded-md border border-linea bg-superficie pr-3 pl-9 focus:border-acento focus:ring-2 focus:ring-acento/20 focus:outline-none"
-            />
+            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-tenue" />
+            <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre" className={`${claseControl} h-11 pl-10`} />
           </label>
           <div role="group" aria-label="Filtrar por tipo" className="flex flex-wrap gap-1.5">
             {[["", "Todos"] as const, ...tiposPresentes.map((t) => [t, TIPOS[t]] as const)].map(([valor, texto]) => (
@@ -119,10 +116,10 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
                 name="tipo"
                 value={valor}
                 aria-pressed={tipo === valor}
-                className={`h-8 rounded-full border px-3 text-sm transition-colors ${
+                className={`h-9 rounded-full px-3.5 text-sm transition-colors ${
                   tipo === valor
-                    ? "border-tinta bg-tinta font-semibold text-white"
-                    : "border-linea bg-superficie text-tenue hover:text-tinta"
+                    ? "bg-tinta font-semibold text-white"
+                    : "bg-superficie text-tenue hover:text-tinta"
                 }`}
               >
                 {texto}
@@ -157,12 +154,12 @@ function Sugeridos({
   }
   return (
     <section aria-labelledby="titulo-sugeridos">
-      <h2 id="titulo-sugeridos" className="mb-3 font-titulo text-2xl font-semibold">
+      <TituloGrupo id="titulo-sugeridos">
         Sugeridos <span className="text-base font-medium text-tenue">({sugerencias.length})</span>
-      </h2>
-      <ol className="divide-y divide-linea rounded-lg border border-linea bg-superficie">
+      </TituloGrupo>
+      <ListaAgrupada ordenada>
         {sugerencias.map(({ ejercicio: e, relevancia, coincidencias }) => (
-          <li key={e.id} className="grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <li key={e.id}><div className="grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <div className="min-w-0">
               <p className="font-semibold">{e.nombre}</p>
               <p className="text-sm text-tenue">
@@ -179,9 +176,9 @@ function Sugeridos({
               <span>{TIPOS[e.tipo]}{e.dificultad ? `, ${DIFICULTAD[e.dificultad].toLowerCase()}` : ""}</span>
               <Relevancia valor={relevancia} />
             </div>
-          </li>
+          </div></li>
         ))}
-      </ol>
+      </ListaAgrupada>
     </section>
   );
 }
@@ -191,7 +188,7 @@ function Relevancia({ valor }: { valor: number }) {
   return (
     <span role="img" aria-label={`Relevancia ${valor} de 5`} className="flex items-end gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={`w-1.5 rounded-sm ${n <= valor ? "bg-acento" : "bg-tinta/10"}`} style={{ height: 6 + n * 2.5 }} />
+        <span key={n} className={`w-1.5 rounded-full ${n <= valor ? "bg-app-ejercicios" : "bg-tinta/10"}`} style={{ height: 6 + n * 2.5 }} />
       ))}
     </span>
   );
@@ -214,18 +211,20 @@ function PorTipo({
     <div className="space-y-10">
       {porTipo.map(({ tipo, lista }) => (
         <section key={tipo} aria-labelledby={`tipo-${tipo}`}>
-          <h2 id={`tipo-${tipo}`} className="mb-3 font-titulo text-2xl font-semibold">
+          <TituloGrupo id={`tipo-${tipo}`}>
             {TIPOS[tipo]} <span className="text-base font-medium text-tenue">({lista.length})</span>
-          </h2>
-          <ul className="divide-y divide-linea rounded-lg border border-linea bg-superficie">
+          </TituloGrupo>
+          <ListaAgrupada>
             {lista.map((e) => (
-              <li key={e.id} className="grid gap-1 px-4 py-3 sm:grid-cols-[2fr_2fr_auto] sm:items-center sm:gap-4">
-                <span className="font-semibold">{e.nombre}</span>
-                <span className="text-sm text-tenue">{(principales.get(e.id) ?? []).join(", ") || "—"}</span>
-                <span className="text-sm text-tenue">{e.dificultad ? DIFICULTAD[e.dificultad] : ""}</span>
+              <li key={e.id}>
+                <div className="grid gap-1 px-4 py-3 sm:grid-cols-[2fr_2fr_auto] sm:items-center sm:gap-4">
+                  <span className="font-semibold">{e.nombre}</span>
+                  <span className="text-sm text-tenue">{(principales.get(e.id) ?? []).join(", ") || "—"}</span>
+                  {e.dificultad && <NivelDificultad dificultad={e.dificultad} />}
+                </div>
               </li>
             ))}
-          </ul>
+          </ListaAgrupada>
         </section>
       ))}
     </div>
@@ -233,10 +232,19 @@ function PorTipo({
 }
 
 function Vacio({ titulo, texto }: { titulo: string; texto: string }) {
+  return <VacioBase icono={<Search aria-hidden className="size-8 text-tinta/25" />} titulo={titulo} texto={texto} />;
+}
+
+const TONO_DIFICULTAD: Record<string, string> = {
+  principiante: "bg-exito/10 text-exito",
+  intermedio: "bg-aviso/10 text-aviso",
+  avanzado: "bg-peligro/10 text-peligro",
+};
+
+function NivelDificultad({ dificultad }: { dificultad: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-linea bg-superficie/60 px-6 py-12 text-center">
-      <p className="font-titulo text-xl font-semibold">{titulo}</p>
-      <p className="mt-1 text-tenue">{texto}</p>
-    </div>
+    <span className={`inline-flex h-6 w-fit items-center rounded-full px-2.5 text-xs font-semibold ${TONO_DIFICULTAD[dificultad] ?? ""}`}>
+      {DIFICULTAD[dificultad] ?? dificultad}
+    </span>
   );
 }
