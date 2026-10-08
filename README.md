@@ -38,18 +38,24 @@ src/
 │   ├── (app)/                  # App autenticada (barra lateral)
 │   │   ├── inicio/
 │   │   ├── alumnos/            # Lista, nuevo, perfil [id], editar
-│   │   ├── ejercicios/         # Biblioteca
+│   │   ├── ejercicios/         # Biblioteca + búsqueda por músculo en el mapa corporal
+│   │   ├── calendario/         # Semana de citas (rejilla en escritorio, agenda en móvil)
 │   │   └── …                   # Secciones en construcción
 │   └── auth/confirmar/         # Destino de los enlaces de correo
 ├── components/
-│   ├── ui/                     # Botones, campos, avisos, esqueletos
+│   ├── ui/                     # Botones, campos, avisos, diálogo, esqueletos
+│   ├── anatomia/               # Mapa corporal SVG (frente y espalda)
 │   └── app/                    # Navegación, encabezado, usuario actual
 └── lib/
     ├── sesion.ts               # Capa de acceso: usuario + espacio de trabajo
     ├── supabase/               # Clientes servidor/navegador/proxy y tipos
     ├── validaciones/           # Esquemas Zod
+    ├── ejercicios/ranking.ts   # Sugerencia de ejercicios por músculo (determinista)
+    ├── calendario.ts           # Semanas, días y horas en la zona de Bogotá
     └── formato.ts              # Fechas y números en es-CO
 supabase/migrations/            # Historial de la base de datos
+docs/hoja-de-ruta.md            # Estado por milestone y nombres blueprint → esquema
+.claude/                        # Agentes y skills de Claude Code para este proyecto
 ```
 
 ## Notas técnicas

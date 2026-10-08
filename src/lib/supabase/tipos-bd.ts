@@ -112,6 +112,21 @@ export type EjercicioFila = {
   actualizado_en: string;
 };
 
+export type CitaFila = {
+  id: string;
+  organizacion_id: string;
+  entrenador_id: string;
+  alumno_id: string;
+  sesion_id: string | null;
+  tipo: string;
+  inicia_en: string;
+  termina_en: string;
+  estado: string;
+  notas: string | null;
+  creado_en: string;
+  actualizado_en: string;
+};
+
 type Opcional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type Database = {
@@ -132,6 +147,10 @@ export type Database = {
       >;
       perfiles: Tabla<PerfilFila, Opcional<PerfilFila, "nombres" | "apellidos" | "avatar_url" | "telefono" | "creado_en" | "actualizado_en">>;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
+      citas: Tabla<
+        CitaFila,
+        Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "creado_en" | "actualizado_en">
+      >;
       ejercicios: Tabla<EjercicioFila, Opcional<EjercicioFila, "id">>;
       ejercicios_musculos: Tabla<
         { ejercicio_id: string; musculo_id: string; rol: string },

@@ -7,3 +7,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Blister Fitness
+
+CRM de entrenamiento personalizado (Next.js 16 + Supabase). Código, base de datos y UI en **español**; el blueprint original está en inglés: el mapeo de nombres y el estado de cada milestone están en `docs/hoja-de-ruta.md`.
+
+Skills del proyecto (`.claude/skills/`): `nueva-pantalla`, `migracion-supabase`, `sistema-diseno`, `mapa-corporal`, `sembrar-ejercicios`, `verificar`.
+Agentes (`.claude/agents/`): `arquitecto-datos`, `revisor-seguridad`, `disenador-ux`, `experto-entrenamiento`.
+
+Ningún cambio está terminado sin pasar el skill `verificar` (incluye `next build`).

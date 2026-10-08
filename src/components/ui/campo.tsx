@@ -66,21 +66,35 @@ export function Selector({
   etiqueta,
   nombre,
   opciones,
+  errores,
   className = "",
   ...props
 }: Base & { opciones: { valor: string; texto: string }[] } & Omit<ComponentProps<"select">, "name">) {
+  const idError = errores?.length ? `${nombre}-error` : undefined;
   return (
     <div className={className}>
       <label htmlFor={nombre} className="mb-1.5 block text-sm font-medium text-tinta">
         {etiqueta}
       </label>
-      <select id={nombre} name={nombre} className={claseControl} {...props}>
+      <select
+        id={nombre}
+        name={nombre}
+        aria-invalid={Boolean(idError)}
+        aria-describedby={idError}
+        className={claseControl}
+        {...props}
+      >
         {opciones.map((o) => (
           <option key={o.valor} value={o.valor}>
             {o.texto}
           </option>
         ))}
       </select>
+      {idError && (
+        <p id={idError} className="mt-1 text-sm text-peligro">
+          {errores![0]}
+        </p>
+      )}
     </div>
   );
 }

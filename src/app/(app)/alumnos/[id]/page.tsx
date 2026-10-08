@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Pencil } from "lucide-react";
+import { CalendarPlus, Pencil } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { EnlaceBoton } from "@/components/ui/boton";
 import { InsigniaEstado } from "@/components/ui/insignia-estado";
@@ -104,6 +104,11 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         }
         acciones={
           <>
+            {!archivado && (
+              <EnlaceBoton href={`/calendario?alumno=${alumno.id}`} variante="secundario">
+                <CalendarPlus aria-hidden className="size-4" /> Agendar
+              </EnlaceBoton>
+            )}
             <EnlaceBoton href={`/alumnos/${alumno.id}/editar`} variante="secundario">
               <Pencil aria-hidden className="size-4" /> Editar
             </EnlaceBoton>
