@@ -1,0 +1,94 @@
+/*
+  Acceso: una sola hoja de papel, sin paneles. Móvil: marca, formulario y, debajo, qué es Blister.
+  Escritorio: formulario a la izquierda y, a su derecha, qué es Blister con la barra cargada
+  apoyada sobre la tarima (una regla de tinta).
+*/
+.pantalla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "cabecera"
+    "formulario"
+    "app";
+  align-content: start;
+  gap: var(--espacio-8);
+  max-width: calc(var(--ancho-contenido) + var(--espacio-12) * 2);
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: calc(var(--espacio-5) + env(safe-area-inset-top)) var(--espacio-4) var(--espacio-12);
+}
+
+.cabecera {
+  grid-area: cabecera;
+}
+
+.formulario {
+  grid-area: formulario;
+  width: 100%;
+  max-width: var(--ancho-acceso);
+}
+
+.app {
+  grid-area: app;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  max-width: var(--ancho-lectura);
+  padding-top: var(--espacio-6);
+}
+
+.titulo {
+  font-family: var(--fuente-titulo);
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-titulo);
+  line-height: var(--interlineado-titulo);
+}
+
+.texto {
+  color: var(--color-tenue);
+}
+
+/* La tarima: la barra descansa sobre una regla de tinta. */
+.tarima {
+  margin-top: var(--espacio-6);
+  border-bottom: var(--ancho-borde-grueso) solid var(--color-tinta);
+}
+
+.barra {
+  width: 100%;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  .pantalla {
+    padding-inline: var(--espacio-8);
+  }
+}
+
+@media (min-width: 1024px) {
+  .pantalla {
+    grid-template-columns: var(--ancho-acceso) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "cabecera cabecera"
+      "formulario app";
+    column-gap: var(--espacio-16);
+    row-gap: var(--espacio-12);
+    padding: var(--espacio-8) var(--espacio-12) var(--espacio-16);
+  }
+
+  .app {
+    align-self: end;
+    max-width: none;
+    padding-top: 0;
+  }
+
+  .titulo,
+  .texto {
+    max-width: var(--ancho-lectura);
+  }
+
+  .titulo {
+    font-size: var(--texto-2xl);
+  }
+}

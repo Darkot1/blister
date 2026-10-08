@@ -10,7 +10,7 @@ export default function PaginaNuevoAlumno() {
     <>
       <Encabezado
         titulo="Nuevo alumno"
-        descripcion="Solo el nombre es obligatorio; el resto lo puedes completar después."
+        descripcion="Con el nombre y el apellido basta para empezar; el resto lo puedes completar después."
         volver={{ href: "/alumnos", texto: "Alumnos" }}
       />
       <FormularioAlumno accion={crearAlumno} textoBoton="Crear alumno" cancelarHref="/alumnos" />

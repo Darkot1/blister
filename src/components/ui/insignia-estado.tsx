@@ -1,17 +1,13 @@
 import { ETIQUETA_ESTADO_ALUMNO } from "@/lib/formato";
+import { Insignia, type TonoInsignia } from "./insignia";
 
-const colores: Record<string, string> = {
-  activo: "bg-exito/10 text-exito",
-  inactivo: "bg-aviso/10 text-aviso",
-  archivado: "bg-tinta/[0.06] text-tenue",
+const TONO: Record<string, TonoInsignia> = {
+  activo: "verde",
+  inactivo: "amarillo",
+  archivado: "vacio",
 };
 
-/** Estado del alumno como pastilla de color. */
+/** Estado de un alumno: disco verde (activo), amarillo (en pausa) o vacío (archivado) + el texto. */
 export function InsigniaEstado({ estado }: { estado: string }) {
-  return (
-    <span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold ${colores[estado] ?? colores.archivado}`}>
-      <span aria-hidden className="size-1.5 rounded-full bg-current" />
-      {ETIQUETA_ESTADO_ALUMNO[estado] ?? estado}
-    </span>
-  );
+  return <Insignia tono={TONO[estado] ?? "vacio"}>{ETIQUETA_ESTADO_ALUMNO[estado] ?? estado}</Insignia>;
 }

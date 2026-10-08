@@ -1,0 +1,42 @@
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-width: 0;
+}
+
+.nombre {
+  max-width: 12rem;
+  overflow: hidden;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-tinta);
+}
+
+.salir {
+  display: grid;
+  place-items: center;
+  width: var(--alto-control);
+  height: var(--alto-control);
+  border-radius: var(--radio-md);
+  color: var(--color-tenue);
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-tinta) 6%, transparent);
+    color: var(--color-tinta);
+  }
+
+  & svg {
+    width: var(--tamano-icono);
+    height: var(--tamano-icono);
+  }
+}
+
+.cargando {
+  width: calc(var(--alto-control-pequeno) + var(--alto-control) + var(--espacio-2));
+  height: var(--alto-control-pequeno);
+  border-radius: var(--radio-md);
+  background: color-mix(in srgb, var(--color-tinta) 6%, transparent);
+}

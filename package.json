@@ -9,8 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@fontsource-variable/onest": "^5.3.1",
-    "@fontsource/barlow-condensed": "^5.3.0",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource-variable/big-shoulders-display": "^5.3.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.3",
     "lucide-react": "^1.52.0",
@@ -21,13 +21,11 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }

@@ -1,0 +1,32 @@
+/* Columna de la hora: el reloj en Big Shoulders y el meridiano debajo, en texto pequeño. */
+.hora {
+  display: flex;
+  flex-direction: column;
+  min-width: calc(var(--espacio-12) + var(--espacio-1));
+}
+
+.reloj {
+  font-family: var(--fuente-titulo);
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-titulo);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--espaciado-titulo);
+  line-height: var(--interlineado-cifra);
+}
+
+.meridiano {
+  font-size: var(--texto-xs);
+  color: var(--color-tenue);
+}
+
+.nota {
+  font-weight: var(--peso-semi);
+  color: var(--color-tinta);
+}
+
+/* "Aquí estás": la cita en curso o la siguiente, con la barra amarilla a la izquierda. */
+.marcada > :first-child,
+.marcada > :first-child:hover {
+  background: var(--color-aviso-suave);
+  box-shadow: inset var(--ancho-indicador) 0 0 var(--color-accion);
+}

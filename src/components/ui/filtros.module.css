@@ -1,0 +1,90 @@
+.grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+  min-width: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1-5);
+  height: var(--alto-control-pequeno);
+  padding-inline: var(--espacio-3);
+  border: var(--ancho-borde) solid var(--color-linea-fuerte);
+  border-radius: var(--radio-md);
+  background: var(--color-superficie);
+  color: var(--color-tinta);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+  transition:
+    background-color var(--duracion-rapida) var(--curva),
+    border-color var(--duracion-rapida) var(--curva),
+    color var(--duracion-rapida) var(--curva);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-tinta);
+  }
+
+  /* Filtro aplicado: tinta sólida (no es un estado de disco). */
+  &[aria-pressed="true"],
+  &.activo {
+    border-color: var(--color-tinta);
+    background: var(--color-tinta);
+    color: var(--color-superficie);
+    font-weight: var(--peso-semi);
+  }
+
+  & svg {
+    width: var(--tamano-icono-pequeno);
+    height: var(--tamano-icono-pequeno);
+  }
+}
+
+/* Algo ya elegido que se puede quitar (músculo seleccionado): azul de selección + ✕. */
+.quitable {
+  padding-inline-end: var(--espacio-2);
+  border-color: var(--color-acento);
+  background: var(--color-acento);
+  color: var(--color-sobre-acento);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-acento-hover);
+    background: var(--color-acento-hover);
+  }
+}
+
+/* Segmentado: opciones excluyentes en una sola pieza (activos / en pausa / todos). */
+.segmentado {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: var(--espacio-0-5);
+  max-width: 100%;
+  padding: var(--espacio-0-5);
+  border: var(--ancho-borde) solid var(--color-linea-fuerte);
+  border-radius: var(--radio-md);
+  background: var(--color-superficie);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  & .chip {
+    flex-shrink: 0;
+    height: calc(var(--alto-control-pequeno) - var(--espacio-1));
+    border: 0;
+    border-radius: calc(var(--radio-md) - var(--espacio-0-5));
+    background: transparent;
+    color: var(--color-tenue);
+  }
+
+  & .chip:hover:not(:disabled) {
+    color: var(--color-tinta);
+    background: color-mix(in srgb, var(--color-tinta) 6%, transparent);
+  }
+
+  & .chip[aria-pressed="true"],
+  & .chip.activo {
+    background: var(--color-tinta);
+    color: var(--color-superficie);
+  }
+}

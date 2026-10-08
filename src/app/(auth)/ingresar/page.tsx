@@ -1,23 +1,30 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
-import { AccesoGoogle, FormularioIngreso } from "../formularios";
 import { Aviso } from "@/components/ui/aviso";
+import { Enlace } from "@/components/ui/enlace";
+import { CabeceraAcceso, PieAcceso } from "../acceso";
+import { AccesoGoogle, FormularioIngreso } from "../formularios";
+import css from "../formularios.module.css";
 
 export const metadata: Metadata = { title: "Ingresar" };
 
 export default function PaginaIngresar({ searchParams }: PageProps<"/ingresar">) {
   return (
     <>
-      <h1 className="text-[1.9rem] leading-tight font-bold tracking-[-0.03em]">Ingresar</h1>
-      <p className="mt-1.5 mb-7 text-tenue">Usa el correo y la contraseña de tu cuenta.</p>
-      <Suspense fallback={<><AccesoGoogle /><FormularioIngreso /></>}>
+      <CabeceraAcceso titulo="Ingresar" descripcion="Entra con tu cuenta de Google o con tu correo y contraseña." />
+      <Suspense
+        fallback={
+          <>
+            <AccesoGoogle />
+            <FormularioIngreso />
+          </>
+        }
+      >
         <IngresoConDestino searchParams={searchParams} />
       </Suspense>
-      <p className="mt-7 text-center text-sm text-tenue">
-        ¿Aún no tienes cuenta?{" "}
-        <Link href="/registro" className="font-semibold text-acento hover:underline">Crea una</Link>
-      </p>
+      <PieAcceso>
+        ¿Aún no tienes cuenta? <Enlace href="/registro">Crea una</Enlace>
+      </PieAcceso>
     </>
   );
 }
@@ -28,7 +35,7 @@ async function IngresoConDestino({ searchParams }: { searchParams: PageProps<"/i
   const mensaje = typeof error === "string" ? ERRORES[error] ?? ERRORES.google : null;
   return (
     <>
-      {mensaje && <div className="mb-6"><Aviso>{mensaje}</Aviso></div>}
+      {mensaje && <Aviso className={css.avisoPagina}>{mensaje}</Aviso>}
       <AccesoGoogle siguiente={destino} />
       <FormularioIngreso siguiente={destino} />
     </>

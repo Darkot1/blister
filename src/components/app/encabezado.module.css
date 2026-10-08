@@ -1,0 +1,74 @@
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-8);
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  align-self: flex-start;
+  margin-inline-start: calc(var(--espacio-1) * -1);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  color: var(--color-tenue);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-tinta);
+  }
+
+  & svg {
+    width: var(--tamano-icono-pequeno);
+    height: var(--tamano-icono-pequeno);
+  }
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--espacio-4) var(--espacio-6);
+}
+
+.textos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  min-width: 0;
+}
+
+/* El título es el elemento visual de la página: Big Shoulders grande y apretado. */
+.titulo {
+  font-family: var(--fuente-titulo);
+  font-size: var(--texto-3xl);
+  font-weight: var(--peso-titulo);
+  line-height: var(--interlineado-titulo);
+  letter-spacing: var(--espaciado-titulo);
+  overflow-wrap: anywhere;
+}
+
+.descripcion {
+  max-width: var(--ancho-lectura);
+  color: var(--color-tenue);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+@media (min-width: 1024px) {
+  .encabezado {
+    margin-bottom: var(--espacio-10);
+  }
+
+  .titulo {
+    font-size: var(--texto-5xl);
+  }
+}

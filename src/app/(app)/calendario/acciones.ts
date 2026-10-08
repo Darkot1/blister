@@ -40,9 +40,16 @@ export async function crearCita(_: EstadoFormulario, formData: FormData): Promis
   return { ok: true };
 }
 
-export async function cambiarEstadoCita(citaId: string, estado: EstadoCita) {
-  if (!ESTADOS_CITA.includes(estado)) return;
+export async function cambiarEstadoCita(citaId: string, estado: EstadoCita): Promise<{ error?: string }> {
+  if (!ESTADOS_CITA.includes(estado)) return { error: "Estado no válido." };
   const { supabase } = await obtenerContexto();
-  await supabase.from("citas").update({ estado }).eq("id", citaId);
+  const { error } = await supabase.from("citas").update({ estado }).eq("id", citaId);
+  if (error) {
+    // 23P01: al deshacer una cancelación, el horario ya lo ocupa otra cita.
+    return {
+      error: error.code === "23P01" ? "Ese horario ya lo ocupa otra cita." : "No se pudo guardar el cambio. Inténtalo de nuevo.",
+    };
+  }
   refresh();
+  return {};
 }

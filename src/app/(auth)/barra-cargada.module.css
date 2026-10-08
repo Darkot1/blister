@@ -1,0 +1,31 @@
+.manga {
+  fill: var(--color-sutil);
+}
+
+.eje {
+  fill: var(--color-tenue);
+}
+
+.tope {
+  fill: var(--color-tenue);
+}
+
+.seguro {
+  fill: var(--color-tinta);
+}
+
+.rojo {
+  fill: var(--disco-rojo);
+}
+
+.azul {
+  fill: var(--disco-azul);
+}
+
+.amarillo {
+  fill: var(--disco-amarillo);
+}
+
+.verde {
+  fill: var(--disco-verde);
+}

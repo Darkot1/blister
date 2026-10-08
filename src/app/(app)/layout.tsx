@@ -1,10 +1,14 @@
 import { Suspense } from "react";
 import { Navegacion } from "@/components/app/navegacion";
-import { AvatarCuenta, CuentaCargando, TarjetaCuenta } from "@/components/app/usuario-actual";
+import { UsuarioActual, UsuarioActualCargando } from "@/components/app/usuario-actual";
+import css from "./layout.module.css";
 
 export default function LayoutApp({ children }: { children: React.ReactNode }) {
   return (
-    <div className="lg:flex">
+    <div className={css.shell}>
+      <a href="#contenido" className={css.saltar}>
+        Saltar al contenido
+      </a>
       <Navegacion
         avatar={
           <Suspense fallback={<CuentaCargando compacta />}>
@@ -17,9 +21,8 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
           </Suspense>
         }
       />
-      {/* En móvil, espacio abajo para que el dock no tape el contenido. */}
-      <main className="min-w-0 flex-1 px-4 pt-6 pb-32 sm:px-8 sm:pt-10 lg:pr-12 lg:pb-14 lg:pl-4">
-        <div className="mx-auto max-w-6xl">{children}</div>
+      <main id="contenido" className={css.contenido}>
+        <div className={css.ancho}>{children}</div>
       </main>
     </div>
   );

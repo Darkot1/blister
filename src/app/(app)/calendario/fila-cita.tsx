@@ -1,31 +1,65 @@
-import Link from "next/link";
-import { partesLocales } from "@/lib/calendario";
-import { ETIQUETA_TIPO_CITA, fechaCorta, hora } from "@/lib/formato";
+import { Fila } from "@/components/ui/lista-filas";
+import { cx } from "@/lib/clases";
+import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import { InsigniaCita } from "./estado-cita";
+import css from "./fila-cita.module.css";
 
-export type CitaResumen = { id: string; alumno_id: string; tipo: string; estado: string; inicia_en: string };
+export type CitaFila = { alumno: string; tipo: string; estado: string; iniciaEn: string; terminaEn: string };
 
-/** Fila de cita para listas (inicio): hora grande, alumno y estado; lleva a su semana en el calendario. */
-export function FilaCita({ cita, alumno, conFecha = false }: { cita: CitaResumen; alumno?: string; conFecha?: boolean }) {
-  const fecha = partesLocales(cita.inicia_en).fecha;
-  const tachada = cita.estado === "no_asistio";
+/** "hasta las 8:00 a. m." / "hasta la 1:00 p. m." */
+export const hastaLa = (instante: string) => {
+  const h = hora(instante);
+  return `hasta ${h.startsWith("1:") ? "la" : "las"} ${h}`;
+};
+
+/** Hora en Big Shoulders con el meridiano pequeño debajo: "7:00" / "a. m.". */
+export function HoraCita({ instante, className }: { instante: string; className?: string }) {
+  const [reloj, ...meridiano] = hora(instante).split(" ");
   return (
-    <li>
-      <Link
-        href={`/calendario?semana=${fecha}`}
-        className="grid grid-cols-[4.75rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-tinta/[0.03]"
-      >
-        <span className="cifra text-[1.35rem] leading-none font-semibold">
-          {conFecha ? fechaCorta(fecha).replace(/ \d{4}$/, "") : hora(cita.inicia_en)}
-        </span>
-        <span className="min-w-0">
-          <span className={`block truncate ${tachada ? "text-tenue line-through" : "font-semibold"}`}>{alumno ?? "Alumno"}</span>
-          <span className="block truncate text-sm text-tenue">
-            {conFecha ? `${hora(cita.inicia_en)} · ` : ""}{ETIQUETA_TIPO_CITA[cita.tipo] ?? cita.tipo}
-          </span>
-        </span>
-        <InsigniaCita estado={cita.estado} />
-      </Link>
-    </li>
+    <span className={cx(css.hora, className)}>
+      <span className={css.reloj}>{reloj}</span>
+      <span className={css.meridiano}>{meridiano.join(" ")}</span>
+    </span>
+  );
+}
+
+/**
+ * Una cita como fila de agenda: hora, alumno, tipo con hora de fin y estado. Se usa en la agenda
+ * móvil del calendario (`alPulsar`, abre el detalle) y en Inicio (`href`, lleva a la semana).
+ * `marca` señala con la barra amarilla de "aquí estás" la cita en curso o la siguiente.
+ */
+export function FilaCita({
+  cita,
+  href,
+  alPulsar,
+  marca,
+}: {
+  cita: CitaFila;
+  href?: string;
+  alPulsar?: () => void;
+  marca?: "ahora" | "siguiente";
+}) {
+  const tipo = ETIQUETA_TIPO_CITA[cita.tipo] ?? cita.tipo;
+  return (
+    <Fila
+      href={href}
+      alPulsar={alPulsar}
+      className={cx(marca && css.marcada)}
+      atenuada={cita.estado === "no_asistio"}
+      inicio={<HoraCita instante={cita.iniciaEn} />}
+      titulo={cita.alumno}
+      detalle={
+        marca ? (
+          <>
+            <strong className={css.nota}>{marca === "ahora" ? "En curso" : "Siguiente"}</strong>,{" "}
+            {tipo.toLowerCase()} {hastaLa(cita.terminaEn)}
+          </>
+        ) : (
+          `${tipo} ${hastaLa(cita.terminaEn)}`
+        )
+      }
+      fin={<InsigniaCita estado={cita.estado} />}
+      chevron
+    />
   );
 }
