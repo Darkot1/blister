@@ -13,7 +13,7 @@ import { obtenerContexto } from "@/lib/sesion";
 import { rankearEjercicios, type Rol } from "@/lib/ejercicios/ranking";
 import { ETIQUETA_DIFICULTAD, ETIQUETA_TIPO } from "@/lib/ejercicios/etiquetas";
 import { NivelDificultad } from "@/components/ui/nivel-dificultad";
-import { SelectorMusculos } from "./selector-musculos";
+import { ExploradorEjercicios } from "./selector-musculos";
 
 export const metadata: Metadata = { title: "Ejercicios" };
 
@@ -107,17 +107,10 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
   );
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-      {/* En escritorio el mapa se queda a la vista y, si no cabe, se desplaza dentro de su panel. */}
-      <aside
-        aria-label="Buscar por músculo"
-        className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto lg:overscroll-contain"
-      >
-        <p className="etiqueta mb-3">Mapa muscular</p>
-        <SelectorMusculos musculos={listaMusculos.map(({ slug, nombre }) => ({ slug, nombre }))} seleccionados={seleccionados} />
-      </aside>
-
-      <div className="min-w-0">
+    <ExploradorEjercicios
+      musculos={listaMusculos.map(({ slug, nombre }) => ({ slug, nombre }))}
+      seleccionados={seleccionados}
+      busqueda={
         <Form action="/ejercicios" className="mb-3">
           {m && <input type="hidden" name="m" value={m} />}
           {tipo && <input type="hidden" name="tipo" value={tipo} />}
@@ -127,8 +120,11 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
             <input name="q" type="search" defaultValue={q} placeholder="Buscar por nombre" className={`${claseControl} pl-9`} />
           </label>
         </Form>
-        {/* Enlaces y no botones de envío: next/form no incluye el botón pulsado en la URL. */}
-        <nav aria-label="Filtrar por tipo" className="mb-5 flex flex-wrap gap-1.5">
+      }
+      tipos={
+        /* Enlaces y no botones de envío: next/form no incluye el botón pulsado en la URL. */
+        // `contents`: los tipos siguen en la misma línea que los músculos, a su derecha.
+        <nav aria-label="Filtrar por tipo" className="contents">
           {[["", "Todos", (ejercicios ?? []).length] as const, ...tiposPresentes.map((t) => [t, TIPOS[t], cuentaTipo.get(t) ?? 0] as const)].map(
             ([valor, texto, n]) => (
               <Link
@@ -148,8 +144,9 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
             ),
           )}
         </nav>
-
-        {error ? (
+      }
+    >
+      {error ? (
           <p className="text-peligro">No se pudieron cargar los ejercicios. Recarga la página.</p>
         ) : seleccionados.length ? (
           <Sugeridos sugerencias={sugerencias.slice(desde, desde + POR_PAGINA)} total={sugerencias.length} nombreDe={nombreDe} pie={paginacion} />
@@ -164,8 +161,7 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
             pie={paginacion}
           />
         )}
-      </div>
-    </div>
+    </ExploradorEjercicios>
   );
 }
 
