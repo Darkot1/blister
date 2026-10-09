@@ -1,11 +1,17 @@
 import { Suspense } from "react";
-import { Navegacion } from "@/components/app/navegacion";
+import { EnlaceAdmin, Navegacion } from "@/components/app/navegacion";
 import { UsuarioActual, UsuarioActualCargando } from "@/components/app/usuario-actual";
+import { esSuperadmin } from "@/lib/sesion";
 
 export default function LayoutApp({ children }: { children: React.ReactNode }) {
   return (
     <div className="lg:flex">
       <Navegacion
+        admin={
+          <Suspense fallback={null}>
+            <SoloSuperadmin />
+          </Suspense>
+        }
         cuenta={
           <Suspense fallback={<UsuarioActualCargando />}>
             <UsuarioActual />
@@ -17,4 +23,8 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
       </main>
     </div>
   );
+}
+
+async function SoloSuperadmin() {
+  return (await esSuperadmin()) ? <EnlaceAdmin /> : null;
 }

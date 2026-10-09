@@ -188,9 +188,13 @@ function RejillaSemana({
             ))}
 
             {ahora && ahora.fecha === d && ahora.minutos >= MIN_INICIO && ahora.minutos < MIN_FIN && (
-              <div aria-hidden className="pointer-events-none absolute inset-x-0 z-10 border-t-2 border-peligro"
+              // Por encima de las citas (z-30 > z-20) y sin capturar clics: se ve aunque cruce una cita.
+              <div aria-hidden className="pointer-events-none absolute inset-x-0 z-30 border-t-2 border-peligro shadow-[0_0_0_1px_var(--superficie)]"
                 style={{ top: ((ahora.minutos - MIN_INICIO) / 60) * PX_HORA }}>
-                <span className="absolute -top-[5px] -left-[5px] size-2 rounded-full bg-peligro" />
+                <span className="absolute -top-[6px] -left-[6px] size-2.5 rounded-full border-2 border-superficie bg-peligro" />
+                <span className="absolute -top-2.5 right-1 rounded bg-peligro px-1 font-mono text-[0.6rem] leading-4 font-semibold text-superficie">
+                  {String(Math.floor(ahora.minutos / 60)).padStart(2, "0")}:{String(ahora.minutos % 60).padStart(2, "0")}
+                </span>
               </div>
             )}
 
