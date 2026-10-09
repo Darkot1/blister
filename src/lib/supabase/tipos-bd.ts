@@ -82,6 +82,16 @@ export type PerfilFila = {
   actualizado_en: string;
 };
 
+export type OrganizacionFila = {
+  id: string;
+  nombre: string;
+  slug: string;
+  zona_horaria: string;
+  estado: string;
+  creado_en: string;
+  actualizado_en: string;
+};
+
 export type MiembroFila = {
   id: string;
   organizacion_id: string;
@@ -159,6 +169,7 @@ export type Database = {
         Opcional<ObjetivoFila, "id" | "descripcion" | "valor_meta" | "unidad" | "es_principal" | "fecha_inicio" | "fecha_meta" | "estado" | "creado_en" | "actualizado_en">
       >;
       perfiles: Tabla<PerfilFila, Opcional<PerfilFila, "nombres" | "apellidos" | "avatar_url" | "telefono" | "creado_en" | "actualizado_en">>;
+      organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "creado_en" | "actualizado_en">>;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
       citas: Tabla<
         CitaFila,

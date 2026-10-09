@@ -41,8 +41,33 @@ export const obtenerPerfil = cache(async () => {
   const { supabase, usuarioId } = await obtenerContexto();
   const { data } = await supabase
     .from("perfiles")
-    .select("nombres, apellidos")
+    .select("nombres, apellidos, avatar_url")
     .eq("id", usuarioId)
     .maybeSingle();
   return data;
 });
+
+/** Datos de la cuenta para la pantalla de Ajustes: perfil, correo, rol y espacio de trabajo. */
+export async function obtenerCuenta() {
+  const { supabase, usuarioId, organizacionId } = await obtenerContexto();
+  const [{ data: claims }, perfil, { data: membresia }, { data: organizacion }] = await Promise.all([
+    supabase.auth.getClaims(),
+    obtenerPerfil(),
+    supabase
+      .from("miembros_organizacion")
+      .select("rol, creado_en")
+      .eq("usuario_id", usuarioId)
+      .eq("organizacion_id", organizacionId)
+      .maybeSingle(),
+    supabase.from("organizaciones").select("nombre").eq("id", organizacionId).maybeSingle(),
+  ]);
+  const proveedores = (claims?.claims?.app_metadata as { providers?: string[] } | undefined)?.providers ?? [];
+  return {
+    perfil,
+    correo: typeof claims?.claims?.email === "string" ? claims.claims.email : null,
+    proveedores,
+    rol: membresia?.rol ?? null,
+    miembroDesde: membresia?.creado_en ?? null,
+    espacio: organizacion?.nombre ?? null,
+  };
+}

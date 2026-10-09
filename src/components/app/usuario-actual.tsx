@@ -1,21 +1,22 @@
+import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { obtenerPerfil } from "@/lib/sesion";
 import { salir } from "@/app/(auth)/acciones";
-import { iniciales } from "@/lib/formato";
+import { FotoPerfil } from "./foto-perfil";
 
-/** Cuenta al pie del menú: iniciales, nombre y salida. */
+/** Cuenta al pie del menú: foto (o iniciales), nombre con enlace a Ajustes y salida. */
 export async function UsuarioActual() {
   const perfil = await obtenerPerfil();
   const nombre = perfil ? `${perfil.nombres} ${perfil.apellidos}`.trim() : "";
   return (
     <div className="flex items-center gap-2.5 px-1">
-      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-acento text-xs font-semibold text-sobre-acento">
-        {perfil ? iniciales(perfil.nombres || "?", perfil.apellidos || "") : "?"}
-      </span>
-      <div className="min-w-0 flex-1 leading-tight">
-        <p className="truncate text-sm font-medium">{nombre || "Mi cuenta"}</p>
-        <p className="etiqueta text-[0.6rem]">Entrenador</p>
-      </div>
+      <Link href="/configuracion" className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg hover:opacity-80" title="Mi perfil">
+        <FotoPerfil url={perfil?.avatar_url} nombres={perfil?.nombres ?? ""} apellidos={perfil?.apellidos ?? ""} />
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className="truncate text-sm font-medium">{nombre || "Mi cuenta"}</p>
+          <p className="etiqueta text-[0.6rem]">Mi perfil</p>
+        </div>
+      </Link>
       <form action={salir}>
         <button
           type="submit"
