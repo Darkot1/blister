@@ -4,20 +4,19 @@
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-/** Fila de la RPC admin_espacios (superadministrador). */
-export type EspacioAdmin = {
+/** Fila de la RPC admin_usuarios (superadministrador). */
+export type UsuarioAdmin = {
   id: string;
-  nombre: string;
-  slug: string;
-  estado: string;
+  nombres: string;
+  apellidos: string;
+  avatar_url: string | null;
+  correo: string | null;
+  proveedores: string[];
   creado_en: string;
-  propietario: string | null;
-  propietario_correo: string | null;
-  miembros: number;
-  alumnos: number;
-  alumnos_activos: number;
-  citas_30d: number;
-  ultima_actividad: string | null;
+  ultimo_ingreso: string | null;
+  confirmado: boolean;
+  es_superadmin: boolean;
+  espacios: Json;
 };
 
 /** Fila de la RPC admin_accesos (bitácora del superadministrador). */
@@ -224,7 +223,8 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
-      admin_espacios: { Args: Record<string, never>; Returns: EspacioAdmin[] };
+      admin_panel: { Args: Record<string, never>; Returns: Json };
+      admin_usuarios: { Args: Record<string, never>; Returns: UsuarioAdmin[] };
       admin_detalle_espacio: { Args: { p_organizacion_id: string }; Returns: Json };
       admin_accesos: { Args: { p_limite?: number }; Returns: AccesoAdmin[] };
       admin_cambiar_estado_espacio: {

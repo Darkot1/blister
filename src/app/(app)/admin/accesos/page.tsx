@@ -23,7 +23,7 @@ export default function PaginaAccesos() {
       <Encabezado
         titulo="Bitácora de accesos"
         miga="Plataforma"
-        descripcion="Cada vez que un superadministrador abre un espacio o cambia su estado."
+        descripcion="Cada vez que un superadministrador abre un espacio o cambia su estado. Solo la ven los superadministradores."
         acciones={<PestanasAdmin activa="accesos" />}
       />
       <Suspense fallback={<EsqueletoLista filas={6} />}>
