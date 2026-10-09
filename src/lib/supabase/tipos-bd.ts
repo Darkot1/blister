@@ -4,6 +4,33 @@
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+/** Fila de la RPC admin_espacios (superadministrador). */
+export type EspacioAdmin = {
+  id: string;
+  nombre: string;
+  slug: string;
+  estado: string;
+  creado_en: string;
+  propietario: string | null;
+  propietario_correo: string | null;
+  miembros: number;
+  alumnos: number;
+  alumnos_activos: number;
+  citas_30d: number;
+  ultima_actividad: string | null;
+};
+
+/** Fila de la RPC admin_accesos (bitácora del superadministrador). */
+export type AccesoAdmin = {
+  id: string;
+  creado_en: string;
+  accion: "ver_espacio" | "suspender" | "reactivar";
+  motivo: string | null;
+  espacio_id: string | null;
+  espacio: string | null;
+  superadmin: string | null;
+};
+
 type Tabla<Row, Insert, Update = Partial<Insert>> = {
   Row: Row;
   Insert: Insert;
@@ -192,10 +219,18 @@ export type Database = {
         { ejercicio_id: string; musculo_id: string; rol: string },
         { ejercicio_id: string; musculo_id: string; rol: string }
       >;
+      superadministradores: Tabla<{ usuario_id: string; creado_en: string }, { usuario_id: string; creado_en?: string }>;
       musculos: Tabla<MusculoFila, Opcional<MusculoFila, "id" | "descripcion" | "orden" | "organizacion_id" | "creado_por" | "creado_en">>;
     };
     Views: { [_ in never]: never };
     Functions: {
+      admin_espacios: { Args: Record<string, never>; Returns: EspacioAdmin[] };
+      admin_detalle_espacio: { Args: { p_organizacion_id: string }; Returns: Json };
+      admin_accesos: { Args: { p_limite?: number }; Returns: AccesoAdmin[] };
+      admin_cambiar_estado_espacio: {
+        Args: { p_organizacion_id: string; p_estado: "activo" | "suspendido"; p_motivo?: string };
+        Returns: undefined;
+      };
       asignar_plantilla: {
         Args: { p_plantilla_id: string; p_alumno_id: string; p_fecha_inicio?: string; p_nombre?: string };
         Returns: string;

@@ -44,6 +44,8 @@ Rutas: `/inicio`, `/alumnos`, `/entrenamiento`, `/ejercicios`, `/calendario`, `/
 | 4 | Plantillas, planes, asignación, calendario | 🟡 Calendario semanal de citas hecho. Faltan plantillas, planes y asignación (la RPC `asignar_plantilla` ya existe). |
 | 5 | Sesiones, series, mediciones, progreso | 🟡 Mediciones hechas. Faltan registro de sesión (`iniciar_sesion_desde_plan` ya existe) y gráficas. |
 
+**Plataforma:** superadministrador (`/admin`, migración `20261009001100`). Ve todos los espacios, sus entrenadores y alumnos en solo lectura mediante RPC `admin_*`; cada consulta queda en `accesos_superadmin`, que el propietario del espacio puede leer. Puede suspender o reactivar un espacio con motivo; un espacio suspendido deja de dar acceso (`es_miembro_org` y `tiene_rol_org` exigen `organizaciones.estado = 'activo'`) y la app lleva a `/suspendido`. Para nombrar a alguien superadministrador: `insert into public.superadministradores (usuario_id) values ('<uuid>');` desde el editor SQL (no hay UI a propósito).
+
 Orden recomendado a partir de aquí: **constructor de rutinas → plantillas/planes/asignación → registro de sesión → progreso → tablero**.
 
 ## Definition of Done del MVP

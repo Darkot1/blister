@@ -7,7 +7,7 @@ import { Menu } from "lucide-react";
 import { Dialogo } from "@/components/ui/dialogo";
 import { Marca } from "./marca";
 import { SelectorTema } from "./selector-tema";
-import { AJUSTES, GRUPOS, esActiva, type Seccion } from "./secciones";
+import { ADMIN, AJUSTES, GRUPOS, esActiva, type Seccion } from "./secciones";
 
 /** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, nada se muestra resaltado. */
 function ConRuta({ children }: { children: (ruta: string) => React.ReactNode }) {
@@ -22,13 +22,12 @@ function RutaActual({ children }: { children: (ruta: string) => React.ReactNode 
   return children(usePathname());
 }
 
-function Enlace({ s, ruta, alNavegar }: { s: Seccion; ruta: string; alNavegar?: () => void }) {
+function Enlace({ s, ruta }: { s: Seccion; ruta: string }) {
   const activa = esActiva(ruta, s.href);
   const Icono = s.icono;
   return (
     <Link
       href={s.href}
-      onClick={alNavegar}
       aria-current={activa ? "page" : undefined}
       className={`group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors ${
         activa ? "bg-tinta font-medium text-sobre-tinta" : "text-tinta/75 hover:bg-tinta/[0.05] hover:text-tinta"
@@ -40,7 +39,12 @@ function Enlace({ s, ruta, alNavegar }: { s: Seccion; ruta: string; alNavegar?: 
   );
 }
 
-function MenuSecciones({ ruta, alNavegar }: { ruta: string; alNavegar?: () => void }) {
+/** Enlace de la sección de administración; el servidor decide si se muestra. */
+export function EnlaceAdmin() {
+  return <ConRuta>{(ruta) => <Enlace s={ADMIN} ruta={ruta} />}</ConRuta>;
+}
+
+function MenuSecciones({ ruta, admin }: { ruta: string; admin: React.ReactNode }) {
   return (
     <nav aria-label="Principal" className="flex flex-1 flex-col gap-5">
       {GRUPOS.map((g) => (
@@ -48,19 +52,20 @@ function MenuSecciones({ ruta, alNavegar }: { ruta: string; alNavegar?: () => vo
           <p className="etiqueta mb-1.5 px-2.5">{g.titulo}</p>
           <ul className="space-y-0.5">
             {g.secciones.map((s) => (
-              <li key={s.href}><Enlace s={s} ruta={ruta} alNavegar={alNavegar} /></li>
+              <li key={s.href}><Enlace s={s} ruta={ruta} /></li>
             ))}
           </ul>
         </div>
       ))}
-      <div className="mt-auto">
-        <Enlace s={AJUSTES} ruta={ruta} alNavegar={alNavegar} />
+      <div className="mt-auto space-y-0.5">
+        {admin}
+        <Enlace s={AJUSTES} ruta={ruta} />
       </div>
     </nav>
   );
 }
 
-export function Navegacion({ cuenta }: { cuenta: React.ReactNode }) {
+export function Navegacion({ cuenta, admin }: { cuenta: React.ReactNode; admin: React.ReactNode }) {
   const [abierto, setAbierto] = useState(false);
 
   return (
@@ -70,7 +75,7 @@ export function Navegacion({ cuenta }: { cuenta: React.ReactNode }) {
         <Link href="/inicio" className="mb-7 rounded-lg px-1.5">
           <Marca />
         </Link>
-        <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} />}</ConRuta>
+        <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} />}</ConRuta>
         <div className="mt-3 space-y-3 border-t border-linea pt-3">
           <SelectorTema />
           {cuenta}
@@ -95,12 +100,16 @@ export function Navegacion({ cuenta }: { cuenta: React.ReactNode }) {
       </header>
 
       <Dialogo abierto={abierto} alCerrar={() => setAbierto(false)} titulo="Menú" lateral>
-        <div className="flex min-h-full flex-col px-3 py-4">
-          <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} alNavegar={() => setAbierto(false)} />}</ConRuta>
+        {/* Cualquier enlace del cajón lo cierra, también los que llegan del servidor (cuenta, administración). */}
+        <div
+          className="flex min-h-full flex-col px-3 py-4"
+          onClick={(e) => (e.target as HTMLElement).closest("a") && setAbierto(false)}
+        >
+          <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} />}</ConRuta>
           <div className="mt-3 space-y-3 border-t border-linea pt-3">
-          <SelectorTema />
-          {cuenta}
-        </div>
+            <SelectorTema />
+            {cuenta}
+          </div>
         </div>
       </Dialogo>
     </>

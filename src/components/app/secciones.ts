@@ -6,6 +6,7 @@ import {
   LineChart,
   ListChecks,
   Settings,
+  ShieldCheck,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -50,6 +51,14 @@ export const AJUSTES: Seccion = {
   texto: "Ajustes",
   resumen: "Cuenta y preferencias",
   icono: Settings,
+};
+
+/** Solo para el superadministrador de la plataforma. */
+export const ADMIN: Seccion = {
+  href: "/admin",
+  texto: "Administración",
+  resumen: "Espacios, entrenadores y alumnos de la plataforma",
+  icono: ShieldCheck,
 };
 
 export const SECCIONES = [...GRUPOS.flatMap((g) => g.secciones), AJUSTES];
