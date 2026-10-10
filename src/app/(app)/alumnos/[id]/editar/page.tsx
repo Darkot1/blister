@@ -22,11 +22,20 @@ async function Edicion({ params }: { params: PageProps<"/alumnos/[id]/editar">["
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
 
   const { supabase } = await obtenerContexto();
-  const { data: alumno } = await supabase
-    .from("alumnos")
-    .select("id, nombres, apellidos, correo, telefono, fecha_nacimiento, fecha_inicio, estado")
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data: alumno }, { data: objetivo }] = await Promise.all([
+    supabase
+      .from("alumnos")
+      .select("id, nombres, apellidos, correo, telefono, fecha_nacimiento, fecha_inicio, estado")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("objetivos_alumno")
+      .select("tipo, nombre, fecha_meta")
+      .eq("alumno_id", id)
+      .eq("es_principal", true)
+      .eq("estado", "activo")
+      .maybeSingle(),
+  ]);
   if (!alumno) notFound();
 
   return (
@@ -38,6 +47,7 @@ async function Edicion({ params }: { params: PageProps<"/alumnos/[id]/editar">["
       <FormularioAlumno
         accion={actualizarAlumno.bind(null, id)}
         alumno={alumno}
+        objetivo={objetivo}
         textoBoton="Guardar cambios"
         cancelarHref={`/alumnos/${id}`}
       />

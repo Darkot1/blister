@@ -67,6 +67,17 @@ export const ETIQUETA_ESTADO_ALUMNO: Record<string, string> = {
   archivado: "Archivado",
 };
 
+export const ETIQUETA_TIPO_OBJETIVO: Record<string, string> = {
+  hipertrofia: "Hipertrofia",
+  perdida_grasa: "Pérdida de grasa",
+  fuerza: "Fuerza",
+  resistencia: "Resistencia",
+  movilidad: "Movilidad",
+  tecnica: "Técnica",
+  rehabilitacion: "Rehabilitación",
+  salud_general: "Salud general",
+};
+
 export const ETIQUETA_TIPO_CITA: Record<string, string> = {
   entrenamiento: "Entrenamiento",
   evaluacion: "Evaluación",

@@ -23,6 +23,24 @@ export const esquemaAlumno = z.object({
   estado: z.enum(["activo", "inactivo", "archivado"]).default("activo"),
 });
 
+const TIPOS_OBJETIVO = [
+  "hipertrofia", "perdida_grasa", "fuerza", "resistencia", "movilidad", "tecnica", "rehabilitacion", "salud_general",
+] as const;
+
+/** Objetivo principal dentro del formulario del alumno. Sin tipo = sin objetivo. */
+export const esquemaObjetivo = z
+  .object({
+    objetivo_tipo: z.union([z.enum(TIPOS_OBJETIVO), z.literal("")]).default(""),
+    objetivo_nombre: textoOpcional.default(null),
+    objetivo_fecha_meta: fechaOpcional.default(null),
+  })
+  .refine((o) => o.objetivo_tipo !== "" || (!o.objetivo_nombre && !o.objetivo_fecha_meta), {
+    message: "Elige el tipo de objetivo",
+    path: ["objetivo_tipo"],
+  });
+
+export type DatosObjetivo = z.infer<typeof esquemaObjetivo>;
+
 const medidaOpcional = (max: number) =>
   z
     .string()

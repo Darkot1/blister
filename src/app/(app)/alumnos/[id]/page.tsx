@@ -10,7 +10,7 @@ import { InsigniaEstado } from "@/components/ui/insignia-estado";
 import { CabeceraTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
 import { Esqueleto, EsqueletoLista } from "@/components/ui/esqueleto";
 import { obtenerContexto } from "@/lib/sesion";
-import { edad, fechaCorta, fechaHora, numero } from "@/lib/formato";
+import { ETIQUETA_TIPO_OBJETIVO, edad, fechaCorta, fechaHora, numero } from "@/lib/formato";
 import type { MedicionFila } from "@/lib/supabase/tipos-bd";
 import { agregarNota, cambiarEstadoAlumno, registrarMedicion } from "../acciones";
 import { BotonCambioEstado, FormularioMedicion, FormularioNota } from "./componentes";
@@ -65,7 +65,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
       .limit(50),
     supabase
       .from("objetivos_alumno")
-      .select("nombre, fecha_meta")
+      .select("tipo, nombre, fecha_meta")
       .eq("alumno_id", id)
       .eq("es_principal", true)
       .eq("estado", "activo")
@@ -152,7 +152,14 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
           detalle={alumno.fecha_nacimiento ? fechaCorta(alumno.fecha_nacimiento) : "Sin fecha de nacimiento"} />
         <Cifra etiqueta="Desde" valor={fechaCorta(alumno.fecha_inicio)} pequena detalle="Entrena contigo" />
         <Cifra etiqueta="Objetivo principal" valor={objetivo?.nombre ?? "Sin definir"} pequena className="col-span-2 lg:col-span-1"
-          detalle={objetivo?.fecha_meta ? `Meta: ${fechaCorta(objetivo.fecha_meta)}` : undefined} />
+          detalle={
+            objetivo
+              ? [
+                  objetivo.nombre !== ETIQUETA_TIPO_OBJETIVO[objetivo.tipo] ? ETIQUETA_TIPO_OBJETIVO[objetivo.tipo] : null,
+                  objetivo.fecha_meta ? `Meta: ${fechaCorta(objetivo.fecha_meta)}` : null,
+                ].filter(Boolean).join(" · ") || undefined
+              : archivado ? undefined : "Defínelo en Editar"
+          } />
       </section>
 
       <div className="grid items-start gap-3 sm:gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
