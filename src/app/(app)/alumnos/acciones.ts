@@ -158,3 +158,11 @@ export async function registrarMedicion(
   refresh();
   return { ok: true };
 }
+
+/** Teléfono o correo del alumno, solo cuando el entrenador pide verlo (no viaja con la página). */
+export async function verContacto(alumnoId: string, campo: "telefono" | "correo"): Promise<string | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(alumnoId) || (campo !== "telefono" && campo !== "correo")) return null;
+  const { supabase } = await obtenerContexto();
+  const { data } = await supabase.from("alumnos").select("telefono, correo").eq("id", alumnoId).maybeSingle();
+  return data?.[campo] ?? null;
+}

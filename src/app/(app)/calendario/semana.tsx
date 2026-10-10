@@ -12,7 +12,8 @@ import { HORA_FIN_DIA, HORA_INICIO_DIA, etiquetaDia, etiquetaDiaLarga, partesLoc
 import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita";
-import { cambiarEstadoCita, crearCita } from "./acciones";
+import type { DiaDeSesion, PlanActivo } from "@/lib/entrenamiento/planes";
+import { cambiarEstadoCita, crearCita, elegirDiaCita } from "./acciones";
 import { ESTADOS_VISIBLES, IconoEstadoCita, InsigniaCita, puntoEstadoCita, tonoEstadoCita } from "./estado-cita";
 
 export type CitaVista = {
@@ -24,7 +25,16 @@ export type CitaVista = {
   notas: string | null;
   iniciaEn: string;
   terminaEn: string;
+  /** Día del plan que se entrena en la cita, si se eligió. */
+  rutina: DiaDeSesion | null;
+  /** Plan activo del alumno. */
+  plan: PlanActivo | null;
 };
+
+type AlumnoAgenda = { id: string; nombre: string; plan: PlanActivo | null };
+
+/** Qué se hace en la cita: el día del plan si lo hay; si no, el tipo de cita. */
+const queSeHace = (c: CitaVista) => c.rutina?.dia ?? ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo;
 
 type Borrador = { fecha?: string; hora?: string; alumnoId?: string };
 
@@ -70,12 +80,15 @@ export function CalendarioSemana({
   alumnos,
   alumnoInicial,
   barra,
+  resumen,
 }: {
   barra?: React.ReactNode;
+  /** Bloque bajo la barra (rutinas de la semana). */
+  resumen?: React.ReactNode;
   dias: string[];
   hoy: string;
   citas: CitaVista[];
-  alumnos: { id: string; nombre: string }[];
+  alumnos: AlumnoAgenda[];
   alumnoInicial?: string;
 }) {
   const [borrador, setBorrador] = useState<Borrador | null>(alumnoInicial ? { alumnoId: alumnoInicial } : null);
@@ -93,6 +106,8 @@ export function CalendarioSemana({
           <Plus aria-hidden className="size-4" /> Nueva cita
         </Boton>
       </div>
+
+      {resumen}
 
       <RejillaSemana dias={dias} hoy={hoy} porDia={porDia} alElegirHueco={setBorrador} alElegirCita={setIdSeleccionada} />
       <AgendaMovil dias={dias} hoy={hoy} porDia={porDia} alElegirCita={setIdSeleccionada} />
@@ -218,7 +233,7 @@ function RejillaSemana({
                   </span>
                   {alto > 36 && (
                     <span className="block truncate opacity-80">
-                      {hora(c.iniciaEn)} · {ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}
+                      {hora(c.iniciaEn)} · {queSeHace(c)}
                     </span>
                   )}
                 </button>
@@ -264,7 +279,9 @@ function AgendaMovil({
                       <span className="w-[5.5rem] shrink-0 font-mono text-[0.8rem] whitespace-nowrap">{hora(c.iniciaEn)}</span>
                       <span className="min-w-0 flex-1">
                         <span className={`block truncate ${c.estado === "no_asistio" ? "text-tenue line-through" : "font-semibold"}`}>{c.alumno}</span>
-                        <span className="block text-sm text-tenue">{ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}</span>
+                        <span className="block truncate text-sm text-tenue">
+                          {c.rutina ? `${c.rutina.dia} · ${c.rutina.plan}` : ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}
+                        </span>
                       </span>
                       <IconoEstadoCita estado={c.estado} className="size-[18px] shrink-0 text-tenue" />
                     </button>
@@ -285,9 +302,12 @@ function FormularioCita({
   alGuardar,
 }: {
   borrador: Borrador;
-  alumnos: { id: string; nombre: string }[];
+  alumnos: AlumnoAgenda[];
   alGuardar: () => void;
 }) {
+  const [alumnoId, setAlumnoId] = useState(borrador.alumnoId ?? "");
+  const [tipo, setTipo] = useState("entrenamiento");
+  const plan = alumnos.find((a) => a.id === alumnoId)?.plan ?? null;
   const [estado, enviar] = useActionState(async (previo: EstadoFormulario, datos: FormData) => {
     const resultado = await crearCita(previo, datos);
     if (resultado.ok) alGuardar();
@@ -311,7 +331,8 @@ function FormularioCita({
         etiqueta="Alumno"
         nombre="alumno_id"
         required
-        defaultValue={v?.alumno_id ?? borrador.alumnoId ?? ""}
+        value={alumnoId}
+        onChange={(e) => setAlumnoId(e.target.value)}
         errores={estado.errores?.alumno_id}
         opciones={[{ valor: "", texto: "Elige un alumno" }, ...alumnos.map((a) => ({ valor: a.id, texto: a.nombre }))]}
       />
@@ -322,9 +343,35 @@ function FormularioCita({
           defaultValue={v?.hora ?? borrador.hora ?? "07:00"} errores={estado.errores?.hora} />
         <Selector etiqueta="Duración" nombre="duracion" defaultValue={v?.duracion ?? "60"}
           opciones={DURACIONES_CITA.map((m) => ({ valor: String(m), texto: m < 60 || m % 60 ? `${m} min` : `${m / 60} h` }))} />
-        <Selector etiqueta="Tipo" nombre="tipo" defaultValue={v?.tipo ?? "entrenamiento"}
+        <Selector etiqueta="Tipo" nombre="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}
           opciones={Object.entries(ETIQUETA_TIPO_CITA).map(([valor, texto]) => ({ valor, texto }))} />
       </div>
+      {tipo === "entrenamiento" && alumnoId && (
+        plan && plan.dias.length ? (
+          <Selector
+            key={plan.id}
+            etiqueta={`Qué entrena · ${plan.nombre}`}
+            nombre="plan_dia_id"
+            defaultValue={v?.plan_dia_id ?? plan.siguienteDiaId ?? ""}
+            ayuda="Te proponemos el día que sigue en su plan."
+            opciones={[
+              ...plan.dias.map((d) => ({
+                valor: d.id,
+                texto: `Día ${d.orden} · ${d.nombre}${d.id === plan.siguienteDiaId ? " (le toca)" : ""}`,
+              })),
+              { valor: "", texto: "Sin rutina, solo la cita" },
+            ]}
+          />
+        ) : (
+          <p className="rounded-lg border border-dashed border-linea px-3 py-2.5 text-sm text-tenue">
+            Este alumno no tiene un plan activo.{" "}
+            <Link href="/entrenamiento" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">
+              Asígnale una rutina
+            </Link>{" "}
+            para saber qué entrena en cada cita.
+          </p>
+        )
+      )}
       <AreaTexto etiqueta="Notas" nombre="notas" rows={2} placeholder="Opcional: lugar, enfoque de la sesión…"
         defaultValue={v?.notas} />
       <div className="flex gap-3 pt-1">
@@ -351,6 +398,28 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
         </dd>
         <dt className="text-tenue">Tipo</dt>
         <dd>{ETIQUETA_TIPO_CITA[cita.tipo] ?? cita.tipo}</dd>
+        {cita.tipo === "entrenamiento" && (
+          <>
+            <dt className="text-tenue">Rutina</dt>
+            <dd>
+              {cita.rutina ? (
+                <Link href={`/entrenamiento/planes/${cita.rutina.planId}`} className="font-medium underline underline-offset-2 hover:no-underline">
+                  Día {cita.rutina.orden} · {cita.rutina.dia}
+                  <span className="font-normal text-tenue"> ({cita.rutina.plan})</span>
+                </Link>
+              ) : cita.plan ? (
+                <ElegirDia cita={cita} plan={cita.plan} alError={setError} />
+              ) : (
+                <span className="text-tenue">
+                  Sin plan activo ·{" "}
+                  <Link href="/entrenamiento" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">
+                    Asignar rutina
+                  </Link>
+                </span>
+              )}
+            </dd>
+          </>
+        )}
         <dt className="text-tenue">Estado</dt>
         <dd><InsigniaCita estado={cita.estado} /></dd>
         {cita.notas && (
@@ -385,6 +454,48 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
           Ver alumno
         </Link>
       </div>
+    </div>
+  );
+}
+
+/** Para una cita de entrenamiento sin día del plan: elegirlo ahí mismo. */
+function ElegirDia({ cita, plan, alError }: { cita: CitaVista; plan: PlanActivo; alError: (e: string | null) => void }) {
+  const [dia, setDia] = useState(plan.siguienteDiaId ?? plan.dias[0]?.id ?? "");
+  const [pendiente, iniciar] = useTransition();
+  if (!plan.dias.length) return <span className="text-tenue">{plan.nombre} no tiene días.</span>;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <label htmlFor={`dia-${cita.id}`} className="sr-only">
+        Día del plan
+      </label>
+      <select
+        id={`dia-${cita.id}`}
+        value={dia}
+        onChange={(e) => setDia(e.target.value)}
+        className="h-8 min-w-0 flex-1 rounded-md border border-linea bg-superficie px-2 text-sm"
+      >
+        {plan.dias.map((d) => (
+          <option key={d.id} value={d.id}>
+            Día {d.orden} · {d.nombre}
+            {d.id === plan.siguienteDiaId ? " (le toca)" : ""}
+          </option>
+        ))}
+      </select>
+      <Boton
+        type="button"
+        variante="secundario"
+        className="h-8"
+        disabled={pendiente || !dia}
+        onClick={() =>
+          iniciar(async () => {
+            alError(null);
+            const resultado = await elegirDiaCita(cita.id, dia);
+            if (resultado.error) alError(resultado.error);
+          })
+        }
+      >
+        {pendiente ? "Guardando…" : "Asignar día"}
+      </Boton>
     </div>
   );
 }

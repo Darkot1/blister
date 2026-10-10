@@ -6,13 +6,74 @@ import { Avatar } from "@/components/ui/avatar";
 import { CabeceraTarjeta, EnlaceTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
 import { etiquetaDiaLarga } from "@/lib/calendario";
 import { ETIQUETA_TIPO_CITA, fechaSinAnio, hora } from "@/lib/formato";
+import type { DiaDeSesion } from "@/lib/entrenamiento/planes";
 import { FilaCita, type CitaResumen } from "../calendario/fila-cita";
+
+export type CitaHoy = CitaResumen & {
+  termina_en: string;
+  /** Minutos desde medianoche (hora de Bogotá) de inicio y fin. */
+  minutos: number;
+  fin: number;
+  rutina: DiaDeSesion | null;
+  /** Nombre del plan activo del alumno, si tiene. */
+  plan: string | null;
+};
+
+type Momento = "hecha" | "no_asistio" | "sin_marcar" | "en_curso" | "siguiente" | "despues";
+
+/** Dónde está cada cita respecto a la hora actual, combinando reloj y estado. */
+function momentoDe(c: CitaHoy, ahora: number, siguienteId?: string): Momento {
+  if (c.estado === "completada") return "hecha";
+  if (c.estado === "no_asistio") return "no_asistio";
+  if (c.fin <= ahora) return "sin_marcar";
+  if (c.minutos <= ahora) return "en_curso";
+  return c.id === siguienteId ? "siguiente" : "despues";
+}
+
+const ETIQUETA_MOMENTO: Partial<Record<Momento, string>> = {
+  hecha: "Hecha",
+  no_asistio: "No asistió",
+  sin_marcar: "Sin marcar",
+  en_curso: "En curso",
+  siguiente: "Siguiente",
+};
+
+/** Marca de la línea de tiempo: lleno = pasó, anillo = por venir, naranja = ahora. */
+function MarcaMomento({ momento }: { momento: Momento }) {
+  return (
+    <svg aria-hidden viewBox="0 0 16 16" className="relative z-10 size-4 overflow-visible">
+      {momento === "hecha" && (
+        <>
+          <circle cx="8" cy="8" r="7" className="fill-white/80" />
+          <path d="M4.8 8.2 7 10.3l4.2-4.5" className="fill-none stroke-panel [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.8]" />
+        </>
+      )}
+      {momento === "no_asistio" && (
+        <>
+          <circle cx="8" cy="8" r="7" className="fill-white/25" />
+          <path d="m5.5 5.5 5 5m0-5-5 5" className="stroke-panel [stroke-linecap:round] [stroke-width:1.8]" />
+        </>
+      )}
+      {momento === "sin_marcar" && <circle cx="8" cy="8" r="6" className="fill-panel stroke-white/50 [stroke-dasharray:2.5_2] [stroke-width:1.5]" />}
+      {momento === "en_curso" && (
+        <>
+          <circle cx="8" cy="8" r="7.5" className="origin-center animate-ping fill-acento/40" />
+          <circle cx="8" cy="8" r="5" className="fill-acento" />
+        </>
+      )}
+      {(momento === "siguiente" || momento === "despues") && (
+        <circle cx="8" cy="8" r="5.5" className={`fill-panel [stroke-width:2] ${momento === "siguiente" ? "stroke-acento" : "stroke-white/40"}`} />
+      )}
+    </svg>
+  );
+}
 
 /** El panel de inicio como rejilla bento; solo presenta, los datos llegan de page.tsx. */
 export function VistaPanel({
   hoy,
   titulo,
   deHoy,
+  ahora,
   siguienteId,
   nombre,
   semana,
@@ -24,7 +85,9 @@ export function VistaPanel({
 }: {
   hoy: string;
   titulo: string;
-  deHoy: CitaResumen[];
+  deHoy: CitaHoy[];
+  /** Minuto actual del día (Bogotá). */
+  ahora: number;
   siguienteId?: string;
   nombre: Map<string, string>;
   semana: { fecha: string; etiqueta: string; valor: number }[];
@@ -35,6 +98,9 @@ export function VistaPanel({
   porAtender: number;
 }) {
   const totalSemana = semana.reduce((s, d) => s + d.valor, 0);
+  const momentos = deHoy.map((c) => momentoDe(c, ahora, siguienteId));
+  const pasadas = momentos.filter((m) => m === "hecha" || m === "no_asistio" || m === "sin_marcar").length;
+  const sinMarcar = momentos.filter((m) => m === "sin_marcar").length;
   return (
     <>
       <Encabezado miga={etiquetaDiaLarga(hoy)} titulo={titulo} />
@@ -56,24 +122,89 @@ export function VistaPanel({
             <CalendarClock aria-hidden className="size-5 text-acento" />
           </div>
 
+          {deHoy.length > 0 && (
+            <p className="mt-2 px-5 text-xs text-white/55">
+              {pasadas} de {deHoy.length} ya {pasadas === 1 ? "pasó" : "pasaron"}
+              {sinMarcar > 0 && (
+                <>
+                  {" · "}
+                  <Link href="/calendario" className="font-medium text-white underline underline-offset-2 hover:no-underline">
+                    {sinMarcar} sin marcar
+                  </Link>
+                </>
+              )}
+            </p>
+          )}
+
           {deHoy.length ? (
-            <ol className="mt-5 flex-1 divide-y divide-white/10 border-t border-white/10">
-              {deHoy.slice(0, 6).map((c) => {
-                const esSiguiente = c.id === siguienteId;
+            <ol className="relative mt-4 flex-1 border-t border-white/10 py-1">
+              {/* Línea de tiempo vertical que une las marcas. */}
+              <span aria-hidden className="absolute top-0 bottom-0 left-[calc(1.25rem+0.75rem-0.5px)] w-px bg-white/15" />
+              {deHoy.slice(0, 7).map((c, i) => {
+                const momento = momentos[i];
+                const paso = momento === "hecha" || momento === "no_asistio" || momento === "sin_marcar";
+                const etiqueta = ETIQUETA_MOMENTO[momento];
+                const que = c.rutina
+                  ? `${c.rutina.dia} · ${c.rutina.plan}`
+                  : c.tipo === "entrenamiento"
+                    ? c.plan
+                      ? `Entrenamiento · ${c.plan} (día sin elegir)`
+                      : "Entrenamiento · sin plan asignado"
+                    : (ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo);
                 return (
-                  <li key={c.id} className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-3 px-5 py-2.5">
-                    <span className={`font-mono text-[0.8rem] whitespace-nowrap ${esSiguiente ? "text-acento" : "text-white/55"}`}>{hora(c.inicia_en)}</span>
-                    <span className="min-w-0">
-                      <span className={`block truncate text-sm ${c.estado === "no_asistio" ? "text-white/45 line-through" : "font-medium"}`}>
-                        {nombre.get(c.alumno_id) ?? "Alumno"}
+                  <li key={c.id}>
+                    <Link
+                      href={`/alumnos/${c.alumno_id}`}
+                      className={`grid grid-cols-[1.5rem_5rem_minmax(0,1fr)_auto] items-center gap-x-3 px-5 py-2 hover:bg-white/[0.04] ${
+                        momento === "en_curso" ? "bg-acento/[0.08]" : ""
+                      }`}
+                    >
+                      <span className="grid place-items-center">
+                        <MarcaMomento momento={momento} />
                       </span>
-                      <span className="block truncate text-xs text-white/50">{ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo}</span>
-                    </span>
-                    {esSiguiente && <span className="rounded-md bg-acento px-2 py-0.5 text-xs font-semibold text-sobre-acento">Siguiente</span>}
+                      <span
+                        className={`font-mono text-[0.78rem] leading-tight whitespace-nowrap ${
+                          paso ? "text-white/40" : momento === "en_curso" || momento === "siguiente" ? "text-acento" : "text-white/70"
+                        }`}
+                      >
+                        {hora(c.inicia_en)}
+                        <span className="block text-[0.7rem] text-white/35">{hora(c.termina_en)}</span>
+                      </span>
+                      <span className="min-w-0">
+                        <span
+                          className={`block truncate text-sm ${
+                            momento === "no_asistio" ? "text-white/45 line-through" : paso ? "text-white/60" : "font-medium"
+                          }`}
+                        >
+                          {nombre.get(c.alumno_id) ?? "Alumno"}
+                        </span>
+                        <span className={`block truncate text-xs ${paso ? "text-white/35" : "text-white/60"}`}>
+                          {c.rutina && <Dumbbell aria-hidden className="mr-1 inline size-3 -translate-y-px" />}
+                          {que}
+                        </span>
+                      </span>
+                      {etiqueta ? (
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${
+                            momento === "en_curso"
+                              ? "bg-acento text-sobre-acento"
+                              : momento === "siguiente"
+                                ? "border border-acento/60 text-acento"
+                                : momento === "sin_marcar"
+                                  ? "border border-dashed border-white/40 text-white/80"
+                                  : "text-white/45"
+                          }`}
+                        >
+                          {etiqueta}
+                        </span>
+                      ) : (
+                        <span />
+                      )}
+                    </Link>
                   </li>
                 );
               })}
-              {deHoy.length > 6 && <li className="px-5 py-2.5 text-sm text-white/50">y {deHoy.length - 6} más</li>}
+              {deHoy.length > 7 && <li className="py-2.5 pr-5 pl-[3.75rem] text-sm text-white/50">y {deHoy.length - 7} más</li>}
             </ol>
           ) : (
             <p className="mt-5 flex-1 border-t border-white/10 px-5 py-6 text-sm text-white/60">

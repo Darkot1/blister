@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarPlus, Mail, Pencil, Phone } from "lucide-react";
+import { CalendarPlus, Pencil } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { LineaTendencia } from "@/components/datos/linea-tendencia";
 import { EnlaceBoton } from "@/components/ui/boton";
@@ -14,6 +14,8 @@ import { ETIQUETA_TIPO_OBJETIVO, edad, fechaCorta, fechaHora, numero } from "@/l
 import type { MedicionFila } from "@/lib/supabase/tipos-bd";
 import { agregarNota, cambiarEstadoAlumno, registrarMedicion } from "../acciones";
 import { BotonCambioEstado, FormularioMedicion, FormularioNota } from "./componentes";
+import { ContactoOculto } from "./contacto";
+import { PlanAlumno } from "./plan";
 
 export const metadata: Metadata = { title: "Alumno" };
 
@@ -101,16 +103,8 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         descripcion={
           <span className="flex flex-wrap items-center gap-2 text-sm">
             <InsigniaEstado estado={alumno.estado} />
-            {alumno.telefono && (
-              <a href={`tel:${alumno.telefono}`} className="inline-flex h-6 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 font-mono text-xs hover:border-tinta/30 hover:text-tinta">
-                <Phone aria-hidden className="size-3" /> {alumno.telefono}
-              </a>
-            )}
-            {alumno.correo && (
-              <a href={`mailto:${alumno.correo}`} className="inline-flex h-6 max-w-full items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 font-mono text-xs hover:border-tinta/30 hover:text-tinta">
-                <Mail aria-hidden className="size-3 shrink-0" /> <span className="truncate">{alumno.correo}</span>
-              </a>
-            )}
+            {alumno.telefono && <ContactoOculto alumnoId={alumno.id} campo="telefono" />}
+            {alumno.correo && <ContactoOculto alumnoId={alumno.id} campo="correo" />}
           </span>
         }
         acciones={
@@ -161,6 +155,10 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
               : archivado ? undefined : "Defínelo en Editar"
           } />
       </section>
+
+      <Suspense fallback={<Esqueleto className="mb-4 h-48 w-full" />}>
+        <PlanAlumno supabase={supabase} alumnoId={alumno.id} nombre={alumno.nombres} archivado={archivado} />
+      </Suspense>
 
       <div className="grid items-start gap-3 sm:gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Tarjeta className="min-w-0 overflow-hidden">

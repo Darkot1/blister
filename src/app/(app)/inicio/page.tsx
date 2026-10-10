@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Esqueleto } from "@/components/ui/esqueleto";
 import { obtenerContexto, obtenerPerfil } from "@/lib/sesion";
+import { diasDeSesiones, planesActivos } from "@/lib/entrenamiento/planes";
 import {
   aInstante,
   diasDeSemana,
@@ -70,7 +71,7 @@ async function Panel() {
       // Desde el lunes (para la gráfica de la semana) hasta dentro de 8 días (próximas citas).
       supabase
         .from("citas")
-        .select("id, alumno_id, tipo, estado, inicia_en")
+        .select("id, alumno_id, sesion_id, tipo, estado, inicia_en, termina_en")
         .gte("inicia_en", aInstante(lunes, "00:00"))
         .lt("inicia_en", aInstante(fin, "00:00"))
         .not("estado", "in", "(cancelada,reprogramada)")
@@ -81,7 +82,17 @@ async function Panel() {
 
   const nombre = new Map((alumnos ?? []).map((a) => [a.id, `${a.nombres} ${a.apellidos}`]));
   const conFecha = (citas ?? []).map((c) => ({ ...c, ...partesLocales(c.inicia_en) }));
-  const deHoy = conFecha.filter((c) => c.fecha === hoy);
+  const deHoyBase = conFecha.filter((c) => c.fecha === hoy);
+  const [rutinaDe, planes] = await Promise.all([
+    diasDeSesiones(supabase, deHoyBase.flatMap((c) => (c.sesion_id ? [c.sesion_id] : []))),
+    planesActivos(supabase, [...new Set(deHoyBase.map((c) => c.alumno_id))]),
+  ]);
+  const deHoy = deHoyBase.map((c) => ({
+    ...c,
+    fin: partesLocales(c.termina_en).minutos,
+    rutina: c.sesion_id ? (rutinaDe.get(c.sesion_id) ?? null) : null,
+    plan: planes.get(c.alumno_id)?.nombre ?? null,
+  }));
   const proximas = conFecha.filter((c) => c.fecha > hoy);
   const siguiente = deHoy.find((c) => c.minutos >= ahora.minutos && PENDIENTES.includes(c.estado));
   const semana = diasDeSemana(lunes).map((fecha) => ({
@@ -95,6 +106,7 @@ async function Panel() {
       hoy={hoy}
       titulo={`${saludo(ahora.minutos)}${perfil?.nombres ? `, ${perfil.nombres.split(" ")[0]}` : ""}`}
       deHoy={deHoy}
+      ahora={ahora.minutos}
       siguienteId={siguiente?.id}
       nombre={nombre}
       semana={semana}
