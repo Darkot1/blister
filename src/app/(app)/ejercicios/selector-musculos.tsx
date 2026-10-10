@@ -86,7 +86,18 @@ export function ExploradorEjercicios({
 
           {optimistas.length > 0 && (
             <ul aria-label="Músculos elegidos" className="contents">
-              {optimistas.map((slug) => (
+                 <li>
+                <button
+                  type="button"
+                  onClick={() => aplicar([])}
+                  aria-label="Quitar todos los músculos elegidos"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-dashed border-linea bg-superficie px-2.5 text-sm text-tenue transition-colors hover:border-peligro/40 hover:bg-peligro/[0.06] hover:text-peligro"
+                >
+                  <RotateCcw aria-hidden className="size-3.5" />
+                  Limpiar
+                </button>
+              </li>
+                {optimistas.map((slug) => (
                 <li key={slug}>
                   <button
                     type="button"
@@ -99,17 +110,7 @@ export function ExploradorEjercicios({
                   </button>
                 </li>
               ))}
-              <li>
-                <button
-                  type="button"
-                  onClick={() => aplicar([])}
-                  aria-label="Quitar todos los músculos elegidos"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-dashed border-linea bg-superficie px-2.5 text-sm text-tenue transition-colors hover:border-peligro/40 hover:bg-peligro/[0.06] hover:text-peligro"
-                >
-                  <RotateCcw aria-hidden className="size-3.5" />
-                  Limpiar
-                </button>
-              </li>
+             
             </ul>
           )}
 

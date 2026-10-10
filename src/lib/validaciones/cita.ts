@@ -13,6 +13,11 @@ export const esquemaCita = z.object({
   duracion: z.coerce
     .number()
     .refine((v) => (DURACIONES_CITA as readonly number[]).includes(v), "Duración no válida"),
+  /** Día del plan que se entrena en la cita (crea la sesión prescrita). Vacío = solo la cita. */
+  plan_dia_id: z
+    .union([z.uuid(), z.literal("")])
+    .optional()
+    .transform((v) => v || null),
   notas: z
     .string()
     .trim()

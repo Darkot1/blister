@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarPlus, Mail, Pencil, Phone } from "lucide-react";
+import { CalendarPlus, Pencil } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { LineaTendencia } from "@/components/datos/linea-tendencia";
 import { EnlaceBoton } from "@/components/ui/boton";
@@ -10,10 +10,12 @@ import { InsigniaEstado } from "@/components/ui/insignia-estado";
 import { CabeceraTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
 import { Esqueleto, EsqueletoLista } from "@/components/ui/esqueleto";
 import { obtenerContexto } from "@/lib/sesion";
-import { edad, fechaCorta, fechaHora, numero } from "@/lib/formato";
+import { ETIQUETA_TIPO_OBJETIVO, edad, fechaCorta, fechaHora, numero } from "@/lib/formato";
 import type { MedicionFila } from "@/lib/supabase/tipos-bd";
 import { agregarNota, cambiarEstadoAlumno, registrarMedicion } from "../acciones";
 import { BotonCambioEstado, FormularioMedicion, FormularioNota } from "./componentes";
+import { ContactoOculto } from "./contacto";
+import { PlanAlumno } from "./plan";
 
 export const metadata: Metadata = { title: "Alumno" };
 
@@ -65,7 +67,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
       .limit(50),
     supabase
       .from("objetivos_alumno")
-      .select("nombre, fecha_meta")
+      .select("tipo, nombre, fecha_meta")
       .eq("alumno_id", id)
       .eq("es_principal", true)
       .eq("estado", "activo")
@@ -101,16 +103,8 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         descripcion={
           <span className="flex flex-wrap items-center gap-2 text-sm">
             <InsigniaEstado estado={alumno.estado} />
-            {alumno.telefono && (
-              <a href={`tel:${alumno.telefono}`} className="inline-flex h-6 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 font-mono text-xs hover:border-tinta/30 hover:text-tinta">
-                <Phone aria-hidden className="size-3" /> {alumno.telefono}
-              </a>
-            )}
-            {alumno.correo && (
-              <a href={`mailto:${alumno.correo}`} className="inline-flex h-6 max-w-full items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 font-mono text-xs hover:border-tinta/30 hover:text-tinta">
-                <Mail aria-hidden className="size-3 shrink-0" /> <span className="truncate">{alumno.correo}</span>
-              </a>
-            )}
+            {alumno.telefono && <ContactoOculto alumnoId={alumno.id} campo="telefono" />}
+            {alumno.correo && <ContactoOculto alumnoId={alumno.id} campo="correo" />}
           </span>
         }
         acciones={
@@ -152,8 +146,19 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
           detalle={alumno.fecha_nacimiento ? fechaCorta(alumno.fecha_nacimiento) : "Sin fecha de nacimiento"} />
         <Cifra etiqueta="Desde" valor={fechaCorta(alumno.fecha_inicio)} pequena detalle="Entrena contigo" />
         <Cifra etiqueta="Objetivo principal" valor={objetivo?.nombre ?? "Sin definir"} pequena className="col-span-2 lg:col-span-1"
-          detalle={objetivo?.fecha_meta ? `Meta: ${fechaCorta(objetivo.fecha_meta)}` : undefined} />
+          detalle={
+            objetivo
+              ? [
+                  objetivo.nombre !== ETIQUETA_TIPO_OBJETIVO[objetivo.tipo] ? ETIQUETA_TIPO_OBJETIVO[objetivo.tipo] : null,
+                  objetivo.fecha_meta ? `Meta: ${fechaCorta(objetivo.fecha_meta)}` : null,
+                ].filter(Boolean).join(" · ") || undefined
+              : archivado ? undefined : "Defínelo en Editar"
+          } />
       </section>
+
+      <Suspense fallback={<Esqueleto className="mb-4 h-48 w-full" />}>
+        <PlanAlumno supabase={supabase} alumnoId={alumno.id} nombre={alumno.nombres} archivado={archivado} />
+      </Suspense>
 
       <div className="grid items-start gap-3 sm:gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Tarjeta className="min-w-0 overflow-hidden">

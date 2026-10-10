@@ -176,6 +176,78 @@ export type CitaFila = {
   actualizado_en: string;
 };
 
+export type PlantillaFila = {
+  id: string;
+  organizacion_id: string;
+  creado_por: string;
+  nombre: string;
+  descripcion: string | null;
+  tipo_objetivo: string | null;
+  estado: string;
+  creado_en: string;
+  actualizado_en: string;
+};
+
+export type PlanFila = {
+  id: string;
+  organizacion_id: string;
+  alumno_id: string;
+  creado_por: string;
+  plantilla_origen_id: string | null;
+  nombre: string;
+  descripcion: string | null;
+  tipo_objetivo: string | null;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+  estado: string;
+  creado_en: string;
+  actualizado_en: string;
+};
+
+export type SesionFila = {
+  id: string;
+  organizacion_id: string;
+  alumno_id: string;
+  plan_id: string | null;
+  plan_dia_id: string | null;
+  programada_para: string | null;
+  iniciada_en: string | null;
+  completada_en: string | null;
+  estado: string;
+  rpe_sesion: number | null;
+  notas: string | null;
+  creado_en: string;
+  actualizado_en: string;
+};
+
+/** Común a plantilla_dias y plan_dias. */
+type DiaBase = { id: string; nombre: string; orden: number; descripcion: string | null };
+
+export type BloqueFila = {
+  id: string;
+  nombre: string;
+  tipo: string;
+  orden: number;
+  descanso_segundos: number | null;
+  rondas: number | null;
+  notas: string | null;
+};
+
+export type PrescripcionFila = {
+  id: string;
+  ejercicio_id: string;
+  orden: number;
+  series: number | null;
+  repeticiones: string | null;
+  peso: number | null;
+  unidad_peso: string;
+  descanso_segundos: number | null;
+  tempo: string | null;
+  rir: number | null;
+  rpe: number | null;
+  notas: string | null;
+};
+
 type Opcional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type Database = {
@@ -219,6 +291,27 @@ export type Database = {
         { ejercicio_id: string; musculo_id: string; rol: string }
       >;
       superadministradores: Tabla<{ usuario_id: string; creado_en: string }, { usuario_id: string; creado_en?: string }>;
+      plantillas: Tabla<PlantillaFila, Opcional<PlantillaFila, "id" | "descripcion" | "tipo_objetivo" | "estado" | "creado_en" | "actualizado_en">>;
+      plantilla_dias: Tabla<DiaBase & { plantilla_id: string }, Opcional<DiaBase & { plantilla_id: string }, "id" | "descripcion">>;
+      plantilla_bloques: Tabla<BloqueFila & { plantilla_dia_id: string }, Partial<BloqueFila> & { plantilla_dia_id: string; nombre: string; tipo: string }>;
+      plantilla_ejercicios: Tabla<
+        PrescripcionFila & { plantilla_bloque_id: string },
+        Partial<PrescripcionFila> & { plantilla_bloque_id: string; ejercicio_id: string }
+      >;
+      planes: Tabla<PlanFila, Opcional<PlanFila, "id" | "plantilla_origen_id" | "descripcion" | "tipo_objetivo" | "fecha_inicio" | "fecha_fin" | "estado" | "creado_en" | "actualizado_en">>;
+      plan_dias: Tabla<
+        DiaBase & { plan_id: string; dia_semana: number | null },
+        Opcional<DiaBase & { plan_id: string; dia_semana: number | null }, "id" | "descripcion" | "dia_semana">
+      >;
+      plan_bloques: Tabla<BloqueFila & { plan_dia_id: string }, Partial<BloqueFila> & { plan_dia_id: string; nombre: string; tipo: string }>;
+      plan_ejercicios: Tabla<
+        PrescripcionFila & { plan_bloque_id: string },
+        Partial<PrescripcionFila> & { plan_bloque_id: string; ejercicio_id: string }
+      >;
+      sesiones: Tabla<
+        SesionFila,
+        Opcional<SesionFila, "id" | "plan_id" | "plan_dia_id" | "programada_para" | "iniciada_en" | "completada_en" | "estado" | "rpe_sesion" | "notas" | "creado_en" | "actualizado_en">
+      >;
       musculos: Tabla<MusculoFila, Opcional<MusculoFila, "id" | "descripcion" | "orden" | "organizacion_id" | "creado_por" | "creado_en">>;
     };
     Views: { [_ in never]: never };
@@ -235,6 +328,18 @@ export type Database = {
         Args: { p_plantilla_id: string; p_alumno_id: string; p_fecha_inicio?: string; p_nombre?: string };
         Returns: string;
       };
+      guardar_plantilla: {
+        Args: {
+          p_plantilla_id: string | null;
+          p_organizacion_id: string;
+          p_nombre: string;
+          p_descripcion: string | null;
+          p_tipo_objetivo: string | null;
+          p_dias: Json;
+        };
+        Returns: string;
+      };
+      activar_plan: { Args: { p_plan_id: string }; Returns: undefined };
       iniciar_sesion_desde_plan: {
         Args: { p_plan_dia_id: string; p_programada_para?: string };
         Returns: string;
