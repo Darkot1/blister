@@ -112,7 +112,7 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/maestros/ejer
               className={`inline-flex items-center gap-1.5 ${claseSegmento(origen === o.valor)}`}
             >
               {o.texto}
-              <span className={`font-mono text-[0.7rem] ${origen === o.valor ? "opacity-70" : "text-tenue/70"}`}>{cuenta[o.valor]}</span>
+              <span className={`tabular-nums text-[0.7rem] ${origen === o.valor ? "opacity-70" : "text-tenue/70"}`}>{cuenta[o.valor]}</span>
             </Link>
           ))}
         </nav>
@@ -133,7 +133,7 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/maestros/ejer
         )
       ) : (
         <Tarjeta className="overflow-hidden">
-          <div aria-hidden className="etiqueta hidden grid-cols-[minmax(0,2.4fr)_8rem_8rem_6rem_1rem] gap-4 border-b border-linea bg-fondo/60 px-4 py-2.5 md:grid">
+          <div aria-hidden className="etiqueta hidden grid-cols-[minmax(0,2.4fr)_8rem_8rem_6rem_1rem] gap-4 border-b border-linea bg-hueso/50 px-4 py-2.5 md:grid">
             <span>Ejercicio</span>
             <span>Tipo</span>
             <span>Dificultad</span>
@@ -156,7 +156,7 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/maestros/ejer
                   <span>
                     <span
                       className={`inline-flex h-6 items-center rounded-md px-2 text-xs font-medium ${
-                        e.es_global ? "border border-linea text-tenue" : "bg-acento text-sobre-acento"
+                        e.es_global ? "border border-linea text-tenue" : "bg-hueso text-tinta"
                       }`}
                     >
                       {e.es_global ? "Global" : "Propio"}
@@ -172,7 +172,7 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/maestros/ejer
                   {e.es_global ? (
                     <div className={clase}>{contenido}</div>
                   ) : (
-                    <Link href={`/maestros/ejercicios/${e.id}`} className={`${clase} transition-colors hover:bg-fondo/70`}>
+                    <Link href={`/maestros/ejercicios/${e.id}`} className={`${clase} transition-colors hover:bg-hueso/40`}>
                       {contenido}
                     </Link>
                   )}

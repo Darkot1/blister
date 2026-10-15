@@ -102,7 +102,7 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
       ) : (
         <>
           <Tarjeta className="overflow-hidden">
-            <div aria-hidden className="etiqueta hidden grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_5rem_minmax(0,1fr)_7rem_1rem] gap-4 border-b border-linea bg-fondo/60 px-4 py-2.5 md:grid">
+            <div aria-hidden className="etiqueta hidden grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_5rem_minmax(0,1fr)_7rem_1rem] gap-4 border-b border-linea bg-hueso/50 px-4 py-2.5 md:grid">
               <span>Alumno</span>
               <span>Plan activo</span>
               <span>Edad</span>
@@ -118,7 +118,7 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
                   <li key={a.id}>
                     <Link
                       href={`/alumnos/${a.id}`}
-                      className="grid grid-cols-[minmax(0,1fr)_auto_1rem] items-center gap-x-4 px-4 py-2.5 transition-colors hover:bg-fondo/70 md:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_5rem_minmax(0,1fr)_7rem_1rem]"
+                      className="grid grid-cols-[minmax(0,1fr)_auto_1rem] items-center gap-x-4 px-4 py-2.5 transition-colors hover:bg-hueso/40 md:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_5rem_minmax(0,1fr)_7rem_1rem]"
                     >
                       <span className="flex min-w-0 items-center gap-3">
                         <Avatar id={a.id} nombres={a.nombres} apellidos={a.apellidos} />
@@ -141,8 +141,8 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
                           <span className="text-tenue">Sin plan</span>
                         )}
                       </span>
-                      <span className="hidden font-mono text-[0.8rem] text-tenue md:block">{anios !== null ? `${anios} años` : "—"}</span>
-                      <span className="hidden font-mono text-[0.8rem] text-tenue md:block">{fechaCorta(a.fecha_inicio)}</span>
+                      <span className="hidden tabular-nums text-[0.8rem] text-tenue md:block">{anios !== null ? `${anios} años` : "—"}</span>
+                      <span className="hidden tabular-nums text-[0.8rem] text-tenue md:block">{fechaCorta(a.fecha_inicio)}</span>
                       <span><InsigniaEstado estado={a.estado} /></span>
                       <ChevronRight aria-hidden className="size-4 text-tinta/25" />
                     </Link>
@@ -150,7 +150,7 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
                 );
               })}
             </ul>
-            <p className="border-t border-linea bg-fondo/60 px-4 py-2.5 font-mono text-xs text-tenue">
+            <p className="border-t border-linea bg-hueso/50 px-4 py-2.5 tabular-nums text-xs text-tenue">
               {alumnos.length === 1 ? "1 alumno" : `${alumnos.length} alumnos`}
             </p>
           </Tarjeta>

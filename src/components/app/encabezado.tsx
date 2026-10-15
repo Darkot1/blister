@@ -11,7 +11,7 @@ export function Encabezado({
   figura,
 }: {
   titulo: React.ReactNode;
-  /** Grupo del menú, en monoespaciada sobre el título ("Gestión"). */
+  /** Grupo del menú, como rótulo sobre el título ("Gestión"). */
   miga?: string;
   descripcion?: React.ReactNode;
   acciones?: React.ReactNode;
@@ -20,7 +20,7 @@ export function Encabezado({
   figura?: React.ReactNode;
 }) {
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <header className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
         {volver ? (
           <Link href={volver.href} className="etiqueta mb-2 inline-flex max-w-full items-center gap-1.5 rounded hover:text-tinta">
@@ -33,8 +33,8 @@ export function Encabezado({
         <div className="flex items-center gap-4">
           {figura}
           <div className="min-w-0">
-            <h1 className="text-[1.75rem] leading-tight font-semibold tracking-[-0.025em] sm:text-[2rem]">{titulo}</h1>
-            {descripcion && <div className="mt-1.5 text-tenue">{descripcion}</div>}
+            <h1 className="titulo-serif text-[1.75rem] leading-[1.2] sm:text-[1.875rem]">{titulo}</h1>
+            {descripcion && <div className="mt-2 max-w-2xl text-tenue">{descripcion}</div>}
           </div>
         </div>
       </div>

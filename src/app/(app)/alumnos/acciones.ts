@@ -16,6 +16,8 @@ import { ETIQUETA_TIPO_OBJETIVO } from "@/lib/formato";
 
 const ERROR_GENERICO = "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.";
 
+const esId = (id: string) => /^[0-9a-f-]{36}$/i.test(id);
+
 const hoyBogota = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
 
 type Supabase = Awaited<ReturnType<typeof obtenerContexto>>["supabase"];
@@ -114,9 +116,14 @@ export async function actualizarAlumno(
   redirect(`/alumnos/${alumnoId}`);
 }
 
-export async function cambiarEstadoAlumno(alumnoId: string, estado: "activo" | "inactivo" | "archivado") {
+const ESTADOS_ALUMNO = ["activo", "inactivo", "archivado"] as const;
+
+export async function cambiarEstadoAlumno(alumnoId: string, estado: (typeof ESTADOS_ALUMNO)[number]) {
+  if (!esId(alumnoId) || !ESTADOS_ALUMNO.includes(estado)) throw new Error("Cambio de estado no válido.");
   const { supabase } = await obtenerContexto();
-  await supabase.from("alumnos").update({ estado }).eq("id", alumnoId);
+  const { data, error } = await supabase.from("alumnos").update({ estado }).eq("id", alumnoId).select("id");
+  // Sin filas: no existe o no hay permiso. Se avisa en lugar de fingir que se guardó.
+  if (error || !data?.length) throw new Error("No se pudo cambiar el estado del alumno.");
   refresh();
 }
 

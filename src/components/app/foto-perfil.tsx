@@ -3,7 +3,7 @@ import { iniciales } from "@/lib/formato";
 
 const TAMANOS = { sm: { caja: "size-8 rounded-lg text-xs", px: 32 }, xl: { caja: "size-20 rounded-2xl text-2xl", px: 80 } };
 
-/** Foto del entrenador (la de Google si ingresó con Google); si no hay, sus iniciales sobre el naranja. */
+/** Foto del entrenador (la de Google si ingresó con Google); si no hay, sus iniciales sobre papel hueso. */
 export function FotoPerfil({
   url,
   nombres,
@@ -30,7 +30,7 @@ export function FotoPerfil({
     );
   }
   return (
-    <span aria-hidden className={`grid shrink-0 place-items-center bg-acento font-semibold text-sobre-acento ${t.caja}`}>
+    <span aria-hidden className={`grid shrink-0 place-items-center bg-hueso font-medium text-grafito ${t.caja}`}>
       {iniciales(nombres || "?", apellidos || "")}
     </span>
   );

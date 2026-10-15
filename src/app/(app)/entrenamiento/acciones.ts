@@ -62,9 +62,10 @@ export async function guardarRutina(id: string | null, entrada: RutinaEntrada): 
 }
 
 export async function cambiarEstadoRutina(id: string, estado: "activo" | "archivado") {
-  if (!esId(id)) return;
+  if (!esId(id) || (estado !== "activo" && estado !== "archivado")) throw new Error("Cambio de estado no válido.");
   const { supabase } = await obtenerContexto();
-  await supabase.from("plantillas").update({ estado }).eq("id", id);
+  const { data, error } = await supabase.from("plantillas").update({ estado }).eq("id", id).select("id");
+  if (error || !data?.length) throw new Error("No se pudo cambiar el estado de la rutina.");
   if (estado === "archivado") redirect("/entrenamiento");
   refresh();
 }
@@ -142,10 +143,17 @@ async function asignar(plantillaId: string, formData: FormData, volverA: "plan" 
   redirect(`/entrenamiento/planes/${planId}${errorActivar ? "?aviso=sin-activar" : ""}`);
 }
 
-export async function cambiarEstadoPlan(id: string, estado: "activo" | "completado" | "archivado") {
-  if (!esId(id)) return;
+const ESTADOS_PLAN = ["activo", "completado", "archivado"] as const;
+
+export async function cambiarEstadoPlan(id: string, estado: (typeof ESTADOS_PLAN)[number]) {
+  if (!esId(id) || !ESTADOS_PLAN.includes(estado)) throw new Error("Cambio de estado no válido.");
   const { supabase } = await obtenerContexto();
-  if (estado === "activo") await supabase.rpc("activar_plan", { p_plan_id: id });
-  else await supabase.from("planes").update({ estado }).eq("id", id);
+  if (estado === "activo") {
+    const { error } = await supabase.rpc("activar_plan", { p_plan_id: id });
+    if (error) throw new Error("No se pudo activar el plan.");
+  } else {
+    const { data, error } = await supabase.from("planes").update({ estado }).eq("id", id).select("id");
+    if (error || !data?.length) throw new Error("No se pudo cambiar el estado del plan.");
+  }
   refresh();
 }

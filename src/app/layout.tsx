@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/instrument-sans";
-import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/source-serif-4/opsz.css";
 import "./globals.css";
 import { SCRIPT_TEMA } from "@/components/app/selector-tema";
 
@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#eef0f3" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b111c" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f8f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#1f1e1c" },
   ],
 };
 

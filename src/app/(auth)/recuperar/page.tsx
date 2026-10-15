@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Recuperar contraseña" };
 export default function PaginaRecuperar() {
   return (
     <>
-      <h1 className="text-[1.75rem] leading-tight font-semibold tracking-[-0.025em]">Recuperar contraseña</h1>
+      <h1 className="titulo-serif text-[1.875rem] leading-[1.2]">Recuperar contraseña</h1>
       <p className="mt-1.5 mb-7 text-tenue">Te enviaremos un enlace para crear una nueva.</p>
       <FormularioRecuperar />
       <p className="mt-7 text-center text-sm text-tenue">

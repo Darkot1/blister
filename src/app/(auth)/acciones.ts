@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
+import { rutaInterna } from "@/lib/rutas";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 
 const MENSAJES: Record<string, string> = {
@@ -30,11 +31,6 @@ async function origen() {
   return `${protocolo}://${host}`;
 }
 
-/** Solo permite redirecciones internas (evita redirecciones abiertas). */
-function rutaSegura(valor: FormDataEntryValue | null) {
-  const ruta = typeof valor === "string" ? valor : "";
-  return ruta.startsWith("/") && !ruta.startsWith("//") ? ruta : "/inicio";
-}
 
 const correo = z.email("Escribe un correo válido").trim().toLowerCase();
 const clave = z.string().min(8, "Usa al menos 8 caracteres");
@@ -53,7 +49,7 @@ export async function ingresar(_: EstadoFormulario, formData: FormData): Promise
   });
   if (error) return { error: mensajeError(error.code), valores };
 
-  redirect(rutaSegura(formData.get("siguiente")));
+  redirect(rutaInterna(formData.get("siguiente")));
 }
 
 export async function registrar(_: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
@@ -118,7 +114,7 @@ export async function actualizarClave(_: EstadoFormulario, formData: FormData): 
 
 /** Inicia el flujo OAuth con Google. Supabase redirige de vuelta a /auth/confirmar. */
 export async function ingresarConGoogle(formData: FormData) {
-  const siguiente = rutaSegura(formData.get("siguiente"));
+  const siguiente = rutaInterna(formData.get("siguiente"));
   const supabase = await crearClienteServidor();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

@@ -18,7 +18,7 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
           </Suspense>
         }
       />
-      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+      <main className="min-w-0 flex-1 px-4 pt-6 pb-[calc(var(--alto-barra-inferior)+1.5rem)] sm:px-6 lg:px-10 lg:py-8">
         <div className="mx-auto max-w-[78rem]">{children}</div>
       </main>
     </div>

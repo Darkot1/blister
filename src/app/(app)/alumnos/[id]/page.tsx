@@ -126,7 +126,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         <div className="col-span-2 flex flex-col rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white lg:col-span-1">
           <p className="etiqueta text-white/50">Peso actual</p>
           <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-            <p className="cifra text-5xl leading-none font-semibold">
+            <p className="cifra-serif text-5xl leading-none">
               {numero(pesoActual)}
               {pesoActual !== null && <span className="ml-1 text-base font-normal tracking-normal text-white/50">kg</span>}
             </p>
@@ -175,7 +175,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="etiqueta bg-fondo/60 text-left">
+                  <thead className="etiqueta bg-hueso/50 text-left">
                     <tr>
                       <th scope="col" className="px-4 py-2.5 font-medium">Fecha</th>
                       {columnas.map((c) => (
@@ -185,10 +185,10 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
                   </thead>
                   <tbody className="divide-y divide-linea">
                     {historial.map((m) => (
-                      <tr key={m.id} className="hover:bg-fondo/50">
+                      <tr key={m.id} className="hover:bg-hueso/40">
                         <th scope="row" className="px-4 py-2.5 text-left font-medium whitespace-nowrap">{fechaCorta(m.medido_en)}</th>
                         {columnas.map((c) => (
-                          <td key={c.clave} className="cifra px-3 py-2.5 text-right font-mono text-[0.8rem] tracking-normal">{numero(m[c.clave] as number | null)}</td>
+                          <td key={c.clave} className="cifra px-3 py-2.5 text-right tabular-nums text-[0.8rem] tracking-normal">{numero(m[c.clave] as number | null)}</td>
                         ))}
                       </tr>
                     ))}
@@ -208,7 +208,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
                 {notas.map((n) => (
                   <li key={n.id} className="px-4 py-3">
                     <p className="text-sm whitespace-pre-line">{n.contenido}</p>
-                    <p className="mt-1.5 font-mono text-[0.7rem] text-tenue">
+                    <p className="mt-1.5 tabular-nums text-[0.7rem] text-tenue">
                       {fechaHora(n.creado_en)}{autores.get(n.autor_id) ? ` · ${autores.get(n.autor_id)}` : ""}
                     </p>
                   </li>
@@ -262,7 +262,7 @@ function Cifra({
   return (
     <Tarjeta className={`flex flex-col p-4 ${className}`}>
       <p className="etiqueta">{etiqueta}</p>
-      <p className={`mt-auto pt-5 leading-tight ${pequena ? "text-lg font-semibold tracking-tight" : "cifra text-5xl leading-none font-semibold"}`}>
+      <p className={`mt-auto pt-5 leading-tight ${pequena ? "titulo-serif text-xl" : "cifra-serif text-5xl leading-none"}`}>
         {valor}
         {unidad && <span className="ml-1 text-base font-normal tracking-normal text-tenue">{unidad}</span>}
       </p>

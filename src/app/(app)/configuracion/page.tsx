@@ -8,7 +8,9 @@ import { Esqueleto } from "@/components/ui/esqueleto";
 import { CabeceraTarjeta, Tarjeta } from "@/components/ui/tarjeta";
 import { salir } from "@/app/(auth)/acciones";
 import { fechaCorta } from "@/lib/formato";
-import { obtenerCuenta } from "@/lib/sesion";
+import { obtenerContexto, obtenerCuenta } from "@/lib/sesion";
+import { googleConfigurado } from "@/lib/google/calendario";
+import { TarjetaGoogle } from "./google";
 
 export const metadata: Metadata = { title: "Ajustes" };
 
@@ -21,7 +23,7 @@ const ROL: Record<string, string> = {
 
 const PROVEEDOR: Record<string, string> = { email: "Correo y contraseña", google: "Google" };
 
-export default function PaginaAjustes() {
+export default function PaginaAjustes({ searchParams }: PageProps<"/configuracion">) {
   return (
     <>
       <Encabezado titulo="Ajustes" miga="Cuenta" />
@@ -29,6 +31,10 @@ export default function PaginaAjustes() {
         <Suspense fallback={<Esqueleto className="h-80" />}>
           <MiPerfil />
         </Suspense>
+        <div className="space-y-4">
+          <Suspense fallback={<Esqueleto className="h-48" />}>
+            <Google searchParams={searchParams} />
+          </Suspense>
         <Tarjeta className="overflow-hidden">
           <section aria-labelledby="titulo-apariencia">
             <CabeceraTarjeta id="titulo-apariencia" titulo="Apariencia" />
@@ -38,9 +44,20 @@ export default function PaginaAjustes() {
             </div>
           </section>
         </Tarjeta>
+        </div>
       </div>
     </>
   );
+}
+
+async function Google({ searchParams }: { searchParams: PageProps<"/configuracion">["searchParams"] }) {
+  const [{ google }, { supabase, usuarioId }] = await Promise.all([searchParams, obtenerContexto()]);
+  const { data: conexion } = await supabase
+    .from("conexiones_google")
+    .select("correo_google, conectado_en")
+    .eq("usuario_id", usuarioId)
+    .maybeSingle();
+  return <TarjetaGoogle resultado={typeof google === "string" ? google : undefined} conexion={conexion} configurado={googleConfigurado()} />;
 }
 
 async function MiPerfil() {
@@ -61,7 +78,7 @@ async function MiPerfil() {
         <div className="flex items-center gap-4 p-4">
           <FotoPerfil url={perfil?.avatar_url} nombres={perfil?.nombres ?? ""} apellidos={perfil?.apellidos ?? ""} tamano="xl" />
           <div className="min-w-0">
-            <p className="truncate text-xl font-semibold tracking-tight">{nombre || "Sin nombre"}</p>
+            <p className="truncate titulo-serif text-2xl leading-[1.25]">{nombre || "Sin nombre"}</p>
             <p className="truncate text-sm text-tenue">{correo}</p>
             {!perfil?.avatar_url && (
               <p className="mt-1 text-xs text-tenue">Si ingresas con Google, tu foto aparecerá aquí.</p>

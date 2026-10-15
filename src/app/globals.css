@@ -1,78 +1,94 @@
 @import "tailwindcss";
 
 /*
-  Identidad visual: "pizarra".
-  Un panel de administración de gimnasio: fondo gris frío, tarjetas blancas con borde fino
-  ordenadas en rejilla bento, tinta azul pizarra muy oscura y un único acento naranja (energía)
-  que solo se usa como relleno con texto `sobre-acento`, nunca como color de texto sobre blanco.
-  Instrument Sans para la interfaz; JetBrains Mono para etiquetas de datos y metadatos.
+  Identidad visual: "papel".
+  Un documento impreso, no un panel de cristal: lienzo pergamino cálido, tarjetas blancas
+  con borde fino, tinta carbón casi negra y una jerarquía hecha con tamaño y peso, no con color.
+  La paleta es monocroma cálida; el único color de marca es la arcilla (`acento`), y solo
+  como marca decorativa (puntos, iconos, el "hoy"), nunca como relleno de botones ni de áreas grandes.
+  Source Serif 4 para títulos y cifras protagonistas; Instrument Sans para toda la interfaz.
 
   Modo oscuro: sigue al sistema y se puede forzar con <html data-tema="claro|oscuro">
   (ver `components/app/selector-tema.tsx`). Los componentes solo usan tokens:
+  - `hueso`: superficie anidada (bandas, celdas secundarias, cabeceras de tabla).
+  - `grafito`: texto secundario fuerte (títulos de tarjeta, navegación).
   - `panel`: la celda protagonista de un bento; oscura en ambos modos, con texto blanco.
   - `sobre-tinta`: texto sobre `bg-tinta` (botón primario, filtro activo); se invierte en oscuro.
-  - `sobre-acento`: texto sobre el naranja; siempre oscuro.
+  - `sobre-acento`: texto sobre la arcilla; siempre oscuro.
 */
 :root {
-  --fondo: #eef0f3;
+  --fondo: #f8f8f6;
   --superficie: #ffffff;
-  --tinta: #0f1b2d;
-  --tenue: #5d6878;
-  --linea: #dfe3e9;
-  --acento: #ff6b2c;
-  --acento-hover: #f25a18;
-  --panel: #0f1b2d;
-  --sobre-tinta: #ffffff;
-  --sobre-acento: #0f1b2d;
-  /* Estados con contraste AA como texto sobre la superficie. */
-  --exito: #16804a;
-  --aviso: #9a6100;
-  --peligro: #c0352e;
+  --hueso: #efeeeb;
+  --tinta: #121212;
+  --grafito: #373734;
+  /* "Ashen" oscurecido un punto para pasar AA (4.5:1) como texto sobre el lienzo. */
+  --tenue: #6b6964;
+  --linea: #e7e6e1;
+  --linea-fuerte: #b7b7b5;
+  --acento: #d97757;
+  --acento-hover: #c96a4b;
+  --panel: #121212;
+  --sobre-tinta: #f8f8f6;
+  --sobre-acento: #121212;
+  /* Estados apagados y cálidos, con contraste AA como texto sobre la superficie. */
+  --exito: #3d7350;
+  --aviso: #8a5d12;
+  --peligro: #b0412e;
   color-scheme: light;
 }
 
-/* Los mismos tokens, en oscuro (contrastes AA comprobados contra superficie, fondo y panel). */
+/* Los mismos tokens, en oscuro: papel carbón cálido (contrastes AA contra superficie, fondo y panel). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="claro"]) {
-    --fondo: #0b111c;
-    --superficie: #131b29;
-    --tinta: #e6ebf2;
-    --tenue: #97a3b6;
-    --linea: #26324a;
-    --acento: #ff7a3d;
-    --acento-hover: #ff8c56;
-    --panel: #1a2538;
-    --sobre-tinta: #0b111c;
-    --sobre-acento: #0f1b2d;
-    --exito: #4cc28a;
-    --aviso: #e3a945;
-    --peligro: #ff6b61;
+    --fondo: #1f1e1c;
+    --superficie: #262624;
+    --hueso: #2e2d2a;
+    --tinta: #f4f3ee;
+    --grafito: #d9d7d0;
+    --tenue: #a8a59c;
+    --linea: #3a3935;
+    --linea-fuerte: #5a5852;
+    --acento: #d97757;
+    --acento-hover: #e3896b;
+    --panel: #141413;
+    --sobre-tinta: #1f1e1c;
+    --sobre-acento: #141413;
+    --exito: #82b892;
+    --aviso: #d8a650;
+    --peligro: #e8846f;
     color-scheme: dark;
   }
 }
 :root[data-tema="oscuro"] {
-  --fondo: #0b111c;
-  --superficie: #131b29;
-  --tinta: #e6ebf2;
-  --tenue: #97a3b6;
-  --linea: #26324a;
-  --acento: #ff7a3d;
-  --acento-hover: #ff8c56;
-  --panel: #1a2538;
-  --sobre-tinta: #0b111c;
-  --sobre-acento: #0f1b2d;
-  --exito: #4cc28a;
-  --aviso: #e3a945;
-  --peligro: #ff6b61;
+  --fondo: #1f1e1c;
+  --superficie: #262624;
+  --hueso: #2e2d2a;
+  --tinta: #f4f3ee;
+  --grafito: #d9d7d0;
+  --tenue: #a8a59c;
+  --linea: #3a3935;
+  --linea-fuerte: #5a5852;
+  --acento: #d97757;
+  --acento-hover: #e3896b;
+  --panel: #141413;
+  --sobre-tinta: #1f1e1c;
+  --sobre-acento: #141413;
+  --exito: #82b892;
+  --aviso: #d8a650;
+  --peligro: #e8846f;
   color-scheme: dark;
 }
 
 @theme inline {
   --color-fondo: var(--fondo);
   --color-superficie: var(--superficie);
+  --color-hueso: var(--hueso);
   --color-tinta: var(--tinta);
+  --color-grafito: var(--grafito);
   --color-tenue: var(--tenue);
   --color-linea: var(--linea);
+  --color-linea-fuerte: var(--linea-fuerte);
   --color-acento: var(--acento);
   --color-acento-hover: var(--acento-hover);
   --color-exito: var(--exito);
@@ -82,8 +98,25 @@
   --color-sobre-tinta: var(--sobre-tinta);
   --color-sobre-acento: var(--sobre-acento);
   --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
-  --radius-tarjeta: 0.875rem;
+  --font-serif: "Source Serif 4 Variable", Charter, Georgia, ui-serif, serif;
+  /* La interfaz no grita: el peso más alto en uso es 580. */
+  --font-weight-semibold: 580;
+  --font-weight-bold: 580;
+  --radius-tarjeta: 1rem;
+  --radius-elevada: 1.5rem;
+  /* Única sombra: un lavado difuso para lo que flota (diálogos, arrastre, hover). */
+  --shadow-suave: 0 4px 20px 0 rgb(0 0 0 / 0.04);
+  --shadow-flotante: 0 4px 24px 0 rgb(18 18 18 / 0.1);
+}
+
+/* Alto de la barra inferior del móvil: lo que quede pegado abajo (barra de guardado) se apoya encima. */
+:root {
+  --alto-barra-inferior: calc(4rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 64rem) {
+  :root {
+    --alto-barra-inferior: 0px;
+  }
 }
 
 body {
@@ -91,7 +124,7 @@ body {
   color: var(--tinta);
   font-family: var(--font-sans);
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -100,31 +133,44 @@ body {
   outline-offset: 2px;
 }
 
+::selection {
+  background: color-mix(in oklab, var(--acento) 28%, transparent);
+}
+
 /* En una capa: así las utilidades de Tailwind pueden sobrescribirlas. */
 @layer components {
-  /* Cifras: números tabulares y apretados, para que las columnas y los KPI no bailen. */
+  /* Cifras: números tabulares, para que las columnas y los KPI no bailen. */
   .cifra {
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.02em;
   }
 
-  /* Etiqueta de datos: mayúsculas en monoespaciada, como el rotulado de una ficha técnica. */
+  /* Cifra protagonista (KPI): en la serif, a peso normal; la escala hace el trabajo. */
+  .cifra-serif {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* Título editorial: la serif solo para títulos de página y de sección. */
+  .titulo-serif {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Etiqueta de datos: rótulo pequeño en sans, gris cálido, sin mayúsculas forzadas. */
   .etiqueta {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
+    line-height: 1.33;
     font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--tenue);
   }
 
-  /* Trama diagonal para rellenos decorativos y estados vacíos. */
+  /* Relleno plano para áreas decorativas y estados vacíos (sin tramas ni degradados). */
   .trama {
-    background-image: repeating-linear-gradient(
-      135deg,
-      color-mix(in oklab, var(--tinta) 7%, transparent) 0 1px,
-      transparent 1px 7px
-    );
+    background-color: color-mix(in oklab, var(--hueso) 55%, transparent);
   }
 }
 

@@ -25,3 +25,6 @@ export const esquemaCita = z.object({
     .nullable()
     .default(null),
 });
+
+/** Mover una cita: nueva fecha, hora y duración (el alumno y el tipo no cambian). */
+export const esquemaReprogramacion = esquemaCita.pick({ fecha: true, hora: true, duracion: true });

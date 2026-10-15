@@ -86,7 +86,7 @@ export async function PlanAlumno({
         {activo && detalle ? (
           <div className="space-y-4 p-4">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <Link href={`/entrenamiento/planes/${activo.id}`} className="inline-flex items-center gap-1 text-lg font-semibold tracking-tight hover:underline">
+              <Link href={`/entrenamiento/planes/${activo.id}`} className="inline-flex items-center gap-1 titulo-serif text-[1.375rem] leading-[1.25] hover:underline">
                 {activo.nombre}
                 <ArrowUpRight aria-hidden className="size-4 text-tenue" />
               </Link>
@@ -120,7 +120,7 @@ export async function PlanAlumno({
                         {toca && " · próxima"}
                       </p>
                       <p className="truncate text-sm font-semibold">{dia.nombre}</p>
-                      <p className="font-mono text-xs text-tenue">
+                      <p className="tabular-nums text-xs text-tenue">
                         {ejercicios.length} ejercicios{ejercicios.length > 0 && ` · ≈${minutosEstimados(dia.bloques)} min`}
                       </p>
                     </div>
@@ -129,7 +129,7 @@ export async function PlanAlumno({
               })}
             </ol>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-fondo/60 px-3 py-2.5 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-hueso/50 px-3 py-2.5 text-sm">
               {proxima ? (
                 <p>
                   <span className="text-tenue">Próxima sesión: </span>
@@ -167,9 +167,9 @@ export async function PlanAlumno({
             <ul className="divide-y divide-linea border-t border-linea">
               {otros.map((p) => (
                 <li key={p.id}>
-                  <Link href={`/entrenamiento/planes/${p.id}`} className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-fondo/60">
+                  <Link href={`/entrenamiento/planes/${p.id}`} className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-hueso/50">
                     <span className="min-w-0 flex-1 truncate font-medium">{p.nombre}</span>
-                    <span className="font-mono text-xs text-tenue">{fechaCorta(p.fecha_inicio)}</span>
+                    <span className="tabular-nums text-xs text-tenue">{fechaCorta(p.fecha_inicio)}</span>
                     <InsigniaPlan estado={p.estado} />
                   </Link>
                 </li>

@@ -125,7 +125,7 @@ async function Rutinas({ searchParams }: { searchParams: Busqueda }) {
                   className="group flex h-full flex-col rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 transition-colors hover:border-tinta/30"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <p className="min-w-0 font-semibold tracking-tight group-hover:underline">{r.nombre}</p>
+                    <p className="min-w-0 font-semibold group-hover:underline">{r.nombre}</p>
                     <ChevronRight aria-hidden className="mt-0.5 size-4 shrink-0 text-tenue" />
                   </div>
                   <p className="mt-1 text-sm text-tenue">
@@ -135,7 +135,7 @@ async function Rutinas({ searchParams }: { searchParams: Busqueda }) {
                   {susDias.length > 0 && (
                     <p className="mt-2 line-clamp-2 text-sm">{susDias.map((d) => d.nombre).join(" · ")}</p>
                   )}
-                  <p className="mt-auto flex flex-wrap justify-between gap-2 pt-3 font-mono text-xs text-tenue">
+                  <p className="mt-auto flex flex-wrap justify-between gap-2 pt-3 tabular-nums text-xs text-tenue">
                     <span>{alumnos ? `${alumnos} ${alumnos === 1 ? "alumno" : "alumnos"} con plan` : "Sin asignar"}</span>
                     <span>{fechaCorta(r.actualizado_en)}</span>
                   </p>
@@ -180,7 +180,7 @@ async function Planes() {
               const alumno = alumnoDe.get(p.alumno_id);
               return (
                 <li key={p.id}>
-                  <Link href={`/entrenamiento/planes/${p.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-fondo/60">
+                  <Link href={`/entrenamiento/planes/${p.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-hueso/50">
                     {alumno && <Avatar id={alumno.id} nombres={alumno.nombres} apellidos={alumno.apellidos} tamano="sm" />}
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">

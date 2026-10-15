@@ -67,10 +67,10 @@ export function RutinasSemana({ citas, dias }: { citas: CitaVista[]; dias: strin
                     <li
                       key={c.id}
                       className={`inline-flex h-7 items-center gap-1.5 rounded-md border px-2 text-xs ${
-                        c.rutina ? "border-linea bg-fondo/60" : "border-dashed border-linea text-tenue"
+                        c.rutina ? "border-linea bg-hueso/50" : "border-dashed border-linea text-tenue"
                       }`}
                     >
-                      <span className="font-mono capitalize">{dias.includes(fecha) ? etiquetaDia(fecha) : fecha}</span>
+                      <span className="tabular-nums capitalize">{dias.includes(fecha) ? etiquetaDia(fecha) : fecha}</span>
                       <span className={c.rutina ? "font-medium" : ""}>{c.rutina?.dia ?? (f.plan ? "Día sin elegir" : "Sin rutina")}</span>
                     </li>
                   );

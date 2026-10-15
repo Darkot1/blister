@@ -49,7 +49,7 @@ async function Estado() {
       <div className="mb-4 grid size-11 place-items-center rounded-xl border border-linea text-aviso">
         <PauseCircle aria-hidden className="size-5" />
       </div>
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="titulo-serif text-[1.875rem] leading-[1.2]">
         {espacio?.estado === "archivado" ? "Este espacio está archivado" : "Tu espacio está suspendido"}
       </h1>
       <p className="mt-2 text-tenue">
@@ -61,7 +61,7 @@ async function Estado() {
         <form action={salir}>
           <button
             type="submit"
-            className="inline-flex h-9 items-center gap-2 rounded-lg px-3.5 text-sm font-semibold text-tenue hover:bg-tinta/[0.06] hover:text-tinta"
+            className="inline-flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium text-tenue hover:bg-hueso hover:text-tinta"
           >
             <LogOut aria-hidden className="size-4" /> Cerrar sesión
           </button>

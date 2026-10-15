@@ -13,16 +13,16 @@ const FUNCIONES = [
 export default function LayoutAuth({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:p-3">
-      <aside className="hidden flex-col justify-between overflow-hidden rounded-2xl bg-panel p-10 text-white lg:flex xl:p-12">
+      <aside className="hidden flex-col justify-between overflow-hidden rounded-[var(--radius-elevada)] bg-panel p-10 text-white lg:flex xl:p-12">
         <Marca oscuro />
 
         <div aria-hidden className="mx-auto grid w-full max-w-md grid-cols-3 grid-rows-[repeat(2,7.5rem)] gap-3">
           {FUNCIONES.map(({ icono: Icono, titulo, texto, clase, barras, destacada }) => (
             <div
               key={titulo}
-              className={`flex flex-col rounded-xl border p-4 ${clase} ${destacada ? "border-acento bg-acento text-sobre-acento" : "border-white/10 bg-white/[0.04]"}`}
+              className={`flex flex-col rounded-[var(--radius-tarjeta)] border p-4 ${clase} ${destacada ? "border-white/15 bg-white/[0.09]" : "border-white/10 bg-white/[0.03]"}`}
             >
-              <Icono className={`size-5 ${destacada ? "" : "text-acento"}`} />
+              <Icono className="size-5 text-acento" />
               {barras && (
                 <div className="mt-auto flex h-20 items-end gap-1.5 pt-4">
                   {[40, 70, 30, 90, 55, 20, 0].map((h, i) => (
@@ -30,14 +30,14 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
                   ))}
                 </div>
               )}
-              <p className={`text-sm font-semibold ${barras ? "mt-3" : "mt-auto"}`}>{titulo}</p>
-              <p className={`text-xs ${destacada ? "text-sobre-acento/60" : "text-white/50"}`}>{texto}</p>
+              <p className={`text-sm font-medium ${barras ? "mt-3" : "mt-auto"}`}>{titulo}</p>
+              <p className="text-xs text-white/50">{texto}</p>
             </div>
           ))}
         </div>
 
         <div>
-          <p className="max-w-lg text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.035em]">
+          <p className="titulo-serif max-w-lg text-[2.6rem] leading-[1.12] tracking-[-0.02em]">
             El panel de control de tu entrenamiento personalizado.
           </p>
           <p className="mt-4 max-w-sm text-white/55">

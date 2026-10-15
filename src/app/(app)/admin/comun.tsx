@@ -57,7 +57,7 @@ export function Cifra({ titulo, valor, nota }: { titulo: string; valor: number |
   return (
     <div className="bg-superficie p-4">
       <p className="etiqueta">{titulo}</p>
-      <p className="cifra mt-2 text-2xl leading-none font-semibold">{valor}</p>
+      <p className="cifra-serif mt-2 text-2xl leading-none">{valor}</p>
       {nota && <p className="mt-1.5 text-xs text-tenue">{nota}</p>}
     </div>
   );
@@ -126,7 +126,7 @@ export function CitasPorEstado({ conteo }: { conteo: Record<string, number> }) {
   return (
     <div className="p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="cifra text-3xl leading-none font-semibold">{total}</p>
+        <p className="cifra-serif text-3xl leading-none">{total}</p>
         <p className="text-sm text-tenue">
           Asistencia <span className="cifra font-semibold text-tinta">{asistencia === null ? "—" : `${asistencia} %`}</span>
         </p>
@@ -189,7 +189,7 @@ export function GraficaSemanas({
       </div>
       <div aria-hidden className="mt-1.5 grid grid-cols-12 gap-1.5 sm:gap-2.5">
         {semanas.map((s, i) => (
-          <span key={s.semana} className="text-center font-mono text-[0.6rem] whitespace-nowrap text-tenue">
+          <span key={s.semana} className="text-center tabular-nums text-[0.6rem] whitespace-nowrap text-tenue">
             {i % 3 === 2 ? etiqueta(s.semana) : ""}
           </span>
         ))}

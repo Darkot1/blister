@@ -27,7 +27,7 @@ export function CambioEstado({ id, nombre, estado, esPropio }: { id: string; nom
 
   return (
     <>
-      <Boton variante={suspender ? "peligro" : "acento"} onClick={() => setAbierto(true)}>
+      <Boton variante={suspender ? "peligro" : "primario"} onClick={() => setAbierto(true)}>
         {suspender ? <PauseCircle aria-hidden className="size-4" /> : <PlayCircle aria-hidden className="size-4" />}
         {suspender ? "Suspender espacio" : "Reactivar espacio"}
       </Boton>
