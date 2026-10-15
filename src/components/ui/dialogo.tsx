@@ -30,13 +30,21 @@ export function Dialogo({
     if (!dialogo) return;
     if (abierto && !dialogo.open) dialogo.showModal();
     if (!abierto && dialogo.open) dialogo.close();
+    // Con Cache Components, al navegar la página anterior queda oculta (<Activity>) en vez de
+    // desmontarse: si el <dialog> sigue con showModal(), deja inerte toda la página nueva.
+    return () => {
+      if (dialogo.open) dialogo.close();
+    };
   }, [abierto]);
 
   return (
     <dialog
       ref={ref}
       aria-labelledby={idTitulo}
-      onClose={alCerrar}
+      // El evento close llega en otra tarea: si el diálogo ya se volvió a abrir (Strict Mode), se ignora.
+      onClose={() => {
+        if (!ref.current?.open) alCerrar();
+      }}
       onClick={(e) => {
         if (e.target === ref.current) alCerrar();
       }}
