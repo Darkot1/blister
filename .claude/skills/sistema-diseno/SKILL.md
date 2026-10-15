@@ -43,6 +43,7 @@ Para matices usa opacidad sobre tokens: `bg-hueso/50`, `bg-exito/10`. Radios: ta
 - `app/(app)/error.tsx`: si una pantalla falla, mensaje y "Reintentar" (en esta versión de Next la prop es `retry`). Las acciones de formulario sin estado (`cambiarEstado…`) lanzan error si la base de datos no guardó, para que se vea aquí en lugar de fallar en silencio.
 - `components/app/encabezado.tsx`: `miga` (grupo, en `etiqueta`) o `volver={{ href, texto }}`, título en serif, `figura` (avatar), descripción y acciones.
 - `components/ui/tarjeta.tsx`: `Tarjeta`, `CabeceraTarjeta` (etiqueta + acción, con borde inferior), `EnlaceTarjeta` ("Ver todo ↗"), `Lista` (con `divide-y`), `Vacio` (relleno hueso, título en serif + acción), `claseSegmentado`/`claseSegmento`.
+- `components/datos/grafica-linea.tsx`: una serie en el tiempo con escala de fechas real, ejes discretos, cruz + tooltip (ratón, toque y flechas) y tabla "Ver datos". Ocupa el ancho disponible (viewBox): nunca ensancha su columna.
 - `components/datos/barras-semana.tsx` y `linea-tendencia.tsx`: gráficos de una sola serie en tinta (último punto en arcilla) (sin leyenda; valor visible y tabla accesible). Antes de crear otro gráfico, usa la skill `dataviz`.
 - `components/ui/avatar.tsx`: iniciales sobre un tinte cálido apagado, estable por id.
 - `components/ui/boton.tsx`: `primario` (tinta, uno por vista), `secundario` (borde), `fantasma`, `peligro`. No hay botón de color: las acciones son oscuras sobre claro.

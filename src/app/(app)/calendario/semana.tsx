@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useActionState, useState, useSyncExternalStore, useTransition } from "react";
-import { CalendarCheck2, CalendarClock, CalendarX2, Plus, RotateCcw } from "lucide-react";
-import { Boton } from "@/components/ui/boton";
+import { CalendarCheck2, CalendarClock, CalendarX2, ClipboardPen, Plus, RotateCcw } from "lucide-react";
+import { Boton, clasesBoton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/aviso";
@@ -27,6 +27,8 @@ export type CitaVista = {
   terminaEn: string;
   /** Día del plan que se entrena en la cita, si se eligió. */
   rutina: DiaDeSesion | null;
+  /** Sesión de la cita (para registrar lo que hizo el alumno). */
+  sesionId: string | null;
   /** Plan activo del alumno. */
   plan: PlanActivo | null;
   /** Estado en Google Calendar; null si el entrenador no lo conectó. */
@@ -461,6 +463,11 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
       </dl>
 
       <div className="flex flex-wrap gap-2 border-t border-linea pt-5">
+        {cita.sesionId && cita.rutina && cita.estado !== "no_asistio" && (
+          <Link href={`/sesiones/${cita.sesionId}`} className={clasesBoton(cita.estado === "completada" ? "secundario" : "primario")}>
+            <ClipboardPen aria-hidden className="size-4" /> {cita.estado === "completada" ? "Ver sesión" : "Registrar sesión"}
+          </Link>
+        )}
         {pendienteDeAtender && (
           <Boton variante="secundario" disabled={pendiente} onClick={() => setMoviendo(true)}>
             <CalendarClock aria-hidden className="size-4" /> Reprogramar
@@ -469,7 +476,8 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
         {(ACCIONES[cita.estado] ?? []).map((a) => (
           <Boton
             key={a.estado}
-            variante={a.variante ?? "secundario"}
+            // Un solo botón principal: si hay sesión que registrar, ese es el principal.
+            variante={a.variante === "primario" && cita.sesionId && cita.rutina ? "secundario" : (a.variante ?? "secundario")}
             disabled={pendiente}
             onClick={() => {
               if (a.estado === "cancelada" && !window.confirm("¿Cancelar esta cita? El horario quedará libre.")) return;

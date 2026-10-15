@@ -236,6 +236,32 @@ export type SesionFila = {
   actualizado_en: string;
 };
 
+/** Ejercicio de una sesión (copiado del plan al agendar, o añadido aparte). */
+export type SesionEjercicioFila = {
+  id: string;
+  sesion_id: string;
+  plan_ejercicio_id: string | null;
+  ejercicio_id: string;
+  orden: number;
+  notas: string | null;
+};
+
+/** Serie realizada: lo que el alumno hizo de verdad (peso, repeticiones, esfuerzo). */
+export type SesionSerieFila = {
+  id: string;
+  sesion_ejercicio_id: string;
+  numero_serie: number;
+  peso: number | null;
+  unidad_peso: "kg" | "lb";
+  repeticiones: number | null;
+  duracion_segundos: number | null;
+  rpe: number | null;
+  rir: number | null;
+  completada: boolean;
+  notas: string | null;
+  creado_en: string;
+};
+
 /** Común a plantilla_dias y plan_dias. */
 type DiaBase = { id: string; nombre: string; orden: number; descripcion: string | null };
 
@@ -331,6 +357,11 @@ export type Database = {
       sesiones: Tabla<
         SesionFila,
         Opcional<SesionFila, "id" | "plan_id" | "plan_dia_id" | "programada_para" | "iniciada_en" | "completada_en" | "estado" | "rpe_sesion" | "notas" | "creado_en" | "actualizado_en">
+      >;
+      sesion_ejercicios: Tabla<SesionEjercicioFila, Opcional<SesionEjercicioFila, "id" | "plan_ejercicio_id" | "orden" | "notas">>;
+      sesion_series: Tabla<
+        SesionSerieFila,
+        Opcional<SesionSerieFila, "id" | "peso" | "unidad_peso" | "repeticiones" | "duracion_segundos" | "rpe" | "rir" | "completada" | "notas" | "creado_en">
       >;
       musculos: Tabla<MusculoFila, Opcional<MusculoFila, "id" | "descripcion" | "orden" | "organizacion_id" | "creado_por" | "creado_en">>;
     };

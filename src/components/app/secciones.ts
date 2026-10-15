@@ -39,7 +39,7 @@ export const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
     secciones: [
       { href: "/entrenamiento", texto: "Rutinas y planes", resumen: "Constructor de rutinas, plantillas y planes", icono: ListChecks },
       { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell },
-      { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart, pronto: true },
+      { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart },
     ],
   },
   {
