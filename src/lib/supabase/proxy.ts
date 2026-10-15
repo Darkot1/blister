@@ -34,10 +34,11 @@ export async function actualizarSesion(request: NextRequest) {
   const hayUsuario = Boolean(data?.claims?.sub);
   const ruta = request.nextUrl.pathname;
 
-  if (!hayUsuario && !empiezaCon(ruta, RUTAS_PUBLICAS)) {
+  // "/" es la portada pública para quien no ha iniciado sesión (con sesión, va al panel; ver abajo).
+  if (!hayUsuario && ruta !== "/" && !empiezaCon(ruta, RUTAS_PUBLICAS)) {
     const url = request.nextUrl.clone();
     url.pathname = "/ingresar";
-    url.search = ruta === "/" ? "" : `?siguiente=${encodeURIComponent(ruta)}`;
+    url.search = `?siguiente=${encodeURIComponent(ruta)}`;
     return redirigirConCookies(url, respuesta);
   }
 

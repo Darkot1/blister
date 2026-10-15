@@ -77,6 +77,7 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
     iniciaEn: c.inicia_en,
     terminaEn: c.termina_en,
     rutina: c.sesion_id ? (rutinaDe.get(c.sesion_id) ?? null) : null,
+    sesionId: c.sesion_id,
     plan: planes.get(c.alumno_id) ?? null,
     // El estado de Google solo tiene sentido en las citas propias (van a mi calendario).
     google: !google || c.entrenador_id !== usuarioId ? null : c.google_error ? "error" : c.google_evento_id ? "sincronizada" : "pendiente",

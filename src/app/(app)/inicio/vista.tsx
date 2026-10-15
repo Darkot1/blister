@@ -17,6 +17,8 @@ export type CitaHoy = CitaResumen & {
   rutina: DiaDeSesion | null;
   /** Nombre del plan activo del alumno, si tiene. */
   plan: string | null;
+  /** Sesión que se entrena en la cita: el enlace lleva a registrarla. */
+  sesion_id: string | null;
 };
 
 type Momento = "hecha" | "no_asistio" | "sin_marcar" | "en_curso" | "siguiente" | "despues";
@@ -154,7 +156,8 @@ export function VistaPanel({
                 return (
                   <li key={c.id}>
                     <Link
-                      href={`/alumnos/${c.alumno_id}`}
+                      // Con sesión del plan: directo a registrarla. Si no, a la ficha del alumno.
+                      href={c.sesion_id && c.rutina ? `/sesiones/${c.sesion_id}` : `/alumnos/${c.alumno_id}`}
                       className={`grid grid-cols-[1.5rem_5rem_minmax(0,1fr)_auto] items-center gap-x-3 px-5 py-2 hover:bg-white/[0.04] ${
                         momento === "en_curso" ? "bg-acento/[0.08]" : ""
                       }`}
