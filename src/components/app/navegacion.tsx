@@ -40,8 +40,8 @@ function Enlace({ s, ruta }: { s: Seccion; ruta: string }) {
     <Link
       href={s.href}
       aria-current={activa ? "page" : undefined}
-      className={`group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors duration-200 ${
-        activa ? "bg-hueso font-medium text-tinta" : "text-grafito hover:bg-hueso/60 hover:text-tinta"
+      className={`group flex h-9 items-center gap-2.5 rounded-full px-3 text-sm transition-colors duration-200 ${
+        activa ? "bg-hueso font-medium text-tinta" : "text-grafito hover:bg-hueso/50 hover:text-tinta"
       }`}
     >
       <Icono aria-hidden className={`size-[17px] shrink-0 ${activa ? "text-acento" : "text-tenue group-hover:text-tinta"}`} />

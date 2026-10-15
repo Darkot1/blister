@@ -126,7 +126,7 @@ export function FormularioEjercicio({
                     type="button"
                     onClick={() => setMusculos(musculos.filter((_, j) => j !== i))}
                     aria-label={`Quitar ${nombreDe.get(m.id)}`}
-                    className="grid size-8 place-items-center rounded-lg text-tenue hover:bg-peligro/[0.08] hover:text-peligro"
+                    className="grid size-8 place-items-center rounded-full text-tenue hover:bg-peligro/[0.08] hover:text-peligro"
                   >
                     <X aria-hidden className="size-4" />
                   </button>
@@ -178,7 +178,7 @@ export function FormularioEjercicio({
             return (
               <label
                 key={q.id}
-                className={`inline-flex h-8 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-tinta ${
+                className={`inline-flex h-8 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-tinta ${
                   activo ? "border-tinta bg-tinta font-medium text-sobre-tinta" : "border-linea bg-superficie text-tenue hover:border-tinta/30 hover:text-tinta"
                 }`}
               >

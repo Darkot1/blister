@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/instrument-sans";
-import "@fontsource-variable/source-serif-4/opsz.css";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/archivo/wdth.css";
 import "./globals.css";
 import { SCRIPT_TEMA } from "@/components/app/selector-tema";
 
@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f8f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#1f1e1c" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f5f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#171721" },
   ],
 };
 
@@ -23,7 +23,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
       </head>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        <a
+          href="#contenido"
+          className="sr-only z-50 rounded-full bg-acento px-4 py-2 text-sm text-sobre-acento focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+        >
+          Saltar al contenido
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

@@ -33,7 +33,7 @@ export function Encabezado({
         <div className="flex items-center gap-4">
           {figura}
           <div className="min-w-0">
-            <h1 className="titulo-serif text-[1.75rem] leading-[1.2] sm:text-[1.875rem]">{titulo}</h1>
+            <h1 className="titulo-display text-[1.75rem] leading-[1.2] sm:text-[1.875rem]">{titulo}</h1>
             {descripcion && <div className="mt-2 max-w-2xl text-tenue">{descripcion}</div>}
           </div>
         </div>

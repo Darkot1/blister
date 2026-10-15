@@ -91,7 +91,7 @@ export function ExploradorEjercicios({
                   type="button"
                   onClick={() => aplicar([])}
                   aria-label="Quitar todos los músculos elegidos"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-dashed border-linea bg-superficie px-2.5 text-sm text-tenue transition-colors hover:border-peligro/40 hover:bg-peligro/[0.06] hover:text-peligro"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-dashed border-linea bg-superficie px-2.5 text-sm text-tenue transition-colors hover:border-peligro/40 hover:bg-peligro/[0.06] hover:text-peligro"
                 >
                   <RotateCcw aria-hidden className="size-3.5" />
                   Limpiar
@@ -103,7 +103,7 @@ export function ExploradorEjercicios({
                     type="button"
                     onClick={() => alternar(slug)}
                     aria-label={`Quitar ${nombre.get(slug) ?? slug}`}
-                    className="inline-flex h-8 items-center gap-1 rounded-md bg-tinta pr-2 pl-3 text-sm font-medium text-sobre-tinta hover:bg-tinta/85"
+                    className="inline-flex h-8 items-center gap-1 rounded-full bg-tinta pr-2 pl-3 text-sm font-medium text-sobre-tinta hover:bg-tinta/85"
                   >
                     {nombre.get(slug) ?? slug}
                     <X aria-hidden className="size-3.5" />

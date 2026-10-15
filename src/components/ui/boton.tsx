@@ -4,13 +4,15 @@ import type { ComponentProps } from "react";
 type Variante = "primario" | "secundario" | "fantasma" | "peligro";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-4 h-9 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap select-none [&_svg]:shrink-0";
+  "inline-flex items-center justify-center gap-2 rounded-full px-5 h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap select-none [&_svg]:shrink-0";
 
 const variantes: Record<Variante, string> = {
-  primario: "bg-tinta text-sobre-tinta hover:bg-grafito",
-  secundario: "bg-superficie text-grafito border border-linea hover:border-linea-fuerte hover:text-tinta",
+  // Cobalto: la única acción con color, una por vista.
+  primario: "bg-acento text-sobre-acento hover:bg-acento-hover",
+  // Píldora de contorno marfil, como en la navegación.
+  secundario: "bg-transparent text-tinta border border-linea-fuerte hover:border-tinta hover:bg-hueso/60",
   fantasma: "text-grafito hover:bg-hueso hover:text-tinta",
-  peligro: "bg-superficie text-peligro border border-peligro/30 hover:bg-peligro/[0.06]",
+  peligro: "bg-transparent text-peligro border border-peligro/40 hover:bg-peligro/[0.08]",
 };
 
 export function clasesBoton(variante: Variante = "primario", extra = "") {

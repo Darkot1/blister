@@ -20,7 +20,7 @@ export async function UsuarioActual() {
       <form action={salir}>
         <button
           type="submit"
-          className="grid size-8 place-items-center rounded-lg text-tenue hover:bg-peligro/[0.08] hover:text-peligro"
+          className="grid size-8 place-items-center rounded-full text-tenue hover:bg-peligro/[0.08] hover:text-peligro"
           aria-label="Cerrar sesión"
           title="Cerrar sesión"
         >

@@ -82,7 +82,7 @@ async function ListaUsuarios() {
                         <div className="min-w-0">
                           <p className="flex items-center gap-1.5 truncate font-medium">
                             {nombre || "Sin nombre"}
-                            {u.es_superadmin && <ShieldCheck aria-label="Superadministrador" className="size-3.5 shrink-0 text-acento" />}
+                            {u.es_superadmin && <ShieldCheck aria-label="Superadministrador" className="size-3.5 shrink-0 text-tinta" />}
                           </p>
                           <p className="truncate text-tenue">
                             {u.correo ?? "—"}

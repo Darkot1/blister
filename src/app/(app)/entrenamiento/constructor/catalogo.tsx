@@ -149,7 +149,7 @@ export function CatalogoEjercicios({
                   <button
                     type="button"
                     onClick={() => setMusculos([])}
-                    className="inline-flex h-7 items-center gap-1 rounded-md border border-dashed border-linea px-2 text-xs text-tenue hover:text-tinta"
+                    className="inline-flex h-7 items-center gap-1 rounded-full border border-dashed border-linea px-2 text-xs text-tenue hover:text-tinta"
                   >
                     <RotateCcw aria-hidden className="size-3" /> Limpiar
                   </button>
@@ -160,7 +160,7 @@ export function CatalogoEjercicios({
                       type="button"
                       onClick={() => alternarMusculo(slug)}
                       aria-label={`Quitar ${nombreMusculo.get(slug) ?? slug}`}
-                      className="inline-flex h-7 items-center gap-1 rounded-md bg-tinta pr-1.5 pl-2.5 text-xs font-medium text-sobre-tinta"
+                      className="inline-flex h-7 items-center gap-1 rounded-full bg-tinta pr-1.5 pl-2.5 text-xs font-medium text-sobre-tinta"
                     >
                       {nombreMusculo.get(slug) ?? slug}
                       <X aria-hidden className="size-3" />
@@ -208,7 +208,7 @@ export function CatalogoEjercicios({
                     )}
                     <span
                       aria-hidden
-                      className="grid size-8 shrink-0 place-items-center rounded-lg border border-linea text-tenue transition-colors group-hover:border-tinta group-hover:bg-tinta group-hover:text-sobre-tinta"
+                      className="grid size-8 shrink-0 place-items-center rounded-full border border-linea text-tenue transition-colors group-hover:border-tinta group-hover:bg-tinta group-hover:text-sobre-tinta"
                     >
                       <Plus className="size-4" />
                     </span>

@@ -84,7 +84,7 @@ export function ResumenRutina({
         ].map(([etiqueta, valor]) => (
           <div key={etiqueta} className="rounded-lg border border-linea px-3 py-2">
             <dt className="etiqueta">{etiqueta}</dt>
-            <dd className="cifra-serif mt-1 text-2xl">
+            <dd className="cifra-display mt-1 text-2xl">
               {valor}
               {etiqueta !== "Ejercicios" && etiqueta !== "Series" && ejercicios > 0 && <span className="ml-0.5 text-sm font-normal text-tenue">min</span>}
             </dd>

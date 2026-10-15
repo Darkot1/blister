@@ -40,7 +40,7 @@ const ETIQUETA_MOMENTO: Partial<Record<Momento, string>> = {
   siguiente: "Siguiente",
 };
 
-/** Marca de la línea de tiempo: lleno = pasó, anillo = por venir, arcilla = ahora. */
+/** Marca de la línea de tiempo: lleno = pasó, anillo = por venir, cobalto = ahora. */
 function MarcaMomento({ momento }: { momento: Momento }) {
   return (
     <svg aria-hidden viewBox="0 0 16 16" className="relative z-10 size-4 overflow-visible">
@@ -116,12 +116,12 @@ export function VistaPanel({
           <div className="flex items-start justify-between gap-4 px-5 pt-5">
             <div>
               <h2 id="titulo-hoy" className="etiqueta text-white/50">Agenda de hoy</h2>
-              <p className="cifra-serif mt-2 text-6xl leading-none">
+              <p className="cifra-display mt-2 text-6xl leading-none">
                 {deHoy.length}
                 <span className="ml-2 text-base font-normal tracking-normal text-white/50">{deHoy.length === 1 ? "cita" : "citas"}</span>
               </p>
             </div>
-            <CalendarClock aria-hidden className="size-5 text-acento" />
+            <CalendarClock aria-hidden className="size-5 text-white/60" />
           </div>
 
           {deHoy.length > 0 && (
@@ -167,7 +167,7 @@ export function VistaPanel({
                       </span>
                       <span
                         className={`tabular-nums text-[0.78rem] leading-tight whitespace-nowrap ${
-                          paso ? "text-white/40" : momento === "en_curso" || momento === "siguiente" ? "text-acento" : "text-white/70"
+                          paso ? "text-white/40" : momento === "en_curso" || momento === "siguiente" ? "font-medium text-white" : "text-white/70"
                         }`}
                       >
                         {hora(c.inicia_en)}
@@ -188,11 +188,11 @@ export function VistaPanel({
                       </span>
                       {etiqueta ? (
                         <span
-                          className={`rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${
+                          className={`rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${
                             momento === "en_curso"
                               ? "bg-acento text-sobre-acento"
                               : momento === "siguiente"
-                                ? "border border-acento/60 text-acento"
+                                ? "border border-white/40 text-white"
                                 : momento === "sin_marcar"
                                   ? "border border-dashed border-white/40 text-white/80"
                                   : "text-white/45"
@@ -217,7 +217,7 @@ export function VistaPanel({
 
           <Link href="/calendario" className="flex items-center justify-between border-t border-white/10 px-5 py-3 text-sm font-medium hover:bg-white/[0.04]">
             Abrir calendario
-            <ArrowRight aria-hidden className="size-4 text-acento" />
+            <ArrowRight aria-hidden className="size-4 text-white/60" />
           </Link>
         </section>
 
@@ -283,11 +283,11 @@ export function VistaPanel({
           </section>
         </Tarjeta>
 
-        {/* Accesos rápidos: banda en papel hueso; la arcilla solo marca los iconos. */}
+        {/* Accesos rápidos: banda en superficie interactiva (hueso), sin color. */}
         <nav aria-labelledby="titulo-accesos" className="col-span-2 flex flex-col justify-between gap-4 rounded-[var(--radius-tarjeta)] bg-hueso p-2 sm:col-span-1">
           <div className="px-2.5 pt-2.5">
             <h2 id="titulo-accesos" className="etiqueta">Accesos rápidos</h2>
-            <p className="titulo-serif mt-2 hidden text-2xl leading-[1.2] sm:block">¿Qué hacemos ahora?</p>
+            <p className="titulo-display mt-2 hidden text-2xl leading-[1.2] sm:block">¿Qué hacemos ahora?</p>
           </div>
           <div>
           {[
@@ -300,7 +300,7 @@ export function VistaPanel({
               href={href}
               className="group flex items-center gap-3 rounded-lg px-2.5 py-2.5 text-sm font-medium text-grafito transition-colors duration-200 hover:bg-superficie hover:text-tinta"
             >
-              <span className="grid size-8 place-items-center rounded-lg border border-linea bg-superficie text-acento">
+              <span className="grid size-8 place-items-center rounded-full bg-superficie text-tinta">
                 <Icono aria-hidden className="size-4" />
               </span>
               <span className="flex-1">{texto}</span>
@@ -334,9 +334,9 @@ function Indicador({
     >
       <span className="flex items-center justify-between gap-2">
         <span className="etiqueta">{etiqueta}</span>
-        <span aria-hidden className="grid size-7 place-items-center rounded-md border border-linea text-tenue group-hover:text-tinta">{icono}</span>
+        <span aria-hidden className="grid size-7 place-items-center rounded-full border border-linea text-tenue group-hover:text-tinta">{icono}</span>
       </span>
-      <span className="cifra-serif mt-auto pt-6 text-5xl leading-none">{valor}</span>
+      <span className="cifra-display mt-auto pt-6 text-5xl leading-none">{valor}</span>
       <span className="mt-2 text-xs text-tenue">{detalle}</span>
     </Link>
   );

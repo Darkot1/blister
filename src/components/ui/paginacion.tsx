@@ -17,7 +17,7 @@ export function Paginacion({
   const paginas = Math.max(1, Math.ceil(total / porPagina));
   const desde = total ? (pagina - 1) * porPagina + 1 : 0;
   const hasta = Math.min(total, pagina * porPagina);
-  const clase = "inline-flex h-8 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2.5 text-sm font-medium";
+  const clase = "inline-flex h-8 items-center gap-1.5 rounded-full border border-linea-fuerte/70 px-3 text-sm font-medium";
   return (
     <nav aria-label="Paginación" className="flex items-center justify-between gap-3 border-t border-linea bg-hueso/50 px-4 py-2.5">
       <p className="tabular-nums text-xs text-tenue">

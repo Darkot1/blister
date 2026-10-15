@@ -86,7 +86,7 @@ export async function PlanAlumno({
         {activo && detalle ? (
           <div className="space-y-4 p-4">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <Link href={`/entrenamiento/planes/${activo.id}`} className="inline-flex items-center gap-1 titulo-serif text-[1.375rem] leading-[1.25] hover:underline">
+              <Link href={`/entrenamiento/planes/${activo.id}`} className="inline-flex items-center gap-1 titulo-display text-[1.375rem] leading-[1.25] hover:underline">
                 {activo.nombre}
                 <ArrowUpRight aria-hidden className="size-4 text-tenue" />
               </Link>
@@ -150,7 +150,7 @@ export async function PlanAlumno({
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-3 p-4">
-            <span aria-hidden className="grid size-10 place-items-center rounded-lg border border-linea text-tenue">
+            <span aria-hidden className="grid size-10 place-items-center rounded-full border border-linea text-tenue">
               <ListChecks className="size-5" />
             </span>
             <p className="min-w-48 flex-1 text-sm text-tenue">

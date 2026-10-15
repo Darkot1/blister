@@ -78,7 +78,7 @@ async function MiPerfil() {
         <div className="flex items-center gap-4 p-4">
           <FotoPerfil url={perfil?.avatar_url} nombres={perfil?.nombres ?? ""} apellidos={perfil?.apellidos ?? ""} tamano="xl" />
           <div className="min-w-0">
-            <p className="truncate titulo-serif text-2xl leading-[1.25]">{nombre || "Sin nombre"}</p>
+            <p className="truncate titulo-display text-2xl leading-[1.25]">{nombre || "Sin nombre"}</p>
             <p className="truncate text-sm text-tenue">{correo}</p>
             {!perfil?.avatar_url && (
               <p className="mt-1 text-xs text-tenue">Si ingresas con Google, tu foto aparecerá aquí.</p>
@@ -97,7 +97,7 @@ async function MiPerfil() {
           <form action={salir}>
             <button
               type="submit"
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-peligro/30 px-3.5 text-sm font-semibold text-peligro hover:bg-peligro/[0.06]"
+              className="inline-flex h-9 items-center gap-2 rounded-full border border-peligro/30 px-3.5 text-sm font-semibold text-peligro hover:bg-peligro/[0.06]"
             >
               <LogOut aria-hidden className="size-4" /> Cerrar sesión
             </button>

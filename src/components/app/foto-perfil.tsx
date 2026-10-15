@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { iniciales } from "@/lib/formato";
 
-const TAMANOS = { sm: { caja: "size-8 rounded-lg text-xs", px: 32 }, xl: { caja: "size-20 rounded-2xl text-2xl", px: 80 } };
+const TAMANOS = { sm: { caja: "size-8 rounded-full text-xs", px: 32 }, xl: { caja: "size-20 rounded-full text-2xl", px: 80 } };
 
-/** Foto del entrenador (la de Google si ingresó con Google); si no hay, sus iniciales sobre papel hueso. */
+/** Foto del entrenador (la de Google si ingresó con Google); si no hay, sus iniciales sobre la superficie hueso. */
 export function FotoPerfil({
   url,
   nombres,

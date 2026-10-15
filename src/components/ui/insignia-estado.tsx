@@ -9,7 +9,7 @@ const colores: Record<string, string> = {
 /** Estado del alumno: punto de color + texto, en una pastilla discreta. */
 export function InsigniaEstado({ estado }: { estado: string }) {
   return (
-    <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 text-xs font-medium">
+    <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-hueso px-2.5 text-xs font-medium">
       <span aria-hidden className={`size-1.5 rounded-full ${colores[estado] ?? colores.archivado}`} />
       {ETIQUETA_ESTADO_ALUMNO[estado] ?? estado}
     </span>

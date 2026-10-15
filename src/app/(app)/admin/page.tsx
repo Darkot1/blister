@@ -62,7 +62,7 @@ async function Resumen() {
             className={`rounded-[var(--radius-tarjeta)] border p-4 ${i === 0 ? "border-panel bg-panel text-white" : "border-linea bg-superficie"}`}
           >
             <p className={`etiqueta ${i === 0 ? "text-white/60" : ""}`}>{c.titulo}</p>
-            <p className="cifra-serif mt-3 text-[2.2rem] leading-none">{c.valor}</p>
+            <p className="cifra-display mt-3 text-[2.2rem] leading-none">{c.valor}</p>
             <p className={`mt-2 text-sm ${i === 0 ? "text-white/60" : "text-tenue"}`}>{c.nota}</p>
           </div>
         ))}
@@ -157,7 +157,7 @@ async function Resumen() {
                       <td className="px-3 py-3 whitespace-nowrap text-tenue">{e.ultima_actividad ? fechaHora(e.ultima_actividad) : "—"}</td>
                       <td className="px-3 py-3 whitespace-nowrap text-tenue">{fechaCorta(e.creado_en)}</td>
                       <td className="pr-4">
-                        <Link href={`/admin/espacios/${e.id}`} aria-label={`Abrir ${e.nombre}`} className="grid size-8 place-items-center rounded-lg text-tenue hover:bg-tinta/[0.06] hover:text-tinta">
+                        <Link href={`/admin/espacios/${e.id}`} aria-label={`Abrir ${e.nombre}`} className="grid size-8 place-items-center rounded-full text-tenue hover:bg-tinta/[0.06] hover:text-tinta">
                           <ChevronRight aria-hidden className="size-4" />
                         </Link>
                       </td>

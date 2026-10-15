@@ -20,7 +20,7 @@ const PUNTO_PLAN: Record<string, string> = {
 
 export function InsigniaPlan({ estado }: { estado: string }) {
   return (
-    <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 text-xs font-medium">
+    <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-hueso px-2.5 text-xs font-medium">
       <span aria-hidden className={`size-1.5 rounded-full ${PUNTO_PLAN[estado] ?? PUNTO_PLAN.archivado}`} />
       {ETIQUETA_ESTADO_PLAN[estado] ?? estado}
     </span>
@@ -130,7 +130,7 @@ export function PorDondeVa({
     <section aria-label="Por dónde va" className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
       <div className="col-span-2 flex flex-col rounded-[var(--radius-tarjeta)] bg-panel p-5 text-white sm:col-span-1">
         <p className="etiqueta text-white/55">{enCurso ? "Le toca" : "Último día entrenado"}</p>
-        <p className={`titulo-serif ${claseCifra}`}>{(enCurso ? siguiente : ultimo) ?? "Ninguno"}</p>
+        <p className={`titulo-display ${claseCifra}`}>{(enCurso ? siguiente : ultimo) ?? "Ninguno"}</p>
         {enCurso && (
           <p className="mt-auto pt-3 text-xs text-white/60">
             {posicion}
@@ -143,7 +143,7 @@ export function PorDondeVa({
         <p className="etiqueta">Próxima cita</p>
         {proxima ? (
           <>
-            <p className={`cifra-serif ${claseCifra}`}>{fechaSinAnio(proxima.inicia_en)}</p>
+            <p className={`cifra-display ${claseCifra}`}>{fechaSinAnio(proxima.inicia_en)}</p>
             <p className="mt-auto pt-3 text-xs text-tenue">
               {hora(proxima.inicia_en)}
               {proxima.dia ? ` · ${proxima.dia}` : ""}
@@ -151,7 +151,7 @@ export function PorDondeVa({
           </>
         ) : (
           <>
-            <p className={`titulo-serif ${claseCifra} text-tenue`}>Sin agendar</p>
+            <p className={`titulo-display ${claseCifra} text-tenue`}>Sin agendar</p>
             <Link href="/calendario" className="mt-auto pt-3 text-xs font-medium text-grafito underline underline-offset-2 hover:text-tinta">
               Agendar en el calendario
             </Link>
@@ -161,7 +161,7 @@ export function PorDondeVa({
 
       <div className="flex flex-col rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-5">
         <p className="etiqueta">Sesiones hechas</p>
-        <p className={`cifra-serif ${claseCifra}`}>{completadas}</p>
+        <p className={`cifra-display ${claseCifra}`}>{completadas}</p>
         <p className="mt-auto pt-3 text-xs text-tenue">{ultimaCompletada ? `Última: ${fechaSinAnio(ultimaCompletada)}` : "Aún ninguna"}</p>
       </div>
     </section>

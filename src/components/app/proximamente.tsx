@@ -15,12 +15,12 @@ export function Proximamente({ href, descripcion }: { href: string; descripcion:
           <p className="etiqueta inline-flex items-center gap-1.5">
             <Construction aria-hidden className="size-3.5" /> En construcción
           </p>
-          <p className="titulo-serif mt-3 text-2xl leading-[1.33]">{s.resumen}</p>
+          <p className="titulo-display mt-3 text-2xl leading-[1.33]">{s.resumen}</p>
           <p className="mt-1.5 text-tenue">{descripcion}</p>
           <EnlaceBoton href="/inicio" variante="secundario" className="mt-6">Volver al panel</EnlaceBoton>
         </div>
         <div aria-hidden className="trama hidden place-items-center border-l border-linea sm:grid">
-          <span className="grid size-16 place-items-center rounded-[var(--radius-tarjeta)] bg-panel text-acento">
+          <span className="grid size-16 place-items-center rounded-[var(--radius-tarjeta)] bg-hueso text-tinta">
             <Icono className="size-7" />
           </span>
         </div>

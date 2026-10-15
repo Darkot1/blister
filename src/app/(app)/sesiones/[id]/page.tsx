@@ -72,7 +72,7 @@ async function Sesion({ params }: { params: PageProps<"/sesiones/[id]">["params"
                 </Link>
               </span>
             )}
-            <span className="rounded-md bg-hueso px-2 py-0.5 text-xs font-medium text-grafito">{ESTADO[sesion.estado] ?? sesion.estado}</span>
+            <span className="rounded-full bg-hueso px-2 py-0.5 text-xs font-medium text-grafito">{ESTADO[sesion.estado] ?? sesion.estado}</span>
           </span>
         }
       />

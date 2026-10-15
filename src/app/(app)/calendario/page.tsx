@@ -106,7 +106,7 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
           <ArrowRight aria-hidden className="size-4" />
         </EnlaceBoton>
       </nav>
-      <h2 className="titulo-serif text-[1.375rem] leading-[1.25]">{etiquetaSemana(lunes)}</h2>
+      <h2 className="titulo-display text-[1.375rem] leading-[1.25]">{etiquetaSemana(lunes)}</h2>
       <p className="text-sm text-tenue">
         {vista.length === 0
           ? "Semana libre"

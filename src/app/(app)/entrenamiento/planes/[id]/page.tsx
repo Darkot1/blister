@@ -181,7 +181,7 @@ async function Plan({
                   href={conParametros(`/entrenamiento/planes/${id}`, { dia: i + 1 })}
                   scroll={false}
                   aria-current={activo ? "true" : undefined}
-                  className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border px-3.5 text-sm transition-colors ${
+                  className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm transition-colors ${
                     activo ? "border-tinta bg-tinta font-medium text-sobre-tinta" : "border-linea bg-superficie text-grafito hover:border-linea-fuerte hover:text-tinta"
                   }`}
                 >
@@ -199,7 +199,7 @@ async function Plan({
           </nav>
 
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 id="titulo-dia" className="titulo-serif text-2xl leading-[1.25]">
+            <h2 id="titulo-dia" className="titulo-display text-2xl leading-[1.25]">
               {diaAbierto.nombre}
             </h2>
             <p className="tabular-nums text-sm text-tenue">
