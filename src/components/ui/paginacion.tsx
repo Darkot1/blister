@@ -19,8 +19,8 @@ export function Paginacion({
   const hasta = Math.min(total, pagina * porPagina);
   const clase = "inline-flex h-8 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2.5 text-sm font-medium";
   return (
-    <nav aria-label="Paginación" className="flex items-center justify-between gap-3 border-t border-linea bg-fondo/60 px-4 py-2.5">
-      <p className="font-mono text-xs text-tenue">
+    <nav aria-label="Paginación" className="flex items-center justify-between gap-3 border-t border-linea bg-hueso/50 px-4 py-2.5">
+      <p className="tabular-nums text-xs text-tenue">
         {desde}–{hasta} de {total}
       </p>
       {paginas > 1 && (
@@ -32,7 +32,7 @@ export function Paginacion({
           ) : (
             <span aria-hidden className={`${clase} text-tenue/50`}><ArrowLeft className="size-4" /> <span className="hidden sm:inline">Anterior</span></span>
           )}
-          <span className="px-1 font-mono text-xs text-tenue">{pagina}/{paginas}</span>
+          <span className="px-1 tabular-nums text-xs text-tenue">{pagina}/{paginas}</span>
           {pagina < paginas ? (
             <Link href={href(pagina + 1)} scroll={false} className={`${clase} hover:border-tinta/30`} aria-label="Página siguiente">
               <span className="hidden sm:inline">Siguiente</span> <ArrowRight aria-hidden className="size-4" />

@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Ingresar" };
 export default function PaginaIngresar({ searchParams }: PageProps<"/ingresar">) {
   return (
     <>
-      <h1 className="text-[1.75rem] leading-tight font-semibold tracking-[-0.025em]">Ingresar</h1>
+      <h1 className="titulo-serif text-[1.875rem] leading-[1.2]">Ingresar</h1>
       <p className="mt-1.5 mb-7 text-tenue">Usa el correo y la contraseña de tu cuenta.</p>
       <Suspense fallback={<><AccesoGoogle /><FormularioIngreso /></>}>
         <IngresoConDestino searchParams={searchParams} />

@@ -161,6 +161,18 @@ export type MusculoFila = {
   creado_en: string;
 };
 
+/** Google Calendar conectado por un usuario. Los tokens van cifrados (ver lib/google/calendario.ts). */
+export type ConexionGoogleFila = {
+  usuario_id: string;
+  correo_google: string;
+  refresh_token_cifrado: string;
+  acceso_cifrado: string | null;
+  acceso_expira_en: string | null;
+  calendario_id: string;
+  conectado_en: string;
+  actualizado_en: string;
+};
+
 export type CitaFila = {
   id: string;
   organizacion_id: string;
@@ -172,6 +184,10 @@ export type CitaFila = {
   termina_en: string;
   estado: string;
   notas: string | null;
+  /** Evento en el Google Calendar del entrenador (null = sin sincronizar). */
+  google_evento_id: string | null;
+  /** Último error al sincronizar con Google (null = sin error). */
+  google_error: string | null;
   creado_en: string;
   actualizado_en: string;
 };
@@ -269,9 +285,13 @@ export type Database = {
       perfiles: Tabla<PerfilFila, Opcional<PerfilFila, "nombres" | "apellidos" | "avatar_url" | "telefono" | "creado_en" | "actualizado_en">>;
       organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "creado_en" | "actualizado_en">>;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
+      conexiones_google: Tabla<
+        ConexionGoogleFila,
+        Opcional<ConexionGoogleFila, "acceso_cifrado" | "acceso_expira_en" | "calendario_id" | "conectado_en" | "actualizado_en">
+      >;
       citas: Tabla<
         CitaFila,
-        Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "creado_en" | "actualizado_en">
+        Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "google_evento_id" | "google_error" | "creado_en" | "actualizado_en">
       >;
       ejercicios: Tabla<
         EjercicioFila,

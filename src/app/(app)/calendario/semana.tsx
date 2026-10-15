@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState, useSyncExternalStore, useTransition } from "react";
-import { Plus } from "lucide-react";
+import { CalendarCheck2, CalendarClock, CalendarX2, Plus, RotateCcw } from "lucide-react";
 import { Boton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
@@ -13,7 +13,7 @@ import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita";
 import type { DiaDeSesion, PlanActivo } from "@/lib/entrenamiento/planes";
-import { cambiarEstadoCita, crearCita, elegirDiaCita } from "./acciones";
+import { cambiarEstadoCita, crearCita, elegirDiaCita, reprogramarCita, resincronizarCita } from "./acciones";
 import { ESTADOS_VISIBLES, IconoEstadoCita, InsigniaCita, puntoEstadoCita, tonoEstadoCita } from "./estado-cita";
 
 export type CitaVista = {
@@ -29,9 +29,18 @@ export type CitaVista = {
   rutina: DiaDeSesion | null;
   /** Plan activo del alumno. */
   plan: PlanActivo | null;
+  /** Estado en Google Calendar; null si el entrenador no lo conectó. */
+  google: "sincronizada" | "pendiente" | "error" | null;
+  googleError: string | null;
 };
 
-type AlumnoAgenda = { id: string; nombre: string; plan: PlanActivo | null };
+type AlumnoAgenda = {
+  id: string;
+  nombre: string;
+  plan: PlanActivo | null;
+  /** Si tiene correo en su ficha (sin el correo en sí): decide si Google le envía la invitación. */
+  tieneCorreo: boolean;
+};
 
 /** Qué se hace en la cita: el día del plan si lo hay; si no, el tipo de cita. */
 const queSeHace = (c: CitaVista) => c.rutina?.dia ?? ETIQUETA_TIPO_CITA[c.tipo] ?? c.tipo;
@@ -81,7 +90,9 @@ export function CalendarioSemana({
   alumnoInicial,
   barra,
   resumen,
+  googleConectado = false,
 }: {
+  googleConectado?: boolean;
   barra?: React.ReactNode;
   /** Bloque bajo la barra (rutinas de la semana). */
   resumen?: React.ReactNode;
@@ -91,7 +102,9 @@ export function CalendarioSemana({
   alumnos: AlumnoAgenda[];
   alumnoInicial?: string;
 }) {
-  const [borrador, setBorrador] = useState<Borrador | null>(alumnoInicial ? { alumnoId: alumnoInicial } : null);
+  const fechaPorDefecto = dias.includes(hoy) ? hoy : dias[0];
+  // Desde la ficha del alumno (?alumno=…) el formulario abre con el alumno y la fecha de hoy ya puestos.
+  const [borrador, setBorrador] = useState<Borrador | null>(alumnoInicial ? { alumnoId: alumnoInicial, fecha: fechaPorDefecto } : null);
   const [idSeleccionada, setIdSeleccionada] = useState<string | null>(null);
   const seleccionada = citas.find((c) => c.id === idSeleccionada) ?? null;
 
@@ -102,7 +115,7 @@ export function CalendarioSemana({
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         {barra}
-        <Boton onClick={() => setBorrador({ fecha: dias.includes(hoy) ? hoy : dias[0] })}>
+        <Boton onClick={() => setBorrador({ fecha: fechaPorDefecto })}>
           <Plus aria-hidden className="size-4" /> Nueva cita
         </Boton>
       </div>
@@ -124,6 +137,7 @@ export function CalendarioSemana({
             key={JSON.stringify(borrador)}
             borrador={borrador}
             alumnos={alumnos}
+            googleConectado={googleConectado}
             alGuardar={() => setBorrador(null)}
           />
         )}
@@ -177,7 +191,7 @@ function RejillaSemana({
         {/* Horas */}
         <div className="relative" style={{ height: HORAS.length * PX_HORA }}>
           {HORAS.map((h, i) => (
-            <span key={h} className="absolute right-2 -translate-y-1/2 font-mono text-[0.7rem] text-tenue" style={{ top: i * PX_HORA }}>
+            <span key={h} className="absolute right-2 -translate-y-1/2 tabular-nums text-[0.7rem] text-tenue" style={{ top: i * PX_HORA }}>
               {i === 0 ? "" : `${h}:00`}
             </span>
           ))}
@@ -207,7 +221,7 @@ function RejillaSemana({
               <div aria-hidden className="pointer-events-none absolute inset-x-0 z-30 border-t-2 border-peligro shadow-[0_0_0_1px_var(--superficie)]"
                 style={{ top: ((ahora.minutos - MIN_INICIO) / 60) * PX_HORA }}>
                 <span className="absolute -top-[6px] -left-[6px] size-2.5 rounded-full border-2 border-superficie bg-peligro" />
-                <span className="absolute -top-2.5 right-1 rounded bg-peligro px-1 font-mono text-[0.6rem] leading-4 font-semibold text-superficie">
+                <span className="absolute -top-2.5 right-1 rounded bg-peligro px-1 tabular-nums text-[0.6rem] leading-4 font-semibold text-superficie">
                   {String(Math.floor(ahora.minutos / 60)).padStart(2, "0")}:{String(ahora.minutos % 60).padStart(2, "0")}
                 </span>
               </div>
@@ -274,9 +288,9 @@ function AgendaMovil({
                 {lista.map((c) => (
                   <li key={c.id}>
                     <button type="button" onClick={() => alElegirCita(c.id)}
-                      className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-fondo/70">
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-hueso/40">
                       <span aria-hidden className={`h-9 w-1 shrink-0 rounded-full ${puntoEstadoCita(c.estado)}`} />
-                      <span className="w-[5.5rem] shrink-0 font-mono text-[0.8rem] whitespace-nowrap">{hora(c.iniciaEn)}</span>
+                      <span className="w-[5.5rem] shrink-0 tabular-nums text-[0.8rem] whitespace-nowrap">{hora(c.iniciaEn)}</span>
                       <span className="min-w-0 flex-1">
                         <span className={`block truncate ${c.estado === "no_asistio" ? "text-tenue line-through" : "font-semibold"}`}>{c.alumno}</span>
                         <span className="block truncate text-sm text-tenue">
@@ -299,15 +313,18 @@ function AgendaMovil({
 function FormularioCita({
   borrador,
   alumnos,
+  googleConectado,
   alGuardar,
 }: {
   borrador: Borrador;
   alumnos: AlumnoAgenda[];
+  googleConectado: boolean;
   alGuardar: () => void;
 }) {
   const [alumnoId, setAlumnoId] = useState(borrador.alumnoId ?? "");
   const [tipo, setTipo] = useState("entrenamiento");
-  const plan = alumnos.find((a) => a.id === alumnoId)?.plan ?? null;
+  const alumno = alumnos.find((a) => a.id === alumnoId);
+  const plan = alumno?.plan ?? null;
   const [estado, enviar] = useActionState(async (previo: EstadoFormulario, datos: FormData) => {
     const resultado = await crearCita(previo, datos);
     if (resultado.ok) alGuardar();
@@ -336,6 +353,7 @@ function FormularioCita({
         errores={estado.errores?.alumno_id}
         opciones={[{ valor: "", texto: "Elige un alumno" }, ...alumnos.map((a) => ({ valor: a.id, texto: a.nombre }))]}
       />
+      {alumno && <AvisoGoogle alumno={alumno} conectado={googleConectado} />}
       <div className="grid grid-cols-2 gap-3">
         <Campo etiqueta="Fecha" nombre="fecha" type="date" required
           defaultValue={v?.fecha ?? borrador.fecha} errores={estado.errores?.fecha} />
@@ -385,16 +403,20 @@ function FormularioCita({
 function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => void }) {
   const [pendiente, iniciar] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [moviendo, setMoviendo] = useState(false);
   const fecha = partesLocales(cita.iniciaEn).fecha;
+  const pendienteDeAtender = cita.estado === "programada" || cita.estado === "confirmada";
+
+  if (moviendo) return <FormularioReprogramar cita={cita} alCancelar={() => setMoviendo(false)} alGuardar={alTerminar} />;
 
   return (
     <div className="space-y-5">
       {error && <Aviso>{error}</Aviso>}
-      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 rounded-lg border border-linea bg-fondo/60 p-4 text-sm">
+      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 rounded-lg border border-linea bg-hueso/50 p-4 text-sm">
         <dt className="text-tenue">Cuándo</dt>
         <dd>
           {etiquetaDiaLarga(fecha)}
-          <span className="ml-2 font-mono text-[0.8rem]">{hora(cita.iniciaEn)} – {hora(cita.terminaEn)}</span>
+          <span className="ml-2 tabular-nums text-[0.8rem]">{hora(cita.iniciaEn)} – {hora(cita.terminaEn)}</span>
         </dd>
         <dt className="text-tenue">Tipo</dt>
         <dd>{ETIQUETA_TIPO_CITA[cita.tipo] ?? cita.tipo}</dd>
@@ -422,6 +444,14 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
         )}
         <dt className="text-tenue">Estado</dt>
         <dd><InsigniaCita estado={cita.estado} /></dd>
+        {cita.google && (
+          <>
+            <dt className="text-tenue">Google</dt>
+            <dd>
+              <EstadoGoogle cita={cita} alError={setError} />
+            </dd>
+          </>
+        )}
         {cita.notas && (
           <>
             <dt className="text-tenue">Notas</dt>
@@ -431,6 +461,11 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
       </dl>
 
       <div className="flex flex-wrap gap-2 border-t border-linea pt-5">
+        {pendienteDeAtender && (
+          <Boton variante="secundario" disabled={pendiente} onClick={() => setMoviendo(true)}>
+            <CalendarClock aria-hidden className="size-4" /> Reprogramar
+          </Boton>
+        )}
         {(ACCIONES[cita.estado] ?? []).map((a) => (
           <Boton
             key={a.estado}
@@ -455,6 +490,121 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
         </Link>
       </div>
     </div>
+  );
+}
+
+/** Qué pasará en Google Calendar al agendar, en una línea bajo el alumno. */
+function AvisoGoogle({ alumno, conectado }: { alumno: AlumnoAgenda; conectado: boolean }) {
+  const nombre = alumno.nombre.split(" ")[0];
+  if (!conectado) {
+    return (
+      <p className="-mt-2 flex items-start gap-2 text-xs text-tenue">
+        <CalendarX2 aria-hidden className="mt-px size-3.5 shrink-0" />
+        <span>
+          Para recibir recordatorios,{" "}
+          <Link href="/configuracion" className="font-medium text-grafito underline underline-offset-2">
+            conecta Google Calendar
+          </Link>
+          .
+        </span>
+      </p>
+    );
+  }
+  return (
+    <p className={`-mt-2 flex items-start gap-2 text-xs ${alumno.tieneCorreo ? "text-tenue" : "text-aviso"}`}>
+      <CalendarCheck2 aria-hidden className="mt-px size-3.5 shrink-0" />
+      {alumno.tieneCorreo ? (
+        `Se añadirá a tu Google Calendar y ${nombre} recibirá la invitación con sus recordatorios.`
+      ) : (
+        <span>
+          Se añadirá a tu Google Calendar. {nombre} no tiene correo: no le llegará invitación.{" "}
+          <Link href={`/alumnos/${alumno.id}/editar`} className="font-medium underline underline-offset-2">
+            Agregar correo
+          </Link>
+        </span>
+      )}
+    </p>
+  );
+}
+
+/** Si la cita está en Google Calendar; si falló, el motivo y un botón para reintentar. */
+function EstadoGoogle({ cita, alError }: { cita: CitaVista; alError: (e: string | null) => void }) {
+  const [pendiente, iniciar] = useTransition();
+  if (cita.google === "sincronizada") {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <CalendarCheck2 aria-hidden className="size-4 text-exito" /> En tu Google Calendar
+      </span>
+    );
+  }
+  if (cita.estado === "cancelada") return <span className="text-tenue">Quitada de Google Calendar</span>;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className={cita.google === "error" ? "text-peligro" : "text-tenue"}>
+        {cita.google === "error" ? (cita.googleError ?? "No se pudo sincronizar.") : "Aún no está en Google Calendar."}
+      </span>
+      <Boton
+        type="button"
+        variante="secundario"
+        className="h-8"
+        disabled={pendiente}
+        onClick={() =>
+          iniciar(async () => {
+            alError(null);
+            const resultado = await resincronizarCita(cita.id);
+            if (resultado.error) alError(resultado.error);
+          })
+        }
+      >
+        <RotateCcw aria-hidden className="size-3.5" /> {pendiente ? "Sincronizando…" : "Reintentar"}
+      </Boton>
+    </div>
+  );
+}
+
+/** Mover la cita a otro día u hora, sin perder su sesión ni su día del plan. */
+function FormularioReprogramar({ cita, alCancelar, alGuardar }: { cita: CitaVista; alCancelar: () => void; alGuardar: () => void }) {
+  const inicio = partesLocales(cita.iniciaEn);
+  const minutos = Math.round((new Date(cita.terminaEn).getTime() - new Date(cita.iniciaEn).getTime()) / 60_000);
+  const duracion = (DURACIONES_CITA as readonly number[]).includes(minutos) ? String(minutos) : "60";
+  const [estado, enviar] = useActionState(async (previo: EstadoFormulario, datos: FormData) => {
+    const resultado = await reprogramarCita(cita.id, previo, datos);
+    if (resultado.ok) alGuardar();
+    return resultado;
+  }, {});
+  const v = estado.valores;
+
+  return (
+    <form action={enviar} className="space-y-4" noValidate>
+      <p className="text-sm text-tenue">
+        Ahora: {etiquetaDiaLarga(inicio.fecha)}, <span className="tabular-nums">{hora(cita.iniciaEn)}</span>. Elige el nuevo horario.
+      </p>
+      {estado.error && <Aviso>{estado.error}</Aviso>}
+      <div className="grid grid-cols-2 gap-3">
+        <Campo etiqueta="Fecha" nombre="fecha" type="date" required defaultValue={v?.fecha ?? inicio.fecha} errores={estado.errores?.fecha} />
+        <Campo
+          etiqueta="Hora"
+          nombre="hora"
+          type="time"
+          step={900}
+          required
+          defaultValue={v?.hora ?? `${pad(Math.floor(inicio.minutos / 60))}:${pad(inicio.minutos % 60)}`}
+          errores={estado.errores?.hora}
+        />
+        <Selector
+          etiqueta="Duración"
+          nombre="duracion"
+          defaultValue={v?.duracion ?? duracion}
+          opciones={DURACIONES_CITA.map((m) => ({ valor: String(m), texto: m < 60 || m % 60 ? `${m} min` : `${m / 60} h` }))}
+        />
+      </div>
+      <div className="flex gap-3 pt-1">
+        <BotonEnvio textoPendiente="Guardando…">Mover cita</BotonEnvio>
+        <Boton type="button" variante="fantasma" onClick={alCancelar}>
+          Volver
+        </Boton>
+      </div>
+    </form>
   );
 }
 

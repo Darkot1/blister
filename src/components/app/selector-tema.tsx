@@ -44,7 +44,7 @@ export function SelectorTema() {
     () => null,
   );
   return (
-    <div role="group" aria-label="Tema de color" className="grid grid-cols-3 gap-0.5 rounded-lg border border-linea bg-fondo/60 p-0.5">
+    <div role="group" aria-label="Tema de color" className="grid grid-cols-3 gap-0.5 rounded-lg bg-hueso p-0.5">
       {OPCIONES.map(({ tema, texto, icono: Icono }) => (
         <button
           key={tema}
@@ -53,7 +53,7 @@ export function SelectorTema() {
           title={texto}
           onClick={() => aplicarTema(tema)}
           className={`flex h-7 items-center justify-center gap-1.5 rounded-md text-xs transition-colors ${
-            actual === tema ? "bg-superficie font-medium text-tinta shadow-[0_1px_2px_rgb(0_0_0/0.12)]" : "text-tenue hover:text-tinta"
+            actual === tema ? "bg-superficie font-medium text-tinta shadow-suave ring-1 ring-linea" : "text-tenue hover:text-tinta"
           }`}
         >
           <Icono aria-hidden className="size-3.5" />

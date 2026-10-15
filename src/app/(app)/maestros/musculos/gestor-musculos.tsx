@@ -55,13 +55,13 @@ export function GestorMusculos({ grupos }: { grupos: Grupo[] }) {
                     <li key={m.id} className="flex min-h-11 items-center gap-2 px-4 py-2">
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium">{m.nombre}</span>
-                        <span className="block font-mono text-[0.7rem] text-tenue">
+                        <span className="block tabular-nums text-[0.7rem] text-tenue">
                           {m.ejercicios ? `${m.ejercicios} ${m.ejercicios === 1 ? "ejercicio" : "ejercicios"}` : "Sin ejercicios"}
                         </span>
                       </span>
                       {m.propio ? (
                         <>
-                          <span className="rounded-md bg-acento px-2 py-0.5 text-xs font-medium text-sobre-acento">Propio</span>
+                          <span className="rounded-md bg-hueso px-2 py-0.5 text-xs font-medium text-tinta">Propio</span>
                           <button
                             type="button"
                             onClick={() => setEdicion({ modo: "editar", musculo: m, grupoId: g.id })}

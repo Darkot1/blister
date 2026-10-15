@@ -62,7 +62,7 @@ async function Resumen() {
             className={`rounded-[var(--radius-tarjeta)] border p-4 ${i === 0 ? "border-panel bg-panel text-white" : "border-linea bg-superficie"}`}
           >
             <p className={`etiqueta ${i === 0 ? "text-white/60" : ""}`}>{c.titulo}</p>
-            <p className="cifra mt-3 text-[2.2rem] leading-none font-semibold">{c.valor}</p>
+            <p className="cifra-serif mt-3 text-[2.2rem] leading-none">{c.valor}</p>
             <p className={`mt-2 text-sm ${i === 0 ? "text-white/60" : "text-tenue"}`}>{c.nota}</p>
           </div>
         ))}

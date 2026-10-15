@@ -14,7 +14,7 @@ function SemanaSvg({ dias }: { dias: readonly number[] }) {
         return (
           <g key={letra} transform={`translate(${i * 21} 0)`}>
             <rect width="18" height="18" rx="4" className={entrena ? "fill-tinta" : "fill-tinta/[0.08]"} />
-            <text x="9" y="28" textAnchor="middle" className="fill-tenue font-mono text-[7px]">
+            <text x="9" y="28" textAnchor="middle" className="fill-tenue tabular-nums text-[7px]">
               {letra}
             </text>
           </g>
@@ -28,7 +28,7 @@ function SemanaSvg({ dias }: { dias: readonly number[] }) {
 export function ElegirEstructura({ alElegir }: { alElegir: (dias: readonly string[]) => void }) {
   return (
     <section aria-labelledby="titulo-estructura" className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-4 sm:p-5">
-      <h2 id="titulo-estructura" className="font-semibold tracking-tight">
+      <h2 id="titulo-estructura" className="font-semibold">
         ¿Cómo repartes la semana?
       </h2>
       <p className="mt-0.5 text-sm text-tenue">Elige una base y luego cambia lo que quieras: nombres, días y ejercicios.</p>
@@ -38,7 +38,7 @@ export function ElegirEstructura({ alElegir }: { alElegir: (dias: readonly strin
             <button
               type="button"
               onClick={() => alElegir(e.dias)}
-              className="flex h-full w-full flex-col items-start gap-2 rounded-lg border border-linea p-3 text-left transition-colors hover:border-tinta/40 hover:bg-fondo/60"
+              className="flex h-full w-full flex-col items-start gap-2 rounded-lg border border-linea p-3 text-left transition-colors hover:border-tinta/40 hover:bg-hueso/50"
             >
               <SemanaSvg dias={e.semana} />
               <span>
@@ -57,9 +57,9 @@ export function ElegirEstructura({ alElegir }: { alElegir: (dias: readonly strin
 const aNumero = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
 const TONOS = ["fill-tinta", "fill-tinta/55", "fill-tinta/30"];
 
-/** Línea de tiempo del día: cuánto ocupa cada bloque en la sesión. */
-export function LineaDia({ bloques }: { bloques: BloqueEstado[] }) {
-  const minutos = minutosPorBloque(
+/** Minutos estimados de cada bloque del día. */
+function minutosDeBloques(bloques: BloqueEstado[]) {
+  return minutosPorBloque(
     bloques.map((b) => ({
       tipo: b.tipo,
       rondas: aNumero(b.rondas),
@@ -71,20 +71,22 @@ export function LineaDia({ bloques }: { bloques: BloqueEstado[] }) {
       })),
     })),
   );
+}
+
+/** Duración estimada de la sesión, en minutos. */
+export const minutosDia = (bloques: BloqueEstado[]) => minutosDeBloques(bloques).reduce((t, m) => t + m, 0);
+
+/** Reparto de la sesión: cuánto ocupa cada bloque (va en el resumen, no en el editor). */
+export function LineaDia({ bloques }: { bloques: BloqueEstado[] }) {
+  const minutos = minutosDeBloques(bloques);
   const total = minutos.reduce((t, m) => t + m, 0);
   if (!total) return null;
 
   const inicios = minutos.map((_, i) => minutos.slice(0, i).reduce((t, m) => t + m, 0));
   const separacion = total * 0.006;
   return (
-    <figure className="rounded-[var(--radius-tarjeta)] border border-linea bg-superficie px-4 py-3">
-      <figcaption className="mb-2 flex items-baseline justify-between gap-3">
-        <span className="etiqueta">Duración estimada</span>
-        <span className="cifra text-xl font-semibold">
-          ≈{total}
-          <span className="ml-0.5 text-sm font-normal text-tenue">min</span>
-        </span>
-      </figcaption>
+    <figure>
+      <figcaption className="etiqueta mb-2">Tiempo por bloque</figcaption>
       <svg aria-hidden viewBox={`0 0 ${total} 8`} preserveAspectRatio="none" className="h-2.5 w-full">
         {minutos.map((m, i) =>
           m ? (
@@ -92,15 +94,16 @@ export function LineaDia({ bloques }: { bloques: BloqueEstado[] }) {
           ) : null,
         )}
       </svg>
-      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-tenue">
+      <ul className="mt-2 space-y-1 text-xs text-tenue">
         {bloques.map((b, i) =>
           minutos[i] ? (
             <li key={b.clave} className="flex items-center gap-1.5">
               <svg aria-hidden viewBox="0 0 8 8" className="size-2">
                 <rect width="8" height="8" rx="2" className={TONOS[i % TONOS.length]} />
               </svg>
-              <span className="font-mono">{letraBloque(i)}</span> {b.nombre || ETIQUETA_BLOQUE[b.tipo]} ·{" "}
-              <span className="font-mono">{minutos[i]} min</span>
+              <span className="tabular-nums">{letraBloque(i)}</span>
+              <span className="min-w-0 flex-1 truncate">{b.nombre || ETIQUETA_BLOQUE[b.tipo]}</span>
+              <span className="tabular-nums">{minutos[i]} min</span>
             </li>
           ) : null,
         )}

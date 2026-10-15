@@ -6,6 +6,7 @@ import { claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
 import { minutosEstimados, seriesDe } from "@/lib/entrenamiento/prescripcion";
 import type { Catalogo } from "@/lib/entrenamiento/cargar";
 import { numero } from "@/lib/formato";
+import { LineaDia } from "./ayudas";
 import type { DiaEstado } from "./estado";
 
 const aNumero = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
@@ -83,13 +84,15 @@ export function ResumenRutina({
         ].map(([etiqueta, valor]) => (
           <div key={etiqueta} className="rounded-lg border border-linea px-3 py-2">
             <dt className="etiqueta">{etiqueta}</dt>
-            <dd className="cifra mt-1 text-2xl font-semibold">
+            <dd className="cifra-serif mt-1 text-2xl">
               {valor}
               {etiqueta !== "Ejercicios" && etiqueta !== "Series" && ejercicios > 0 && <span className="ml-0.5 text-sm font-normal text-tenue">min</span>}
             </dd>
           </div>
         ))}
       </dl>
+
+      {alcance === "dia" && dias[diaActual] && <LineaDia bloques={dias[diaActual].bloques} />}
 
       {ejercicios === 0 ? (
         <p className="text-sm text-tenue">Cuando añadas ejercicios verás aquí qué músculos trabaja y cuántas series recibe cada uno.</p>
@@ -108,7 +111,7 @@ export function ResumenRutina({
                   <span aria-hidden className="h-2 overflow-hidden rounded-full bg-tinta/[0.08]">
                     <span className="block h-full rounded-full bg-tinta" style={{ width: `${(n / maximo) * 100}%` }} />
                   </span>
-                  <span className="text-right font-mono text-xs">{numero(n, 1)}</span>
+                  <span className="text-right tabular-nums text-xs">{numero(n, 1)}</span>
                 </li>
               ))}
             </ul>

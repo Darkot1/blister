@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Copy, Dumbbell, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Copy, Dumbbell, Plus, Save, Trash2, X } from "lucide-react";
 import { Aviso } from "@/components/ui/aviso";
 import { Boton } from "@/components/ui/boton";
 import { claseControl, claseSelector } from "@/components/ui/campo";
+import { GrupoMenu, MenuAcciones, OpcionMenu } from "@/components/ui/menu";
 import { Dialogo } from "@/components/ui/dialogo";
 import { Tarjeta, Vacio } from "@/components/ui/tarjeta";
 import { ETIQUETA_TIPO_OBJETIVO } from "@/lib/formato";
@@ -14,6 +15,7 @@ import type { RolMuscular } from "@/components/anatomia/mapa-corporal";
 import {
   ETIQUETA_BLOQUE,
   NOMBRES_DIA,
+  TIPOS_BLOQUE,
   esPorRondas,
   letraBloque,
   musculosSugeridos,
@@ -21,7 +23,7 @@ import {
 } from "@/lib/entrenamiento/prescripcion";
 import { guardarRutina } from "../acciones";
 import { AsignarRutina, type Asignacion } from "./asignar";
-import { ElegirEstructura, LineaDia } from "./ayudas";
+import { ElegirEstructura, minutosDia } from "./ayudas";
 import { EditorBloque } from "./bloque";
 import { CatalogoEjercicios } from "./catalogo";
 import {
@@ -34,11 +36,10 @@ import {
   ubicarBloque,
   type EstadoRutina,
 } from "./estado";
-import { ID_SUGERENCIAS_REPS, SUGERENCIAS_REPS, claseIcono } from "./fila-ejercicio";
+import { ID_SUGERENCIAS_REPS, SUGERENCIAS_REPS } from "./fila-ejercicio";
 import { ICONO_BLOQUE } from "./iconos";
 import { ResumenRutina } from "./resumen";
 
-const BLOQUES_RAPIDOS: TipoBloque[] = ["calentamiento", "fuerza", "superserie", "circuito", "cardio", "enfriamiento"];
 const MAX_DIAS = 7;
 
 const CONSULTA_ESCRITORIO = "(min-width: 1024px)";
@@ -234,26 +235,24 @@ export function ConstructorRutina({
     setDiaActual(diaActual + direccion);
   };
 
-  const opcionesDestino = (
-    <div>
-      <label htmlFor="destino-ejercicios" className="mb-1.5 block text-xs text-tenue">
-        Añadir a <span className="font-medium text-tinta">{dia.nombre || "este día"}</span>
-      </label>
-      <select
-        id="destino-ejercicios"
-        value={destino && dia.bloques.some((b) => b.clave === destino) ? destino : ""}
-        onChange={(e) => setDestino(e.target.value || null)}
-        className={`${claseSelector.replace("h-10", "h-9")} text-sm`}
-      >
-        <option value="">Automático: según el tipo de ejercicio</option>
-        {dia.bloques.map((b, i) => (
-          <option key={b.clave} value={b.clave}>
-            Bloque {letraBloque(i)} · {b.nombre}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  // Solo se ve cuando el entrenador eligió un bloque; si no, cada ejercicio cae solo en el bloque de su tipo.
+  const indiceDestino = destino ? dia.bloques.findIndex((b) => b.clave === destino) : -1;
+  const avisoDestino =
+    indiceDestino >= 0 ? (
+      <p className="flex items-center gap-2 rounded-lg bg-hueso px-3 py-2 text-sm">
+        <span className="min-w-0 flex-1 truncate">
+          Añadiendo a <span className="font-medium">{letraBloque(indiceDestino)} · {dia.bloques[indiceDestino].nombre}</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setDestino(null)}
+          aria-label="Dejar de añadir a este bloque"
+          className="-mr-1 grid size-6 shrink-0 place-items-center rounded-md text-tenue hover:bg-superficie hover:text-tinta"
+        >
+          <X aria-hidden className="size-3.5" />
+        </button>
+      </p>
+    ) : null;
 
   const catalogoUI = (
     <CatalogoEjercicios
@@ -262,7 +261,7 @@ export function ConstructorRutina({
       resaltadosDe={resaltadosDe}
       sugerencia={dia.nombre.trim() ? { dia: dia.nombre.trim(), musculos: musculosSugeridos(dia.nombre) } : null}
       enDia={enDia}
-      destino={opcionesDestino}
+      destino={avisoDestino}
       alAnadir={anadirEjercicio}
       refBusqueda={refBusqueda}
     />
@@ -272,6 +271,7 @@ export function ConstructorRutina({
   // Rutina nueva y aún vacía: se ofrece una estructura de semana para empezar.
   const enBlanco = !id && totalEjercicios === 0 && estado.dias.length === 1 && dia.bloques.length === 0;
   const nombrePorDefecto = !dia.nombre.trim() || /^d[ií]a \d+$/i.test(dia.nombre.trim());
+  const minutos = minutosDia(dia.bloques);
 
   return (
     <>
@@ -300,18 +300,19 @@ export function ConstructorRutina({
                 placeholder="Ej.: Torso-pierna, 4 días"
                 maxLength={120}
                 autoFocus={!id}
-                className="h-11 w-full rounded-lg border border-transparent bg-transparent px-2 -mx-2 text-xl font-semibold tracking-tight placeholder:font-normal placeholder:text-tenue/70 hover:border-linea focus:border-tinta focus:outline-none"
+                className="h-11 w-full rounded-lg border border-transparent bg-transparent px-2 -mx-2 titulo-serif text-2xl placeholder:text-tenue/70 hover:border-linea focus:border-tinta focus:outline-none"
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] sm:items-end">
-              <div>
-                <label htmlFor="rutina-objetivo" className="mb-1.5 block text-sm font-medium">
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+              <div className="w-full sm:w-64">
+                <label htmlFor="rutina-objetivo" className="mb-1.5 block text-sm font-medium text-grafito">
                   Objetivo
                 </label>
                 <select
                   id="rutina-objetivo"
                   value={estado.tipo_objetivo}
                   onChange={(e) => cambiar((b) => void (b.tipo_objetivo = e.target.value))}
+                  aria-describedby="rutina-objetivo-ayuda"
                   className={claseSelector}
                 >
                   <option value="">Sin objetivo definido</option>
@@ -322,11 +323,20 @@ export function ConstructorRutina({
                   ))}
                 </select>
               </div>
-              <p className="text-sm text-tenue sm:pb-2.5">
-                Las series, repeticiones y descansos de cada ejercicio nuevo se proponen según el objetivo. Puedes cambiarlos.
+              <p id="rutina-objetivo-ayuda" className="pb-2.5 text-xs text-tenue">
+                Propone las series y descansos de cada ejercicio.
               </p>
+              {!descripcionAbierta && (
+                <button
+                  type="button"
+                  onClick={() => setDescripcionAbierta(true)}
+                  className="mb-2 ml-auto inline-flex items-center gap-1 text-sm font-medium text-tenue hover:text-tinta"
+                >
+                  <Plus aria-hidden className="size-4" /> Descripción
+                </button>
+              )}
             </div>
-            {descripcionAbierta ? (
+            {descripcionAbierta && (
               <div>
                 <label htmlFor="rutina-descripcion" className="mb-1.5 block text-sm font-medium">
                   Descripción
@@ -340,14 +350,6 @@ export function ConstructorRutina({
                   className={`${claseControl} h-auto min-h-20 py-2`}
                 />
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setDescripcionAbierta(true)}
-                className="inline-flex items-center gap-1 text-sm font-medium text-tenue hover:text-tinta"
-              >
-                <Plus aria-hidden className="size-4" /> Añadir descripción
-              </button>
             )}
           </Tarjeta>
 
@@ -384,7 +386,7 @@ export function ConstructorRutina({
                   }`}
                 >
                   <span className="max-w-40 truncate">{d.nombre || `Día ${i + 1}`}</span>
-                  <span className={`font-mono text-[0.7rem] ${activo ? "opacity-60" : "text-tenue/70"}`}>{n}</span>
+                  <span className={`tabular-nums text-[0.7rem] ${activo ? "opacity-60" : "text-tenue/70"}`}>{n}</span>
                 </button>
               );
             })}
@@ -415,39 +417,28 @@ export function ConstructorRutina({
                 maxLength={60}
                 className={`${claseControl} min-w-0 flex-1 font-medium sm:max-w-xs`}
               />
-              <div className="flex items-center">
-                <button type="button" onClick={() => moverDia(-1)} disabled={diaActual === 0} aria-label="Mover el día a la izquierda" className={claseIcono}>
-                  <ArrowLeft aria-hidden className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moverDia(1)}
-                  disabled={diaActual === estado.dias.length - 1}
-                  aria-label="Mover el día a la derecha"
-                  className={claseIcono}
-                >
-                  <ArrowRight aria-hidden className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={duplicarDia}
-                  disabled={estado.dias.length >= MAX_DIAS}
-                  aria-label="Duplicar el día"
-                  title="Duplicar el día"
-                  className={claseIcono}
-                >
-                  <Copy aria-hidden className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={quitarDia}
-                  aria-label="Quitar el día"
-                  title="Quitar el día"
-                  className={`${claseIcono} hover:bg-peligro/[0.08] hover:text-peligro`}
-                >
-                  <Trash2 aria-hidden className="size-4" />
-                </button>
-              </div>
+              {minutos > 0 && (
+                <span className="inline-flex items-center gap-1.5 text-sm text-tenue" title="Duración estimada de la sesión">
+                  <Clock aria-hidden className="size-4" />
+                  <span className="tabular-nums">≈{minutos} min</span>
+                </span>
+              )}
+              <MenuAcciones etiqueta={`Acciones del día ${dia.nombre || diaActual + 1}`} className="ml-auto">
+                <OpcionMenu icono={Copy} alElegir={duplicarDia} disabled={estado.dias.length >= MAX_DIAS}>
+                  Duplicar día
+                </OpcionMenu>
+                <OpcionMenu icono={ArrowLeft} alElegir={() => moverDia(-1)} disabled={diaActual === 0}>
+                  Mover a la izquierda
+                </OpcionMenu>
+                <OpcionMenu icono={ArrowRight} alElegir={() => moverDia(1)} disabled={diaActual === estado.dias.length - 1}>
+                  Mover a la derecha
+                </OpcionMenu>
+                <GrupoMenu>
+                  <OpcionMenu icono={Trash2} alElegir={quitarDia} peligro>
+                    Quitar día
+                  </OpcionMenu>
+                </GrupoMenu>
+              </MenuAcciones>
             </div>
 
             {nombrePorDefecto && (
@@ -465,8 +456,6 @@ export function ConstructorRutina({
                 ))}
               </div>
             )}
-
-            <LineaDia bloques={dia.bloques} />
 
             {dia.bloques.length === 0 ? (
               <Vacio
@@ -527,23 +516,23 @@ export function ConstructorRutina({
               ))
             )}
 
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 text-sm text-tenue">Añadir bloque:</span>
-              {BLOQUES_RAPIDOS.map((tipo) => {
-                const Icono = ICONO_BLOQUE[tipo];
-                return (
-                  <button
-                    key={tipo}
-                    type="button"
-                    onClick={() => anadirBloque(tipo)}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2.5 text-sm text-tenue transition-colors hover:border-tinta/30 hover:text-tinta"
-                  >
-                    <Icono aria-hidden className="size-3.5" />
+            {dia.bloques.length > 0 && (
+              <MenuAcciones
+                etiqueta="Tipo de bloque nuevo"
+                texto={
+                  <>
+                    <Plus aria-hidden className="size-4" /> Añadir bloque
+                  </>
+                }
+                className="w-fit"
+              >
+                {TIPOS_BLOQUE.map((tipo) => (
+                  <OpcionMenu key={tipo} icono={ICONO_BLOQUE[tipo]} alElegir={() => anadirBloque(tipo)}>
                     {ETIQUETA_BLOQUE[tipo]}
-                  </button>
-                );
-              })}
-            </div>
+                  </OpcionMenu>
+                ))}
+              </MenuAcciones>
+            )}
           </section>
 
           {/* En móvil el resumen va debajo del día. */}
@@ -559,7 +548,7 @@ export function ConstructorRutina({
           )}
 
           {/* Barra de guardado */}
-          <div className="sticky bottom-0 z-20 -mx-4 border-t border-linea bg-fondo/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-[var(--radius-tarjeta)] lg:border lg:bg-superficie/95 lg:px-4">
+          <div className="sticky bottom-[var(--alto-barra-inferior)] z-20 -mx-4 border-t border-linea bg-fondo/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-[var(--radius-tarjeta)] lg:border lg:bg-superficie/95 lg:px-4">
             {error && (
               <div className="mb-3">
                 <Aviso>{error}</Aviso>
@@ -577,7 +566,7 @@ export function ConstructorRutina({
                       : id
                         ? "Sin cambios"
                         : "Aún no la guardas"}
-                <span className="hidden font-mono text-xs sm:inline">
+                <span className="hidden tabular-nums text-xs sm:inline">
                   · {estado.dias.length} {estado.dias.length === 1 ? "día" : "días"} · {totalEjercicios} ejercicios
                 </span>
               </p>

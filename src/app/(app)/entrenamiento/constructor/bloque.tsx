@@ -13,10 +13,10 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
-import { claseSelector } from "@/components/ui/campo";
+import { GrupoMenu, MenuAcciones, OpcionMenu } from "@/components/ui/menu";
 import { AYUDA_BLOQUE, ETIQUETA_BLOQUE, TIPOS_BLOQUE, esPorRondas, letraBloque, type TipoBloque } from "@/lib/entrenamiento/prescripcion";
 import type { BloqueEstado, EjercicioEstado } from "./estado";
-import { FilaEjercicio, claseCompacta, claseIcono } from "./fila-ejercicio";
+import { COLUMNAS_PRESCRIPCION, FilaEjercicio, claseCompacta } from "./fila-ejercicio";
 import { ICONO_BLOQUE } from "./iconos";
 import type { RolMuscular } from "@/components/anatomia/mapa-corporal";
 
@@ -78,12 +78,12 @@ export function EditorBloque({
   return (
     <section
       aria-label={`Bloque ${letra}: ${bloque.nombre}`}
-      className={`overflow-hidden rounded-[var(--radius-tarjeta)] border bg-superficie transition-colors ${
+      className={`@container rounded-[var(--radius-tarjeta)] border bg-superficie transition-colors ${
         destino ? "border-tinta/50 ring-[3px] ring-tinta/[0.06]" : "border-linea"
       }`}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b border-linea bg-fondo/60 px-3 py-2.5 sm:px-4">
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-tinta font-mono text-xs font-semibold text-sobre-tinta">
+      <div className="flex items-center gap-2 rounded-t-[var(--radius-tarjeta)] border-b border-linea bg-hueso/50 px-3 py-2 sm:px-4">
+        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-tinta tabular-nums text-xs font-semibold text-sobre-tinta">
           {letra}
         </span>
         <Icono aria-hidden className="size-4 shrink-0 text-tenue" />
@@ -97,42 +97,32 @@ export function EditorBloque({
           maxLength={60}
           className="h-8 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 text-sm font-semibold hover:border-linea focus:border-tinta focus:bg-superficie focus:outline-none"
         />
-        <label htmlFor={id("tipo")} className="sr-only">
-          Tipo de bloque
-        </label>
-        <select
-          id={id("tipo")}
-          value={bloque.tipo}
-          onChange={(e) => alCambiarTipo(e.target.value as TipoBloque)}
-          title={AYUDA_BLOQUE[bloque.tipo]}
-          className={`${claseSelector.replace("w-full", "w-auto").replace("h-10", "h-8")} text-sm`}
-        >
-          {TIPOS_BLOQUE.map((t) => (
-            <option key={t} value={t}>
-              {ETIQUETA_BLOQUE[t]}
-            </option>
-          ))}
-        </select>
-        <div className="flex items-center">
-          <button type="button" onClick={() => alMover(-1)} disabled={indice === 0} aria-label={`Subir bloque ${letra}`} className={claseIcono}>
-            <ArrowUp aria-hidden className="size-4" />
-          </button>
-          <button type="button" onClick={() => alMover(1)} disabled={indice === total - 1} aria-label={`Bajar bloque ${letra}`} className={claseIcono}>
-            <ArrowDown aria-hidden className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={alQuitar}
-            aria-label={`Quitar bloque ${letra}`}
-            className={`${claseIcono} hover:bg-peligro/[0.08] hover:text-peligro`}
-          >
-            <Trash2 aria-hidden className="size-4" />
-          </button>
-        </div>
+        {bloque.nombre.trim() !== ETIQUETA_BLOQUE[bloque.tipo] && (
+          <span className="hidden shrink-0 text-xs text-tenue sm:inline">{ETIQUETA_BLOQUE[bloque.tipo]}</span>
+        )}
+        <MenuAcciones etiqueta={`Acciones del bloque ${letra}`}>
+          <GrupoMenu titulo="Tipo de bloque">
+            {TIPOS_BLOQUE.map((t) => {
+              const IconoTipo = ICONO_BLOQUE[t];
+              return (
+                <OpcionMenu key={t} icono={IconoTipo} marcada={bloque.tipo === t} alElegir={() => alCambiarTipo(t)}>
+                  {ETIQUETA_BLOQUE[t]}
+                </OpcionMenu>
+              );
+            })}
+          </GrupoMenu>
+          <GrupoMenu>
+            <OpcionMenu icono={ArrowUp} alElegir={() => alMover(-1)} disabled={indice === 0}>Subir bloque</OpcionMenu>
+            <OpcionMenu icono={ArrowDown} alElegir={() => alMover(1)} disabled={indice === total - 1}>Bajar bloque</OpcionMenu>
+          </GrupoMenu>
+          <GrupoMenu>
+            <OpcionMenu icono={Trash2} alElegir={alQuitar} peligro>Quitar bloque</OpcionMenu>
+          </GrupoMenu>
+        </MenuAcciones>
       </div>
 
       {porRondas && (
-        <div className="flex flex-wrap items-end gap-3 border-b border-linea px-3 py-2.5 sm:px-4">
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-1 border-b border-linea px-3 py-2.5 sm:px-4">
           <div className="w-24">
             <label htmlFor={id("rondas")} className="mb-1 block text-xs text-tenue">
               Rondas
@@ -142,7 +132,7 @@ export function EditorBloque({
               value={bloque.rondas}
               onChange={(e) => alCambiar("rondas", e.target.value)}
               inputMode="numeric"
-              className={`${claseCompacta} font-mono`}
+              className={`${claseCompacta} tabular-nums`}
             />
           </div>
           <div className="w-32">
@@ -155,7 +145,7 @@ export function EditorBloque({
                 value={bloque.descanso_segundos}
                 onChange={(e) => alCambiar("descanso_segundos", e.target.value)}
                 inputMode="numeric"
-                className={`${claseCompacta} pr-8 font-mono`}
+                className={`${claseCompacta} pr-8 tabular-nums`}
               />
               <span aria-hidden className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-xs text-tenue">
                 s
@@ -169,6 +159,16 @@ export function EditorBloque({
       {bloque.ejercicios.length > 0 ? (
         <DndContext id={idDnd} sensors={sensores} collisionDetection={closestCenter} modifiers={[soloVertical]} onDragEnd={alSoltar}>
           <SortableContext items={bloque.ejercicios.map((e) => e.clave)} strategy={verticalListSortingStrategy}>
+            {/* Fila ancha: las columnas se nombran una vez aquí, no en cada ejercicio. */}
+            <div aria-hidden className="hidden grid-cols-[minmax(0,1fr)_auto_2rem] gap-x-3 px-4 pt-2.5 @2xl:grid">
+              <span />
+              <span className={`grid ${COLUMNAS_PRESCRIPCION} gap-2 text-xs text-tenue`}>
+                <span>{porRondas ? "" : "Series"}</span>
+                <span>Repeticiones</span>
+                <span>Peso</span>
+                <span>{porRondas ? "" : "Descanso"}</span>
+              </span>
+            </div>
             <ol className="divide-y divide-linea">
               {bloque.ejercicios.map((e, i) => {
                 const info = infoDe(e.ejercicio_id);
@@ -202,12 +202,13 @@ export function EditorBloque({
         type="button"
         onClick={alAnadir}
         aria-pressed={destino}
-        className={`flex w-full items-center justify-center gap-1.5 border-t border-dashed border-linea px-4 py-2.5 text-sm font-medium transition-colors ${
-          destino ? "bg-tinta/[0.04] text-tinta" : "text-tenue hover:bg-fondo/60 hover:text-tinta"
+        aria-label={destino ? undefined : `Añadir ejercicio al bloque ${letra}`}
+        className={`flex w-full items-center justify-center gap-1.5 rounded-b-[var(--radius-tarjeta)] border-t border-dashed border-linea px-4 py-2.5 text-sm font-medium transition-colors ${
+          destino ? "bg-tinta/[0.04] text-tinta" : "text-tenue hover:bg-hueso/50 hover:text-tinta"
         }`}
       >
         <Plus aria-hidden className="size-4" />
-        {destino ? `Añadiendo ejercicios al bloque ${letra}` : `Añadir ejercicio al bloque ${letra}`}
+        {destino ? `Eligiendo ejercicios para ${letra}` : "Añadir ejercicio"}
       </button>
     </section>
   );

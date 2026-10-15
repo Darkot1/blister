@@ -18,7 +18,7 @@ export function BarrasSemana({
           const esHoy = d.fecha === hoy;
           return (
             <div key={d.fecha} className="flex flex-col items-center gap-1.5" title={`${d.etiqueta}: ${d.valor} ${d.valor === 1 ? "cita" : "citas"}`}>
-              <span className={`font-mono text-xs ${d.valor ? "text-tinta" : "text-tenue/60"}`}>{d.valor}</span>
+              <span className={`tabular-nums text-xs ${d.valor ? "text-tinta" : "text-tenue/60"}`}>{d.valor}</span>
               <div className="flex min-h-0 w-full flex-1 items-end justify-center">
                 <span
                   className={`w-full max-w-10 rounded-t-[4px] ${esHoy ? "bg-tinta" : "bg-tinta/15"}`}
@@ -31,7 +31,7 @@ export function BarrasSemana({
       </div>
       <div aria-hidden className="mt-2 grid grid-cols-7 gap-2 border-t border-linea pt-2 sm:gap-3">
         {datos.map((d) => (
-          <span key={d.fecha} className={`text-center font-mono text-[0.68rem] uppercase ${d.fecha === hoy ? "font-semibold text-tinta" : "text-tenue"}`}>
+          <span key={d.fecha} className={`text-center tabular-nums text-[0.68rem] uppercase ${d.fecha === hoy ? "font-semibold text-tinta" : "text-tenue"}`}>
             {d.etiqueta.split(" ")[0]}
           </span>
         ))}

@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { rutaInterna } from "@/lib/rutas";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 
 /** Destino de los enlaces de correo (confirmar cuenta, recuperar contraseña). */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const siguienteCrudo = searchParams.get("siguiente") ?? "/inicio";
-  const siguiente = siguienteCrudo.startsWith("/") && !siguienteCrudo.startsWith("//") ? siguienteCrudo : "/inicio";
+  const siguiente = rutaInterna(searchParams.get("siguiente"));
 
   // Errores devueltos por el proveedor (p. ej. el usuario canceló en Google o el registro está desactivado).
   const errorProveedor = searchParams.get("error_code") ?? searchParams.get("error");

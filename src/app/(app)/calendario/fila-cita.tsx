@@ -13,9 +13,9 @@ export function FilaCita({ cita, alumno, conFecha = false }: { cita: CitaResumen
     <li>
       <Link
         href={`/calendario?semana=${fecha}`}
-        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 transition-colors hover:bg-fondo/70"
+        className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 transition-colors hover:bg-hueso/40"
       >
-        <span className="font-mono text-[0.8rem] whitespace-nowrap text-tenue">
+        <span className="tabular-nums text-[0.8rem] whitespace-nowrap text-tenue">
           {conFecha ? fechaSinAnio(fecha) : hora(cita.inicia_en)}
         </span>
         <span className="min-w-0">

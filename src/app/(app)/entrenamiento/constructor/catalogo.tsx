@@ -36,7 +36,7 @@ export function CatalogoEjercicios({
   sugerencia: { dia: string; musculos: string[] } | null;
   /** Cuántas veces está cada ejercicio en el día abierto. */
   enDia: Map<string, number>;
-  /** Selector "Añadir a…" (lo pinta el constructor). */
+  /** Aviso del bloque que recibe los ejercicios, si el entrenador eligió uno (lo pinta el constructor). */
   destino: React.ReactNode;
   alAnadir: (ejercicio: EjercicioCatalogo) => void;
   refBusqueda?: Ref<HTMLInputElement>;
@@ -190,7 +190,7 @@ export function CatalogoEjercicios({
                   <button
                     type="button"
                     onClick={() => alAnadir(e)}
-                    className="group flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-fondo/60 focus-visible:bg-fondo/60"
+                    className="group flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-hueso/50 focus-visible:bg-hueso/50"
                   >
                     <MiniaturaMusculos resaltados={resaltadosDe(e.id)} className="h-10 w-9" />
                     <span className="min-w-0 flex-1">
@@ -200,7 +200,7 @@ export function CatalogoEjercicios({
                       </span>
                     </span>
                     {veces > 0 && (
-                      <span className="inline-flex shrink-0 items-center gap-0.5 font-mono text-xs text-exito" title="Ya está en este día">
+                      <span className="inline-flex shrink-0 items-center gap-0.5 tabular-nums text-xs text-exito" title="Ya está en este día">
                         <Check aria-hidden className="size-3.5" />
                         <span className="sr-only">Ya está en este día</span>
                         {veces > 1 ? `×${veces}` : ""}
@@ -222,7 +222,7 @@ export function CatalogoEjercicios({
             <button
               type="button"
               onClick={() => setLimite(limite + POR_TANDA)}
-              className="w-full border-t border-linea px-4 py-2.5 text-sm font-medium text-tenue hover:bg-fondo/60 hover:text-tinta"
+              className="w-full border-t border-linea px-4 py-2.5 text-sm font-medium text-tenue hover:bg-hueso/50 hover:text-tinta"
             >
               Mostrar más ({resultados.length - limite})
             </button>

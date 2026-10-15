@@ -1,7 +1,7 @@
 import { iniciales } from "@/lib/formato";
 
 // Fondos apagados con texto oscuro fijo: se leen igual en modo claro y oscuro.
-const FONDOS = ["#ffe3d6", "#dfe6f2", "#e8e2f3", "#dcefe6", "#f4ecd9", "#e3e9ee"];
+const FONDOS = ["#f2ddd2", "#e7e3d8", "#e0e5d8", "#efe3d0", "#e5dfe2", "#e2e1dc"];
 
 const TAMANOS = { sm: "size-8 text-xs rounded-md", md: "size-9 text-[0.8rem] rounded-lg", xl: "size-16 text-xl rounded-xl" };
 
@@ -22,7 +22,7 @@ export function Avatar({
   return (
     <span
       aria-hidden
-      className={`grid shrink-0 place-items-center font-semibold text-sobre-acento ${TAMANOS[tamano]}`}
+      className={`grid shrink-0 place-items-center font-medium text-sobre-acento ${TAMANOS[tamano]}`}
       style={{ background: FONDOS[suma % FONDOS.length] }}
     >
       {iniciales(nombres, apellidos)}

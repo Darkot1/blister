@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
-/** Tarjeta blanca con borde fino: la celda de toda rejilla bento. */
+/** Tarjeta de papel blanco con borde fino sobre el lienzo: la celda de toda rejilla bento. */
 export function Tarjeta({ className = "", children, ...props }: React.ComponentProps<"div">) {
   return (
     <div className={`rounded-[var(--radius-tarjeta)] border border-linea bg-superficie ${className}`} {...props}>
@@ -10,7 +10,7 @@ export function Tarjeta({ className = "", children, ...props }: React.ComponentP
   );
 }
 
-/** Cabecera de tarjeta: etiqueta monoespaciada a la izquierda, acción a la derecha. */
+/** Cabecera de tarjeta: título breve a la izquierda, acción a la derecha. */
 export function CabeceraTarjeta({
   id,
   titulo,
@@ -23,8 +23,8 @@ export function CabeceraTarjeta({
   className?: string;
 }) {
   return (
-    <div className={`flex min-h-12 items-center justify-between gap-3 border-b border-linea px-4 ${className}`}>
-      <h2 id={id} className="etiqueta">{titulo}</h2>
+    <div className={`flex min-h-13 items-center justify-between gap-3 border-b border-linea px-5 ${className}`}>
+      <h2 id={id} className="text-[0.9375rem] font-semibold text-grafito">{titulo}</h2>
       {accion}
     </div>
   );
@@ -33,7 +33,7 @@ export function CabeceraTarjeta({
 /** Enlace pequeño "Ver todo ↗" para la cabecera de una tarjeta. */
 export function EnlaceTarjeta({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-0.5 rounded text-sm font-medium text-tenue hover:text-tinta">
+    <Link href={href} className="inline-flex items-center gap-0.5 rounded text-sm font-medium text-tenue underline-offset-4 transition-colors duration-200 hover:text-tinta hover:underline">
       {children}
       <ArrowUpRight aria-hidden className="size-3.5" />
     </Link>
@@ -69,16 +69,16 @@ export function Vacio({
   className?: string;
 }) {
   return (
-    <div className={`trama flex flex-col items-center rounded-[var(--radius-tarjeta)] border border-dashed border-linea px-6 py-12 text-center ${className}`}>
-      {icono && <div className="mb-3 grid size-11 place-items-center rounded-xl border border-linea bg-superficie text-tenue">{icono}</div>}
-      <p className="font-semibold">{titulo}</p>
-      <p className="mt-1 max-w-sm text-sm text-tenue">{texto}</p>
+    <div className={`trama flex flex-col items-center rounded-[var(--radius-tarjeta)] border border-dashed border-linea-fuerte/60 px-6 py-14 text-center ${className}`}>
+      {icono && <div className="mb-4 grid size-11 place-items-center rounded-xl border border-linea bg-superficie text-grafito">{icono}</div>}
+      <p className="titulo-serif text-xl">{titulo}</p>
+      <p className="mt-1.5 max-w-sm text-sm text-tenue">{texto}</p>
       {accion && <div className="mt-5">{accion}</div>}
     </div>
   );
 }
 
 /** Control segmentado: opciones excluyentes como botones dentro de una cápsula. */
-export const claseSegmentado = "inline-flex rounded-lg border border-linea bg-superficie p-0.5";
+export const claseSegmentado = "inline-flex rounded-lg bg-hueso p-0.5";
 export const claseSegmento = (activo: boolean) =>
-  `h-8 rounded-md px-3 text-sm transition-colors ${activo ? "bg-tinta font-medium text-sobre-tinta" : "text-tenue hover:text-tinta"}`;
+  `h-8 rounded-md px-3 text-sm transition-colors duration-200 ${activo ? "bg-superficie font-medium text-tinta shadow-suave ring-1 ring-linea" : "text-tenue hover:text-tinta"}`;

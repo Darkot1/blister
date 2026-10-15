@@ -136,7 +136,7 @@ export function MapaCorporal({
             {mitad(vista, false)}
             <g transform={`translate(${ANCHO_FIGURA} 0) scale(-1 1)`}>{mitad(vista, true)}</g>
             <text x={ANCHO_FIGURA / 2} y={ALTO_FIGURA + 12} textAnchor="middle" aria-hidden
-              className="fill-tenue font-mono text-[8px] font-medium tracking-[0.08em] uppercase">
+              className="fill-tenue tabular-nums text-[8px] font-medium tracking-[0.08em] uppercase">
               {titulo}
             </text>
           </g>

@@ -17,6 +17,8 @@ export type Seccion = {
   /** Una línea para la pantalla "en construcción". */
   resumen: string;
   icono: LucideIcon;
+  /** Aún en construcción: el menú lo marca para no llevar a una pantalla vacía por sorpresa. */
+  pronto?: boolean;
 };
 
 /** El menú lateral, agrupado como en un panel de administración. */
@@ -37,7 +39,7 @@ export const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
     secciones: [
       { href: "/entrenamiento", texto: "Rutinas y planes", resumen: "Constructor de rutinas, plantillas y planes", icono: ListChecks },
       { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell },
-      { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart },
+      { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart, pronto: true },
     ],
   },
   {
@@ -60,6 +62,9 @@ export const ADMIN: Seccion = {
   resumen: "Espacios, entrenadores y alumnos de la plataforma",
   icono: ShieldCheck,
 };
+
+/** Barra inferior del móvil: lo que el entrenador abre entre sesión y sesión. El resto va en "Más". */
+export const PRINCIPALES = ["/inicio", "/alumnos", "/calendario", "/entrenamiento"];
 
 export const SECCIONES = [...GRUPOS.flatMap((g) => g.secciones), AJUSTES];
 

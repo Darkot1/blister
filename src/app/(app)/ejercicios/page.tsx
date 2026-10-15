@@ -139,7 +139,7 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
                 }`}
               >
                 {texto}
-                <span className={`font-mono text-[0.7rem] ${tipo === valor ? "opacity-60" : "text-tenue/70"}`}>{n}</span>
+                <span className={`tabular-nums text-[0.7rem] ${tipo === valor ? "opacity-60" : "text-tenue/70"}`}>{n}</span>
               </Link>
             ),
           )}
@@ -259,7 +259,7 @@ function Resumen({
               <Link
                 href={url({ tipo })}
                 scroll={false}
-                className="flex items-center justify-between border-t border-linea bg-fondo/60 px-4 py-2.5 text-sm font-medium hover:bg-fondo"
+                className="flex items-center justify-between border-t border-linea bg-hueso/50 px-4 py-2.5 text-sm font-medium hover:bg-fondo"
               >
                 Ver los {lista.length} ejercicios de {TIPOS[tipo].toLowerCase()}
                 <ArrowRight aria-hidden className="size-4" />

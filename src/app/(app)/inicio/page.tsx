@@ -54,7 +54,7 @@ async function Panel() {
   const lunes = inicioSemana(hoy);
   const fin = sumarDias(hoy, 8);
 
-  const [perfil, { count: activos }, { count: inactivos }, { count: porAtender }, { data: recientes }, { data: citas }, { data: alumnos }] =
+  const [perfil, { count: activos }, { count: inactivos }, { count: porAtender }, { data: recientes }, { data: citas }] =
     await Promise.all([
       obtenerPerfil(),
       supabase.from("alumnos").select("id", { count: "exact", head: true }).eq("estado", "activo"),
@@ -77,16 +77,20 @@ async function Panel() {
         .not("estado", "in", "(cancelada,reprogramada)")
         .order("inicia_en")
         .limit(300),
-      supabase.from("alumnos").select("id, nombres, apellidos"),
     ]);
 
-  const nombre = new Map((alumnos ?? []).map((a) => [a.id, `${a.nombres} ${a.apellidos}`]));
   const conFecha = (citas ?? []).map((c) => ({ ...c, ...partesLocales(c.inicia_en) }));
   const deHoyBase = conFecha.filter((c) => c.fecha === hoy);
-  const [rutinaDe, planes] = await Promise.all([
+  // Solo los nombres de quienes tienen citas en pantalla: la tabla completa se cortaría a las 1.000 filas.
+  const idsConCita = [...new Set(conFecha.map((c) => c.alumno_id))];
+  const [{ data: alumnos }, rutinaDe, planes] = await Promise.all([
+    idsConCita.length
+      ? supabase.from("alumnos").select("id, nombres, apellidos").in("id", idsConCita)
+      : Promise.resolve({ data: [] as { id: string; nombres: string; apellidos: string }[] }),
     diasDeSesiones(supabase, deHoyBase.flatMap((c) => (c.sesion_id ? [c.sesion_id] : []))),
     planesActivos(supabase, [...new Set(deHoyBase.map((c) => c.alumno_id))]),
   ]);
+  const nombre = new Map((alumnos ?? []).map((a) => [a.id, `${a.nombres} ${a.apellidos}`]));
   const deHoy = deHoyBase.map((c) => ({
     ...c,
     fin: partesLocales(c.termina_en).minutos,

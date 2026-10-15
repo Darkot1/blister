@@ -102,8 +102,10 @@ export async function actualizarEjercicio(
 }
 
 export async function cambiarEstadoEjercicio(ejercicioId: string, estado: "activo" | "archivado") {
+  if (!/^[0-9a-f-]{36}$/i.test(ejercicioId) || (estado !== "activo" && estado !== "archivado")) throw new Error("Cambio de estado no válido.");
   const { supabase } = await obtenerContexto();
-  await supabase.from("ejercicios").update({ estado }).eq("id", ejercicioId).eq("es_global", false);
+  const { data, error } = await supabase.from("ejercicios").update({ estado }).eq("id", ejercicioId).eq("es_global", false).select("id");
+  if (error || !data?.length) throw new Error("No se pudo cambiar el estado del ejercicio.");
   redirect(estado === "archivado" ? "/maestros/ejercicios?origen=archivados" : "/maestros/ejercicios?origen=propios");
 }
 
