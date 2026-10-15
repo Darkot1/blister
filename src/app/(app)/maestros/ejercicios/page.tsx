@@ -155,7 +155,7 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/maestros/ejer
                   <span className="hidden md:block">{e.dificultad && <NivelDificultad dificultad={e.dificultad} />}</span>
                   <span>
                     <span
-                      className={`inline-flex h-6 items-center rounded-md px-2 text-xs font-medium ${
+                      className={`inline-flex h-6 items-center rounded-full px-2 text-xs font-medium ${
                         e.es_global ? "border border-linea text-tenue" : "bg-hueso text-tinta"
                       }`}
                     >

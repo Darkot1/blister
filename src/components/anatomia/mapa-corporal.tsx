@@ -164,7 +164,7 @@ export function MapaCorporal({
                 type="button"
                 aria-pressed={elegidos.has(m.slug)}
                 onClick={() => alAlternar!(m.slug)}
-                className={`h-7 rounded-md border px-2.5 text-xs font-medium transition-colors ${
+                className={`h-7 rounded-full border px-2.5 text-xs font-medium transition-colors ${
                   elegidos.has(m.slug)
                     ? "border-tinta bg-tinta text-sobre-tinta"
                     : "border-linea bg-superficie text-tinta hover:border-tinta/30"

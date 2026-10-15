@@ -247,7 +247,7 @@ export function ConstructorRutina({
           type="button"
           onClick={() => setDestino(null)}
           aria-label="Dejar de añadir a este bloque"
-          className="-mr-1 grid size-6 shrink-0 place-items-center rounded-md text-tenue hover:bg-superficie hover:text-tinta"
+          className="-mr-1 grid size-6 shrink-0 place-items-center rounded-full text-tenue hover:bg-superficie hover:text-tinta"
         >
           <X aria-hidden className="size-3.5" />
         </button>
@@ -300,7 +300,7 @@ export function ConstructorRutina({
                 placeholder="Ej.: Torso-pierna, 4 días"
                 maxLength={120}
                 autoFocus={!id}
-                className="h-11 w-full rounded-lg border border-transparent bg-transparent px-2 -mx-2 titulo-serif text-2xl placeholder:text-tenue/70 hover:border-linea focus:border-tinta focus:outline-none"
+                className="h-11 w-full rounded-full border border-transparent bg-transparent px-2 -mx-2 titulo-display text-2xl placeholder:text-tenue/70 hover:border-linea focus:border-tinta focus:outline-none"
               />
             </div>
             <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
@@ -379,7 +379,7 @@ export function ConstructorRutina({
                     setDestino(null);
                   }}
                   aria-current={activo ? "true" : undefined}
-                  className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border px-3.5 text-sm transition-colors ${
+                  className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm transition-colors ${
                     activo
                       ? "border-tinta bg-tinta font-medium text-sobre-tinta"
                       : "border-linea bg-superficie text-tenue hover:border-tinta/30 hover:text-tinta"
@@ -394,7 +394,7 @@ export function ConstructorRutina({
               <button
                 type="button"
                 onClick={anadirDia}
-                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-dashed border-linea px-3.5 text-sm font-medium text-tenue hover:border-tinta/40 hover:text-tinta"
+                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-dashed border-linea px-3.5 text-sm font-medium text-tenue hover:border-tinta/40 hover:text-tinta"
               >
                 <Plus aria-hidden className="size-4" /> Día
               </button>
@@ -449,7 +449,7 @@ export function ConstructorRutina({
                     key={nombre}
                     type="button"
                     onClick={() => cambiarDia((d) => void (d.nombre = nombre))}
-                    className="h-7 rounded-md border border-linea bg-superficie px-2.5 text-xs font-medium text-tenue hover:border-tinta/30 hover:text-tinta"
+                    className="h-7 rounded-full border border-linea bg-superficie px-2.5 text-xs font-medium text-tenue hover:border-tinta/30 hover:text-tinta"
                   >
                     {nombre}
                   </button>

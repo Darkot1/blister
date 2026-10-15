@@ -159,7 +159,7 @@ export function RegistroSesion({
                           placeholder={p?.peso !== null && p?.peso !== undefined ? numero(p.peso) : "—"}
                           onChange={(ev) => setEdiciones((ed) => ({ ...ed, [s.id]: { ...v, peso: ev.target.value } }))}
                           onBlur={(ev) => ev.target.value !== guardado(s).peso && guardar(s, { peso: ev.target.value })}
-                          className="h-11 w-full min-w-0 rounded-lg border border-linea-fuerte/70 bg-superficie px-3 text-center tabular-nums text-base focus:border-tinta focus:ring-[3px] focus:ring-tinta/10 focus:outline-none"
+                          className="h-11 w-full min-w-0 rounded-full border border-linea-fuerte/70 bg-superficie px-3 text-center tabular-nums text-base focus:border-acento focus:ring-[3px] focus:ring-acento/25 focus:outline-none"
                         />
                         <label className="sr-only" htmlFor={id("reps")}>
                           Repeticiones de la serie {s.numero_serie}
@@ -172,7 +172,7 @@ export function RegistroSesion({
                           placeholder={p?.repeticiones ?? "—"}
                           onChange={(ev) => setEdiciones((ed) => ({ ...ed, [s.id]: { ...v, repeticiones: ev.target.value } }))}
                           onBlur={(ev) => ev.target.value !== guardado(s).repeticiones && guardar(s, { repeticiones: ev.target.value })}
-                          className="h-11 w-full min-w-0 rounded-lg border border-linea-fuerte/70 bg-superficie px-3 text-center tabular-nums text-base focus:border-tinta focus:ring-[3px] focus:ring-tinta/10 focus:outline-none"
+                          className="h-11 w-full min-w-0 rounded-full border border-linea-fuerte/70 bg-superficie px-3 text-center tabular-nums text-base focus:border-acento focus:ring-[3px] focus:ring-acento/25 focus:outline-none"
                         />
                         <button
                           type="button"
@@ -184,7 +184,7 @@ export function RegistroSesion({
                             const peso = !v.completada && v.peso.trim() === "" && p?.peso !== null && p?.peso !== undefined ? String(p.peso) : v.peso;
                             void guardar(s, { completada: !v.completada, repeticiones: reps, peso });
                           }}
-                          className={`grid size-11 place-items-center justify-self-center rounded-lg border transition-colors ${
+                          className={`grid size-11 place-items-center justify-self-center rounded-full border transition-colors ${
                             v.completada ? "border-exito bg-exito text-superficie" : "border-linea-fuerte/70 text-tenue hover:border-tinta hover:text-tinta"
                           }`}
                         >
@@ -249,7 +249,7 @@ export function RegistroSesion({
             }}
             className="space-y-4"
           >
-            <h2 className="titulo-serif text-xl">Terminar la sesión</h2>
+            <h2 className="titulo-display text-xl">Terminar la sesión</h2>
             <Selector
               etiqueta="¿Qué tan dura fue? (RPE de la sesión)"
               nombre="rpe_sesion"

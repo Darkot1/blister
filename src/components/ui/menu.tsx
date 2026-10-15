@@ -80,7 +80,7 @@ export function MenuAcciones({
         className={
           texto
             ? clasesBoton("secundario", abierto ? "border-linea-fuerte text-tinta" : "")
-            : `grid size-8 shrink-0 place-items-center rounded-lg text-tenue transition-colors hover:bg-hueso hover:text-tinta ${abierto ? "bg-hueso text-tinta" : ""}`
+            : `grid size-8 shrink-0 place-items-center rounded-full text-tenue transition-colors hover:bg-hueso hover:text-tinta ${abierto ? "bg-hueso text-tinta" : ""}`
         }
       >
         {texto ?? <MoreHorizontal aria-hidden className="size-4" />}
@@ -94,7 +94,7 @@ export function MenuAcciones({
           onKeyDown={alTeclear}
           // Cualquier opción elegida cierra el menú.
           onClick={(e) => (e.target as HTMLElement).closest("[role^=menuitem]") && cerrar()}
-          className={`absolute ${texto ? "left-0" : "right-0"} z-40 min-w-52 rounded-xl border border-linea bg-superficie p-1 text-sm shadow-flotante ${
+          className={`absolute ${texto ? "left-0" : "right-0"} z-40 min-w-52 rounded-2xl bg-panel p-1.5 text-sm shadow-flotante ${
             arriba ? "bottom-full mb-1" : "top-full mt-1"
           }`}
         >
@@ -130,8 +130,8 @@ export function OpcionMenu({
       tabIndex={-1}
       disabled={disabled}
       onClick={alElegir}
-      className={`flex h-9 w-full items-center gap-2.5 rounded-lg px-2.5 text-left outline-none transition-colors disabled:pointer-events-none disabled:opacity-35 ${
-        peligro ? "text-peligro hover:bg-peligro/[0.07] focus:bg-peligro/[0.07]" : "text-grafito hover:bg-hueso hover:text-tinta focus:bg-hueso focus:text-tinta"
+      className={`flex h-9 w-full items-center gap-2.5 rounded-xl px-2.5 text-left outline-none transition-colors disabled:pointer-events-none disabled:opacity-35 ${
+        peligro ? "text-peligro hover:bg-peligro/[0.07] focus:bg-peligro/[0.07]" : "text-grafito hover:bg-superficie hover:text-tinta focus:bg-superficie focus:text-tinta"
       }`}
     >
       {Icono && <Icono aria-hidden className="size-4 shrink-0" />}

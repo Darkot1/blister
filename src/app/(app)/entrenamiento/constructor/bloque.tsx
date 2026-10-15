@@ -83,7 +83,7 @@ export function EditorBloque({
       }`}
     >
       <div className="flex items-center gap-2 rounded-t-[var(--radius-tarjeta)] border-b border-linea bg-hueso/50 px-3 py-2 sm:px-4">
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-tinta tabular-nums text-xs font-semibold text-sobre-tinta">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-tinta tabular-nums text-xs font-semibold text-sobre-tinta">
           {letra}
         </span>
         <Icono aria-hidden className="size-4 shrink-0 text-tenue" />
@@ -95,7 +95,7 @@ export function EditorBloque({
           value={bloque.nombre}
           onChange={(e) => alCambiar("nombre", e.target.value)}
           maxLength={60}
-          className="h-8 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 text-sm font-semibold hover:border-linea focus:border-tinta focus:bg-superficie focus:outline-none"
+          className="h-8 min-w-0 flex-1 rounded-full border border-transparent bg-transparent px-1.5 text-sm font-semibold hover:border-linea focus:border-tinta focus:bg-superficie focus:outline-none"
         />
         {bloque.nombre.trim() !== ETIQUETA_BLOQUE[bloque.tipo] && (
           <span className="hidden shrink-0 text-xs text-tenue sm:inline">{ETIQUETA_BLOQUE[bloque.tipo]}</span>

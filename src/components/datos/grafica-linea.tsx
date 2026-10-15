@@ -108,7 +108,7 @@ export function GraficaLinea({
           ))}
 
           <path d={ruta} fill="none" className="stroke-tinta" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-          {/* Puntos pequeños solo si son pocos; el último siempre, en arcilla con anillo del fondo. */}
+          {/* Puntos pequeños solo si son pocos; el último siempre, en cobalto con anillo del fondo. */}
           {datos.length <= 24 &&
             datos.slice(0, -1).map((p, i) => <circle key={p.fecha + i} cx={xs[i]} cy={y(p.valor)} r="3" className="fill-tinta" />)}
           <circle cx={xs[ultimo]} cy={y(datos[ultimo].valor)} r="5" className="fill-acento stroke-superficie" strokeWidth="2" />

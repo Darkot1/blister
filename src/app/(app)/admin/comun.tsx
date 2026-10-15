@@ -14,7 +14,7 @@ const ESTADO: Record<string, { texto: string; color: string }> = {
 export function InsigniaEspacio({ estado }: { estado: string }) {
   const e = ESTADO[estado] ?? ESTADO.archivado;
   return (
-    <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 text-xs font-medium">
+    <span className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full border border-linea bg-superficie px-2 text-xs font-medium">
       <span aria-hidden className={`size-1.5 rounded-full ${e.color}`} />
       {e.texto}
     </span>
@@ -57,7 +57,7 @@ export function Cifra({ titulo, valor, nota }: { titulo: string; valor: number |
   return (
     <div className="bg-superficie p-4">
       <p className="etiqueta">{titulo}</p>
-      <p className="cifra-serif mt-2 text-2xl leading-none">{valor}</p>
+      <p className="cifra-display mt-2 text-2xl leading-none">{valor}</p>
       {nota && <p className="mt-1.5 text-xs text-tenue">{nota}</p>}
     </div>
   );
@@ -126,7 +126,7 @@ export function CitasPorEstado({ conteo }: { conteo: Record<string, number> }) {
   return (
     <div className="p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="cifra-serif text-3xl leading-none">{total}</p>
+        <p className="cifra-display text-3xl leading-none">{total}</p>
         <p className="text-sm text-tenue">
           Asistencia <span className="cifra font-semibold text-tinta">{asistencia === null ? "—" : `${asistencia} %`}</span>
         </p>

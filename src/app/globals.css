@@ -1,83 +1,102 @@
 @import "tailwindcss";
 
 /*
-  Identidad visual: "papel".
-  Un documento impreso, no un panel de cristal: lienzo pergamino cálido, tarjetas blancas
-  con borde fino, tinta carbón casi negra y una jerarquía hecha con tamaño y peso, no con color.
-  La paleta es monocroma cálida; el único color de marca es la arcilla (`acento`), y solo
-  como marca decorativa (puntos, iconos, el "hoy"), nunca como relleno de botones ni de áreas grandes.
-  Source Serif 4 para títulos y cifras protagonistas; Instrument Sans para toda la interfaz.
+  Identidad visual: "cumbre".
+  Un observatorio a la hora azul: lienzo onyx casi negro, superficies grafito un paso más claras
+  (sin sombras: la separación es solo de valor), texto marfil y un único color, el cobalto,
+  reservado a la acción principal y a lo seleccionado. Nunca decorativo.
+  Controles en píldora (botones, campos, pestañas); tarjetas con 12 px de radio.
+  Archivo ancho (eje wdth) a peso 480 para títulos y cifras; Geist para toda la interfaz.
 
-  Modo oscuro: sigue al sistema y se puede forzar con <html data-tema="claro|oscuro">
-  (ver `components/app/selector-tema.tsx`). Los componentes solo usan tokens:
-  - `hueso`: superficie anidada (bandas, celdas secundarias, cabeceras de tabla).
+  Tema: oscuro por defecto. <html data-tema="claro"> fuerza el claro y data-tema="sistema"
+  sigue al dispositivo (ver `components/app/selector-tema.tsx`). Los componentes solo usan tokens:
+  - `hueso`: superficie interactiva / anidada (fondos de controles, cabeceras de tabla, hover).
   - `grafito`: texto secundario fuerte (títulos de tarjeta, navegación).
-  - `panel`: la celda protagonista de un bento; oscura en ambos modos, con texto blanco.
-  - `sobre-tinta`: texto sobre `bg-tinta` (botón primario, filtro activo); se invierte en oscuro.
-  - `sobre-acento`: texto sobre la arcilla; siempre oscuro.
+  - `panel`: la celda protagonista de un bento; un paso más clara que la tarjeta.
+  - `acento` (cobalto): botón principal, navegación activa, foco de conversión.
+  - `sobre-tinta`: texto sobre `bg-tinta` (pastillas marfil seleccionadas).
+  - `sobre-acento`: texto sobre el cobalto; siempre blanco.
 */
 :root {
-  --fondo: #f8f8f6;
+  --fondo: #171721;
+  --superficie: #1e1e2a;
+  --hueso: #272735;
+  --tinta: #ededf3;
+  --grafito: #c3c3cc;
+  --tenue: #9a9aaa;
+  --linea: #2c2c3b;
+  --linea-fuerte: #70707d;
+  --acento: #5266eb;
+  --acento-hover: #6276f0;
+  --panel: #272735;
+  --sobre-tinta: #171721;
+  --sobre-acento: #ffffff;
+  /* Estados apagados, solo para estado (con punto + texto); AA como texto en ambos modos. */
+  --exito: #7cc49b;
+  --aviso: #e2b766;
+  --peligro: #f08a7e;
+  color-scheme: dark;
+}
+
+/* Claro: la misma lógica sobre papel frío (contrastes AA comprobados). */
+@media (prefers-color-scheme: light) {
+  :root[data-tema="sistema"] {
+    --fondo: #f5f5f8;
+    --superficie: #ffffff;
+    --hueso: #ececf2;
+    --tinta: #171721;
+    --grafito: #3a3a48;
+    --tenue: #62626f;
+    --linea: #e2e3ed;
+    --linea-fuerte: #8e8e9c;
+    --acento: #4357e0;
+    --acento-hover: #3a4dd0;
+    --panel: #171721;
+    --sobre-tinta: #f5f5f8;
+    --sobre-acento: #ffffff;
+    --exito: #2c744d;
+    --aviso: #8a5d12;
+    --peligro: #b4402f;
+    color-scheme: light;
+  }
+}
+:root[data-tema="claro"] {
+  --fondo: #f5f5f8;
   --superficie: #ffffff;
-  --hueso: #efeeeb;
-  --tinta: #121212;
-  --grafito: #373734;
-  /* "Ashen" oscurecido un punto para pasar AA (4.5:1) como texto sobre el lienzo. */
-  --tenue: #6b6964;
-  --linea: #e7e6e1;
-  --linea-fuerte: #b7b7b5;
-  --acento: #d97757;
-  --acento-hover: #c96a4b;
-  --panel: #121212;
-  --sobre-tinta: #f8f8f6;
-  --sobre-acento: #121212;
-  /* Estados apagados y cálidos, con contraste AA como texto sobre la superficie. */
-  --exito: #3d7350;
+  --hueso: #ececf2;
+  --tinta: #171721;
+  --grafito: #3a3a48;
+  --tenue: #62626f;
+  --linea: #e2e3ed;
+  --linea-fuerte: #8e8e9c;
+  --acento: #4357e0;
+  --acento-hover: #3a4dd0;
+  --panel: #171721;
+  --sobre-tinta: #f5f5f8;
+  --sobre-acento: #ffffff;
+  --exito: #2c744d;
   --aviso: #8a5d12;
-  --peligro: #b0412e;
+  --peligro: #b4402f;
   color-scheme: light;
 }
 
-/* Los mismos tokens, en oscuro: papel carbón cálido (contrastes AA contra superficie, fondo y panel). */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-tema="claro"]) {
-    --fondo: #1f1e1c;
-    --superficie: #262624;
-    --hueso: #2e2d2a;
-    --tinta: #f4f3ee;
-    --grafito: #d9d7d0;
-    --tenue: #a8a59c;
-    --linea: #3a3935;
-    --linea-fuerte: #5a5852;
-    --acento: #d97757;
-    --acento-hover: #e3896b;
-    --panel: #141413;
-    --sobre-tinta: #1f1e1c;
-    --sobre-acento: #141413;
-    --exito: #82b892;
-    --aviso: #d8a650;
-    --peligro: #e8846f;
-    color-scheme: dark;
-  }
-}
-:root[data-tema="oscuro"] {
-  --fondo: #1f1e1c;
-  --superficie: #262624;
-  --hueso: #2e2d2a;
-  --tinta: #f4f3ee;
-  --grafito: #d9d7d0;
-  --tenue: #a8a59c;
-  --linea: #3a3935;
-  --linea-fuerte: #5a5852;
-  --acento: #d97757;
-  --acento-hover: #e3896b;
-  --panel: #141413;
-  --sobre-tinta: #1f1e1c;
-  --sobre-acento: #141413;
-  --exito: #82b892;
-  --aviso: #d8a650;
-  --peligro: #e8846f;
+/* Un bloque siempre oscuro aunque la app esté en claro (portada, panel de acceso). */
+.tema-oscuro {
+  --fondo: #171721;
+  --superficie: #1e1e2a;
+  --hueso: #272735;
+  --tinta: #ededf3;
+  --grafito: #c3c3cc;
+  --tenue: #9a9aaa;
+  --linea: #2c2c3b;
+  --linea-fuerte: #70707d;
+  --acento: #5266eb;
+  --acento-hover: #6276f0;
+  --panel: #272735;
+  --sobre-tinta: #171721;
+  --sobre-acento: #ffffff;
   color-scheme: dark;
+  color: var(--tinta);
 }
 
 @theme inline {
@@ -97,16 +116,17 @@
   --color-panel: var(--panel);
   --color-sobre-tinta: var(--sobre-tinta);
   --color-sobre-acento: var(--sobre-acento);
-  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Source Serif 4 Variable", Charter, Georgia, ui-serif, serif;
-  /* La interfaz no grita: el peso más alto en uso es 580. */
-  --font-weight-semibold: 580;
-  --font-weight-bold: 580;
-  --radius-tarjeta: 1rem;
-  --radius-elevada: 1.5rem;
-  /* Única sombra: un lavado difuso para lo que flota (diálogos, arrastre, hover). */
-  --shadow-suave: 0 4px 20px 0 rgb(0 0 0 / 0.04);
-  --shadow-flotante: 0 4px 24px 0 rgb(18 18 18 / 0.1);
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  /* Pesos intermedios: nunca negrita. 480 es el techo de la interfaz. */
+  --font-weight-medium: 480;
+  --font-weight-semibold: 480;
+  --font-weight-bold: 530;
+  --radius-tarjeta: 0.75rem;
+  --radius-elevada: 1rem;
+  /* Sin sombras: lo que flota (diálogos, menús, arrastre) se separa con un filo de luz. */
+  --shadow-suave: 0 0 0 1px color-mix(in oklab, var(--tinta) 6%, transparent);
+  --shadow-flotante: 0 0 0 1px color-mix(in oklab, var(--tinta) 10%, transparent), 0 16px 40px -12px rgb(0 0 0 / 0.45);
 }
 
 /* Alto de la barra inferior del móvil: lo que quede pegado abajo (barra de guardado) se apoya encima. */
@@ -119,22 +139,36 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--fondo);
   color: var(--tinta);
   font-family: var(--font-sans);
   font-size: 0.9375rem;
-  line-height: 1.55;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :focus-visible {
-  outline: 2px solid var(--tinta);
+  outline: 2px solid var(--acento);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--acento) 28%, transparent);
+  background: color-mix(in oklab, var(--acento) 45%, transparent);
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
 }
 
 /* En una capa: así las utilidades de Tailwind pueden sobrescribirlas. */
@@ -142,39 +176,50 @@ body {
   /* Cifras: números tabulares, para que las columnas y los KPI no bailen. */
   .cifra {
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-  }
-
-  /* Cifra protagonista (KPI): en la serif, a peso normal; la escala hace el trabajo. */
-  .cifra-serif {
-    font-family: var(--font-serif);
-    font-weight: 400;
-    font-variant-numeric: lining-nums tabular-nums;
-    letter-spacing: -0.02em;
-  }
-
-  /* Título editorial: la serif solo para títulos de página y de sección. */
-  .titulo-serif {
-    font-family: var(--font-serif);
-    font-weight: 400;
     letter-spacing: -0.01em;
   }
 
-  /* Etiqueta de datos: rótulo pequeño en sans, gris cálido, sin mayúsculas forzadas. */
+  /* Cifra protagonista (KPI): en la display ancha, a peso 480. La escala hace el trabajo. */
+  .cifra-display {
+    font-family: var(--font-display);
+    font-weight: 480;
+    font-stretch: 112%;
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: 0;
+  }
+
+  /* Título: display ancha, peso 480 (nunca negrita) y tracking positivo, arquitectónico. */
+  .titulo-display {
+    font-family: var(--font-display);
+    font-weight: 480;
+    font-stretch: 112%;
+    letter-spacing: 0.01em;
+  }
+
+  /* Etiqueta de datos: rótulo pequeño, sin mayúsculas forzadas. */
   .etiqueta {
     font-size: 0.75rem;
     line-height: 1.33;
-    font-weight: 500;
+    font-weight: 420;
+    letter-spacing: 0.01em;
     color: var(--tenue);
   }
 
-  /* Relleno plano para áreas decorativas y estados vacíos (sin tramas ni degradados). */
+  /* Relleno plano para áreas decorativas y estados vacíos. */
   .trama {
-    background-color: color-mix(in oklab, var(--hueso) 55%, transparent);
+    background-color: color-mix(in oklab, var(--hueso) 45%, transparent);
+  }
+
+  /* Grano muy sutil para fondos amplios (portada): rompe lo plano sin verse. */
+  .grano {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;

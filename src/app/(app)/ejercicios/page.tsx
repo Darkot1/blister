@@ -132,7 +132,7 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
                 href={url({ tipo: valor })}
                 scroll={false}
                 aria-current={tipo === valor ? "true" : undefined}
-                className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors ${
+                className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors ${
                   tipo === valor
                     ? "border-tinta bg-tinta font-medium text-sobre-tinta"
                     : "border-linea bg-superficie text-tenue hover:border-tinta/30 hover:text-tinta"

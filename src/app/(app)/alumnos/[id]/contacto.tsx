@@ -5,7 +5,7 @@ import { Eye, Mail, Phone } from "lucide-react";
 import { verContacto } from "../acciones";
 
 const clasePastilla =
-  "inline-flex h-6 max-w-full items-center gap-1.5 rounded-md border border-linea bg-superficie px-2 tabular-nums text-xs hover:border-tinta/30 hover:text-tinta";
+  "inline-flex h-6 max-w-full items-center gap-1.5 rounded-full border border-linea bg-superficie px-2 tabular-nums text-xs hover:border-tinta/30 hover:text-tinta";
 
 /** Teléfono o correo oculto: se pide al servidor al tocarlo y entonces se muestra como enlace. */
 export function ContactoOculto({ alumnoId, campo }: { alumnoId: string; campo: "telefono" | "correo" }) {

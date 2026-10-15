@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Crear cuenta" };
 export default function PaginaRegistro() {
   return (
     <>
-      <h1 className="titulo-serif text-[1.875rem] leading-[1.2]">Crear cuenta</h1>
+      <h1 className="titulo-display text-[1.875rem] leading-[1.2]">Crear cuenta</h1>
       <p className="mt-1.5 mb-7 text-tenue">Tu espacio de trabajo se crea automáticamente.</p>
       <AccesoGoogle />
       <FormularioRegistro />

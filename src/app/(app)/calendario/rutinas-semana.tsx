@@ -66,7 +66,7 @@ export function RutinasSemana({ citas, dias }: { citas: CitaVista[]; dias: strin
                   return (
                     <li
                       key={c.id}
-                      className={`inline-flex h-7 items-center gap-1.5 rounded-md border px-2 text-xs ${
+                      className={`inline-flex h-7 items-center gap-1.5 rounded-full border px-2 text-xs ${
                         c.rutina ? "border-linea bg-hueso/50" : "border-dashed border-linea text-tenue"
                       }`}
                     >

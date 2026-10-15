@@ -12,7 +12,7 @@ import type { EjercicioEstado } from "./estado";
 
 export const claseCompacta = `${claseControl.replace("h-10", "h-9")} px-2.5 text-sm`;
 export const claseIcono =
-  "grid size-8 shrink-0 place-items-center rounded-lg text-tenue transition-colors hover:bg-hueso hover:text-tinta disabled:pointer-events-none disabled:opacity-30";
+  "grid size-8 shrink-0 place-items-center rounded-full text-tenue transition-colors hover:bg-hueso hover:text-tinta disabled:pointer-events-none disabled:opacity-30";
 
 type Campo = Exclude<keyof EjercicioEstado, "clave" | "ejercicio_id">;
 
@@ -54,13 +54,13 @@ function Paso({
       <label htmlFor={id} className={etiquetaCampo}>
         {etiqueta}
       </label>
-      <div className="flex h-9 items-stretch rounded-lg border border-linea bg-superficie transition-[border-color,box-shadow] focus-within:border-tinta focus-within:ring-[3px] focus-within:ring-tinta/10 hover:border-tinta/25">
+      <div className="flex h-9 items-stretch rounded-full border border-linea-fuerte/80 bg-transparent transition-[border-color,box-shadow] focus-within:border-tinta focus-within:ring-[3px] focus-within:ring-tinta/10 hover:border-tinta/25">
         <button
           type="button"
           onClick={() => ajustar(-paso)}
           disabled={!vacio && actual <= min}
           aria-label={`Menos ${nombre}`}
-          className="grid w-7 shrink-0 place-items-center rounded-l-lg text-tenue hover:bg-hueso hover:text-tinta disabled:opacity-30"
+          className="grid w-8 shrink-0 place-items-center rounded-l-full text-tenue hover:bg-hueso hover:text-tinta disabled:opacity-30"
         >
           <Minus aria-hidden className="size-3.5" />
         </button>
@@ -79,7 +79,7 @@ function Paso({
           onClick={() => ajustar(paso)}
           disabled={!vacio && actual >= max}
           aria-label={`Más ${nombre}`}
-          className="grid w-7 shrink-0 place-items-center rounded-r-lg text-tenue hover:bg-hueso hover:text-tinta disabled:opacity-30"
+          className="grid w-8 shrink-0 place-items-center rounded-r-full text-tenue hover:bg-hueso hover:text-tinta disabled:opacity-30"
         >
           <Plus aria-hidden className="size-3.5" />
         </button>
@@ -225,7 +225,7 @@ export function FilaEjercicio({
             <GripVertical aria-hidden className="size-4" />
           </button>
           <span
-            className={`relative mt-1 grid h-6 min-w-7 shrink-0 place-items-center rounded-md px-1 tabular-nums text-xs font-semibold ${
+            className={`relative mt-1 grid h-6 min-w-7 shrink-0 place-items-center rounded-full px-1 tabular-nums text-xs font-semibold ${
               porRondas ? "bg-tinta text-sobre-tinta" : "bg-hueso text-tinta"
             }`}
           >

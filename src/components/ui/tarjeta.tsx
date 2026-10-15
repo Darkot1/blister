@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
-/** Tarjeta de papel blanco con borde fino sobre el lienzo: la celda de toda rejilla bento. */
+/** Superficie grafito un paso más clara que el lienzo (y un filo apenas visible): la celda de toda rejilla bento. */
 export function Tarjeta({ className = "", children, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className={`rounded-[var(--radius-tarjeta)] border border-linea bg-superficie ${className}`} {...props}>
+    <div className={`rounded-[var(--radius-tarjeta)] bg-superficie ring-1 ring-linea ${className}`} {...props}>
       {children}
     </div>
   );
@@ -69,9 +69,9 @@ export function Vacio({
   className?: string;
 }) {
   return (
-    <div className={`trama flex flex-col items-center rounded-[var(--radius-tarjeta)] border border-dashed border-linea-fuerte/60 px-6 py-14 text-center ${className}`}>
-      {icono && <div className="mb-4 grid size-11 place-items-center rounded-xl border border-linea bg-superficie text-grafito">{icono}</div>}
-      <p className="titulo-serif text-xl">{titulo}</p>
+    <div className={`trama flex flex-col items-center rounded-[var(--radius-tarjeta)] border border-dashed border-linea-fuerte/50 px-6 py-14 text-center ${className}`}>
+      {icono && <div className="mb-4 grid size-11 place-items-center rounded-full bg-hueso text-grafito">{icono}</div>}
+      <p className="titulo-display text-xl">{titulo}</p>
       <p className="mt-1.5 max-w-sm text-sm text-tenue">{texto}</p>
       {accion && <div className="mt-5">{accion}</div>}
     </div>
@@ -79,6 +79,6 @@ export function Vacio({
 }
 
 /** Control segmentado: opciones excluyentes como botones dentro de una cápsula. */
-export const claseSegmentado = "inline-flex rounded-lg bg-hueso p-0.5";
+export const claseSegmentado = "inline-flex rounded-full bg-hueso p-1";
 export const claseSegmento = (activo: boolean) =>
-  `h-8 rounded-md px-3 text-sm transition-colors duration-200 ${activo ? "bg-superficie font-medium text-tinta shadow-suave ring-1 ring-linea" : "text-tenue hover:text-tinta"}`;
+  `h-8 rounded-full px-3.5 text-sm transition-colors duration-200 ${activo ? "bg-tinta font-medium text-sobre-tinta" : "text-grafito hover:text-tinta"}`;

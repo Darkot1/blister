@@ -281,7 +281,7 @@ function AgendaMovil({
           <li key={d}>
             <h3 className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold">
               <span>{etiquetaDiaLarga(d)}</span>
-              {d === hoy && <span className="rounded-md bg-acento px-1.5 py-0.5 text-xs font-semibold text-sobre-acento">Hoy</span>}
+              {d === hoy && <span className="rounded-full bg-acento px-1.5 py-0.5 text-xs font-semibold text-sobre-acento">Hoy</span>}
             </h3>
             {lista.length === 0 ? (
               <p className="px-1 text-sm text-tenue">Sin citas</p>
@@ -630,7 +630,7 @@ function ElegirDia({ cita, plan, alError }: { cita: CitaVista; plan: PlanActivo;
         id={`dia-${cita.id}`}
         value={dia}
         onChange={(e) => setDia(e.target.value)}
-        className="h-8 min-w-0 flex-1 rounded-md border border-linea bg-superficie px-2 text-sm"
+        className="h-8 min-w-0 flex-1 rounded-full border border-linea bg-superficie px-2 text-sm"
       >
         {plan.dias.map((d) => (
           <option key={d.id} value={d.id}>

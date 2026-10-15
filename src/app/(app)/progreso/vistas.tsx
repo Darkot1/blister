@@ -223,7 +223,7 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
           ) : (
             <div className="grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
               <div className="border-b border-linea p-4 sm:p-5 lg:border-r lg:border-b-0">
-                <h3 className="titulo-serif text-xl">{elegido.nombre}</h3>
+                <h3 className="titulo-display text-xl">{elegido.nombre}</h3>
                 <p className="mt-0.5 mb-3 text-sm text-tenue">
                   {elegido.unoRMActual !== null
                     ? `1RM estimado ${numero(elegido.unoRMActual)} kg${
@@ -365,7 +365,7 @@ function Cifra({
     >
       <p className={`etiqueta ${oscura ? "text-white/55" : ""}`}>{etiqueta}</p>
       <p className="mt-auto pt-5 leading-none">
-        <span className="cifra-serif text-4xl sm:text-5xl">{valor}</span>
+        <span className="cifra-display text-4xl sm:text-5xl">{valor}</span>
         {unidad && <span className={`ml-1.5 text-sm ${oscura ? "text-white/55" : "text-tenue"}`}>{unidad}</span>}
       </p>
       <p className={`mt-2 text-xs ${oscura ? "text-white/60" : "text-tenue"}`}>{contexto}</p>

@@ -13,16 +13,16 @@ const FUNCIONES = [
 export default function LayoutAuth({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:p-3">
-      <aside className="hidden flex-col justify-between overflow-hidden rounded-[var(--radius-elevada)] bg-panel p-10 text-white lg:flex xl:p-12">
+      <aside className="tema-oscuro relative isolate hidden flex-col justify-between overflow-hidden rounded-[var(--radius-elevada)] bg-[#12121b] bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(82,102,235,0.2),transparent_70%)] p-10 text-white ring-1 ring-white/[0.06] lg:flex xl:p-12">
         <Marca oscuro />
 
         <div aria-hidden className="mx-auto grid w-full max-w-md grid-cols-3 grid-rows-[repeat(2,7.5rem)] gap-3">
           {FUNCIONES.map(({ icono: Icono, titulo, texto, clase, barras, destacada }) => (
             <div
               key={titulo}
-              className={`flex flex-col rounded-[var(--radius-tarjeta)] border p-4 ${clase} ${destacada ? "border-white/15 bg-white/[0.09]" : "border-white/10 bg-white/[0.03]"}`}
+              className={`flex flex-col rounded-[var(--radius-tarjeta)] p-4 ${clase} ${destacada ? "bg-white/[0.1]" : "bg-white/[0.04]"}`}
             >
-              <Icono className="size-5 text-acento" />
+              <Icono className="size-5 text-white/70" />
               {barras && (
                 <div className="mt-auto flex h-20 items-end gap-1.5 pt-4">
                   {[40, 70, 30, 90, 55, 20, 0].map((h, i) => (
@@ -37,7 +37,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
         </div>
 
         <div>
-          <p className="titulo-serif max-w-lg text-[2.6rem] leading-[1.12] tracking-[-0.02em]">
+          <p className="titulo-display max-w-lg text-[2.4rem] leading-[1.12]">
             El panel de control de tu entrenamiento personalizado.
           </p>
           <p className="mt-4 max-w-sm text-white/55">
@@ -46,7 +46,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
         </div>
       </aside>
 
-      <main className="flex flex-col items-center justify-center px-4 py-10 sm:px-6">
+      <main id="contenido" className="flex flex-col items-center justify-center px-4 py-10 sm:px-6">
         <div className="w-full max-w-[24rem]">
           <div className="mb-8 flex items-center justify-between gap-3 lg:justify-end">
             <Marca className="lg:hidden" />

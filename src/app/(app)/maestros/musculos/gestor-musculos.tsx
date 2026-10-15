@@ -43,7 +43,7 @@ export function GestorMusculos({ grupos }: { grupos: Grupo[] }) {
                     type="button"
                     onClick={() => setEdicion({ modo: "nuevo", grupoId: g.id })}
                     aria-label={`Nuevo músculo en ${g.nombre}`}
-                    className="grid size-7 place-items-center rounded-md text-tenue hover:bg-tinta/[0.06] hover:text-tinta"
+                    className="grid size-7 place-items-center rounded-full text-tenue hover:bg-tinta/[0.06] hover:text-tinta"
                   >
                     <Plus aria-hidden className="size-4" />
                   </button>
@@ -61,18 +61,18 @@ export function GestorMusculos({ grupos }: { grupos: Grupo[] }) {
                       </span>
                       {m.propio ? (
                         <>
-                          <span className="rounded-md bg-hueso px-2 py-0.5 text-xs font-medium text-tinta">Propio</span>
+                          <span className="rounded-full bg-hueso px-2 py-0.5 text-xs font-medium text-tinta">Propio</span>
                           <button
                             type="button"
                             onClick={() => setEdicion({ modo: "editar", musculo: m, grupoId: g.id })}
                             aria-label={`Editar ${m.nombre}`}
-                            className="grid size-8 place-items-center rounded-lg text-tenue hover:bg-tinta/[0.06] hover:text-tinta"
+                            className="grid size-8 place-items-center rounded-full text-tenue hover:bg-tinta/[0.06] hover:text-tinta"
                           >
                             <Pencil aria-hidden className="size-4" />
                           </button>
                         </>
                       ) : (
-                        <span className="rounded-md border border-linea px-2 py-0.5 text-xs text-tenue">Global</span>
+                        <span className="rounded-full border border-linea px-2 py-0.5 text-xs text-tenue">Global</span>
                       )}
                     </li>
                   ))}

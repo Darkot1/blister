@@ -19,7 +19,7 @@ export default function ErrorPantalla({ error, retry }: { error: Error & { diges
       <span className="mb-4 grid size-11 place-items-center rounded-xl border border-linea text-peligro">
         <TriangleAlert aria-hidden className="size-5" />
       </span>
-      <h1 className="titulo-serif text-[1.75rem] leading-[1.2]">Algo no salió bien</h1>
+      <h1 className="titulo-display text-[1.75rem] leading-[1.2]">Algo no salió bien</h1>
       <p className="mt-2 text-tenue">
         No pudimos cargar o guardar esto. Revisa tu conexión e inténtalo de nuevo; si sigue pasando, vuelve al panel.
       </p>

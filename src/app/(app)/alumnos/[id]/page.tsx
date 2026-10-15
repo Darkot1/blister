@@ -126,7 +126,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         <div className="col-span-2 flex flex-col rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white lg:col-span-1">
           <p className="etiqueta text-white/50">Peso actual</p>
           <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-            <p className="cifra-serif text-5xl leading-none">
+            <p className="cifra-display text-5xl leading-none">
               {numero(pesoActual)}
               {pesoActual !== null && <span className="ml-1 text-base font-normal tracking-normal text-white/50">kg</span>}
             </p>
@@ -262,7 +262,7 @@ function Cifra({
   return (
     <Tarjeta className={`flex flex-col p-4 ${className}`}>
       <p className="etiqueta">{etiqueta}</p>
-      <p className={`mt-auto pt-5 leading-tight ${pequena ? "titulo-serif text-xl" : "cifra-serif text-5xl leading-none"}`}>
+      <p className={`mt-auto pt-5 leading-tight ${pequena ? "titulo-display text-xl" : "cifra-display text-5xl leading-none"}`}>
         {valor}
         {unidad && <span className="ml-1 text-base font-normal tracking-normal text-tenue">{unidad}</span>}
       </p>
