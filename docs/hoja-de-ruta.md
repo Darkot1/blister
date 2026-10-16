@@ -32,7 +32,7 @@ El blueprint está en inglés; la base de datos y el código están en **españo
 | status: active/inactive/archived | `estado`: `activo`/`inactivo`/`archivado` |
 | roles owner/admin/trainer/assistant | `propietario`/`admin`/`entrenador`/`asistente` |
 
-Portada pública en `/` (con sesión, va a `/inicio`). Rutas: `/inicio`, `/alumnos`, `/entrenamiento`, `/ejercicios`, `/calendario`, `/progreso`, `/maestros`, `/configuracion`.
+Portada pública en `/` (con sesión, va a `/inicio`). Rutas: `/inicio`, `/alumnos`, `/entrenamiento`, `/ejercicios`, `/calendario`, `/progreso`, `/maestros`, `/oficina`, `/configuracion`. `/oficina` es la oficina isométrica de agentes (SVG en `oficina/plano.tsx`; sitios, rutas y animación en `oficina/movimiento.ts`): escritorios, oficina del líder, sala de juntas, gimnasio y servidores. Los agentes caminan por el pasillo y, sin junta, pasean sin prisa; en la junta consultan la base de datos desde la sala. Tiene zoom (botones, pellizco o Ctrl + rueda, y arrastre) y un reloj con la hora real. Seis agentes con habilidades (rutinas, cargas, coach, analista, movilidad, agenda) más el **líder**, que en una junta reparte el caso de un alumno, recibe los hallazgos y propone una decisión que el entrenador aprueba (catálogo en `lib/agentes/catalogo.ts`, casos y guion en `lib/agentes/juntas.ts`). Por ahora la junta es una simulación con casos de ejemplo, los puestos se guardan en el navegador y nada está conectado a Claude.
 
 ## Estado por milestone
 

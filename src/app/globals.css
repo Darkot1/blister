@@ -225,3 +225,112 @@ p {
     animation-duration: 0.01ms !important;
   }
 }
+
+/*
+  Ilustración isométrica de la oficina de agentes (`app/(app)/oficina`).
+  Luz desde arriba a la izquierda: tapa más clara, cara izquierda media, cara derecha oscura.
+  Tonos neutros propios porque los tokens de superficie invierten su orden entre temas.
+*/
+.oficina-iso {
+  --iso-piso: #1b1b25;
+  --iso-alfombra: #20202d;
+  --iso-goma: #20202b;
+  --iso-metal: #77778c;
+  --iso-tecnico: #1e1e29;
+  --iso-tapete: #3a3a4c;
+  --iso-muro-a: #252533;
+  --iso-muro-b: #20202c;
+  --iso-tope: #4b4b5a;
+  --iso-mesa: #55556a;
+  --iso-izq: #3a3a48;
+  --iso-der: #2e2e3b;
+  --iso-pantalla: #111118;
+  --iso-silla: #2b2b39;
+  --iso-hoja: #3f6e50;
+  --iso-hoja-clara: #5b8f69;
+  --iso-hoja-oscura: #2c5039;
+  --iso-maceta: #7a4e3c;
+  --iso-maceta-clara: #93604b;
+}
+:root[data-tema="claro"] .oficina-iso {
+  --iso-piso: #eeeff4;
+  --iso-alfombra: #e4e5ee;
+  --iso-goma: #d3d4de;
+  --iso-metal: #8a8c9f;
+  --iso-tecnico: #e7e8ef;
+  --iso-tapete: #b9bccd;
+  --iso-muro-a: #e3e4ed;
+  --iso-muro-b: #d9dae6;
+  --iso-tope: #ffffff;
+  --iso-mesa: #fafafc;
+  --iso-izq: #d4d5e1;
+  --iso-der: #c3c4d3;
+  --iso-pantalla: #3a3a48;
+  --iso-silla: #b4b5c4;
+  --iso-hoja: #6aa57a;
+  --iso-hoja-clara: #8cc29a;
+  --iso-hoja-oscura: #4c8a5f;
+  --iso-maceta: #c98b6b;
+  --iso-maceta-clara: #dba184;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-tema="sistema"] .oficina-iso {
+    --iso-piso: #eeeff4;
+    --iso-alfombra: #e4e5ee;
+    --iso-goma: #d3d4de;
+    --iso-metal: #8a8c9f;
+    --iso-tecnico: #e7e8ef;
+    --iso-tapete: #b9bccd;
+    --iso-muro-a: #e3e4ed;
+    --iso-muro-b: #d9dae6;
+    --iso-tope: #ffffff;
+    --iso-mesa: #fafafc;
+    --iso-izq: #d4d5e1;
+    --iso-der: #c3c4d3;
+    --iso-pantalla: #3a3a48;
+    --iso-silla: #b4b5c4;
+    --iso-hoja: #6aa57a;
+    --iso-hoja-clara: #8cc29a;
+    --iso-hoja-oscura: #4c8a5f;
+    --iso-maceta: #c98b6b;
+    --iso-maceta-clara: #dba184;
+  }
+}
+
+/* Movimiento de la oficina: corto y discreto (prefers-reduced-motion lo apaga arriba). */
+.oficina-aparece {
+  animation: oficina-aparece 600ms ease-out both;
+}
+.oficina-punto {
+  animation: oficina-latido 1s ease-in-out infinite;
+}
+.oficina-led {
+  animation: oficina-latido 1.8s steps(2, jump-none) infinite;
+}
+.oficina-flujo {
+  animation: oficina-flujo 0.9s linear infinite;
+}
+@keyframes oficina-aparece {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+@keyframes oficina-latido {
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes oficina-flujo {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+/* Con movimiento reducido, las animaciones infinitas se quedan quietas (no a 0,01 ms, que parpadearía). */
+@media (prefers-reduced-motion: reduce) {
+  .oficina-punto,
+  .oficina-led,
+  .oficina-flujo {
+    animation: none !important;
+  }
+}

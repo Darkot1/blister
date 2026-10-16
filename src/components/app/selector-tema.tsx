@@ -2,9 +2,9 @@
 
 import { useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { CLAVE_TEMA as CLAVE } from "./scripts-iniciales";
 
 export type Tema = "claro" | "oscuro" | "sistema";
-const CLAVE = "tema";
 const avisos = new Set<() => void>();
 
 /** Sin preferencia guardada, el tema es el oscuro (la identidad "cumbre" nace oscura). */
@@ -24,9 +24,6 @@ function aplicarTema(tema: Tema) {
   }
   avisos.forEach((avisar) => avisar());
 }
-
-/** Se ejecuta en <head> antes de pintar, para que el tema guardado no parpadee. */
-export const SCRIPT_TEMA = `try{var t=localStorage.getItem("${CLAVE}");if(t==="claro"||t==="sistema")document.documentElement.dataset.tema=t}catch(e){}`;
 
 const OPCIONES: { tema: Tema; texto: string; icono: typeof Sun }[] = [
   { tema: "oscuro", texto: "Oscuro", icono: Moon },

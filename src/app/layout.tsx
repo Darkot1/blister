@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/archivo/wdth.css";
 import "./globals.css";
-import { SCRIPT_TEMA } from "@/components/app/selector-tema";
+import { SCRIPT_INICIAL } from "@/components/app/scripts-iniciales";
 
 export const metadata: Metadata = {
   title: { default: "Blister Fitness", template: "%s | Blister Fitness" },
@@ -18,10 +18,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // El script de tema pone data-tema antes de hidratar: por eso se ignora esa diferencia.
+    // Los scripts de tema y de menú ponen data-tema y data-menu antes de hidratar: por eso se ignora esa diferencia.
     <html lang="es-CO" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_INICIAL }} />
       </head>
       <body className="min-h-dvh">
         <a

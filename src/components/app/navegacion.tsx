@@ -6,6 +6,7 @@ import { Suspense, useState } from "react";
 import { Menu } from "lucide-react";
 import { Dialogo } from "@/components/ui/dialogo";
 import { Marca } from "./marca";
+import { BotonPlegarMenu } from "./menu-plegable";
 import { SelectorTema } from "./selector-tema";
 import { ADMIN, AJUSTES, GRUPOS, PRINCIPALES, SECCIONES, esActiva, type Seccion } from "./secciones";
 
@@ -23,56 +24,64 @@ function RutaActual({ children }: { children: (ruta: string) => React.ReactNode 
 }
 
 /** Mientras carga la sección elegida: un punto que late, siempre presente para no mover el texto. */
-function Cargando() {
+function Cargando({ className = "" }: { className?: string }) {
   const { pending } = useLinkStatus();
   return (
     <span
       aria-hidden
-      className={`ml-auto size-1.5 shrink-0 rounded-full bg-acento transition-opacity ${pending ? "animate-pulse opacity-100" : "opacity-0"}`}
+      className={`${className} ml-auto size-1.5 shrink-0 rounded-full bg-acento transition-opacity ${pending ? "animate-pulse opacity-100" : "opacity-0"}`}
     />
   );
 }
 
-function Enlace({ s, ruta }: { s: Seccion; ruta: string }) {
+/** Clases que solo aplican en la barra lateral plegada (el cajón del móvil no se pliega). */
+const PLEGADO = {
+  enlace: "in-data-[menu=plegado]:justify-center in-data-[menu=plegado]:px-0",
+  oculto: "in-data-[menu=plegado]:hidden",
+  soloLector: "in-data-[menu=plegado]:sr-only",
+};
+
+function Enlace({ s, ruta, plegable = false }: { s: Seccion; ruta: string; plegable?: boolean }) {
   const activa = esActiva(ruta, s.href);
   const Icono = s.icono;
   return (
     <Link
       href={s.href}
       aria-current={activa ? "page" : undefined}
-      className={`group flex h-9 items-center gap-2.5 rounded-full px-3 text-sm transition-colors duration-200 ${
+      title={plegable ? s.texto : undefined}
+      className={`group flex h-9 items-center gap-2.5 rounded-full px-3 text-sm transition-colors duration-200 ${plegable ? PLEGADO.enlace : ""} ${
         activa ? "bg-hueso font-medium text-tinta" : "text-grafito hover:bg-hueso/50 hover:text-tinta"
       }`}
     >
       <Icono aria-hidden className={`size-[17px] shrink-0 ${activa ? "text-acento" : "text-tenue group-hover:text-tinta"}`} />
-      {s.texto}
-      {s.pronto && <span className="rounded bg-hueso px-1.5 py-px text-[0.65rem] font-medium text-tenue">Pronto</span>}
-      <Cargando />
+      <span className={plegable ? PLEGADO.soloLector : ""}>{s.texto}</span>
+      {s.pronto && <span className={`rounded bg-hueso px-1.5 py-px text-[0.65rem] font-medium text-tenue ${plegable ? PLEGADO.oculto : ""}`}>Pronto</span>}
+      <Cargando className={plegable ? PLEGADO.oculto : ""} />
     </Link>
   );
 }
 
 /** Enlace de la sección de administración; el servidor decide si se muestra. */
 export function EnlaceAdmin() {
-  return <ConRuta>{(ruta) => <Enlace s={ADMIN} ruta={ruta} />}</ConRuta>;
+  return <ConRuta>{(ruta) => <Enlace s={ADMIN} ruta={ruta} plegable />}</ConRuta>;
 }
 
-function MenuSecciones({ ruta, admin }: { ruta: string; admin: React.ReactNode }) {
+function MenuSecciones({ ruta, admin, plegable = false }: { ruta: string; admin: React.ReactNode; plegable?: boolean }) {
   return (
     <nav aria-label="Principal" className="flex flex-1 flex-col gap-5">
       {GRUPOS.map((g) => (
         <div key={g.titulo}>
-          <p className="etiqueta mb-1.5 px-2.5">{g.titulo}</p>
+          <p className={`etiqueta mb-1.5 px-2.5 ${plegable ? PLEGADO.soloLector : ""}`}>{g.titulo}</p>
           <ul className="space-y-0.5">
             {g.secciones.map((s) => (
-              <li key={s.href}><Enlace s={s} ruta={ruta} /></li>
+              <li key={s.href}><Enlace s={s} ruta={ruta} plegable={plegable} /></li>
             ))}
           </ul>
         </div>
       ))}
       <div className="mt-auto space-y-0.5">
         {admin}
-        <Enlace s={AJUSTES} ruta={ruta} />
+        <Enlace s={AJUSTES} ruta={ruta} plegable={plegable} />
       </div>
     </nav>
   );
@@ -83,15 +92,23 @@ export function Navegacion({ cuenta, admin }: { cuenta: React.ReactNode; admin: 
 
   return (
     <>
-      {/* Escritorio: barra lateral fija; se desplaza sola si la pantalla es baja. */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r border-linea bg-fondo px-3 py-5 lg:flex">
-        <Link href="/inicio" className="mb-7 rounded-lg px-1.5">
-          <Marca />
-        </Link>
-        <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} />}</ConRuta>
+      {/* Escritorio: barra lateral fija; se desplaza sola si la pantalla es baja. Plegada, queda en iconos. */}
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r border-linea bg-fondo px-3 py-5 transition-[width] duration-200 lg:flex in-data-[menu=plegado]:w-[4.25rem] in-data-[menu=plegado]:px-2">
+        <div className="mb-7 flex items-center justify-between gap-2 in-data-[menu=plegado]:flex-col">
+          <Link href="/inicio" className="min-w-0 rounded-lg px-1.5 in-data-[menu=plegado]:px-0 in-data-[menu=plegado]:[&_.titulo-display]:hidden" aria-label="Blister Fitness, inicio">
+            <Marca />
+          </Link>
+          <BotonPlegarMenu />
+        </div>
+        <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} plegable />}</ConRuta>
         <div className="mt-3 space-y-3 border-t border-linea pt-3">
-          <SelectorTema />
-          {cuenta}
+          <div className={PLEGADO.oculto}>
+            <SelectorTema />
+          </div>
+          {/* Plegada: solo la foto y el botón de salir, uno sobre otro. */}
+          <div className="in-data-[menu=plegado]:[&>div]:flex-col in-data-[menu=plegado]:[&>div]:px-0 in-data-[menu=plegado]:[&_.leading-tight]:hidden">
+            {cuenta}
+          </div>
         </div>
       </aside>
 

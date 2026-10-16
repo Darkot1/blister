@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  Building2,
   CalendarDays,
   Dumbbell,
   LayoutDashboard,
@@ -40,6 +41,7 @@ export const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
       { href: "/entrenamiento", texto: "Rutinas y planes", resumen: "Constructor de rutinas, plantillas y planes", icono: ListChecks },
       { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell },
       { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart },
+      { href: "/oficina", texto: "Oficina", resumen: "Agentes que te ayudan con rutinas, pesos y recomendaciones", icono: Building2 },
     ],
   },
   {
