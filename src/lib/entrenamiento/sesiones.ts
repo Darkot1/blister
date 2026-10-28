@@ -199,3 +199,42 @@ export async function historialSesiones(supabase: Supabase, alumnoId: string, li
 
   return { sesiones: resultado, nombres: new Map(nombres.map((e) => [e.id, e.nombre])) };
 }
+
+export type FilaSesion = {
+  id: string;
+  alumnoId: string;
+  estado: string;
+  /** Cuándo ocurre o ocurrió: programada, o si no, iniciada o completada. */
+  fecha: string | null;
+  rpe: number | null;
+  dia: string | null;
+  alumno: { id: string; nombres: string; apellidos: string } | null;
+};
+
+/** Las sesiones más recientes del espacio (de cualquier alumno y estado), para el índice de Sesiones. */
+export async function listarSesiones(supabase: Supabase, limite = 500): Promise<FilaSesion[]> {
+  const { data } = await supabase
+    .from("sesiones")
+    .select("id, alumno_id, plan_dia_id, programada_para, iniciada_en, completada_en, estado, rpe_sesion")
+    .order("programada_para", { ascending: false, nullsFirst: false })
+    .limit(limite);
+  const sesiones = data ?? [];
+  const [alumnos, dias] = await Promise.all([
+    porLotes(sesiones.map((s) => s.alumno_id), (l) => supabase.from("alumnos").select("id, nombres, apellidos").in("id", l)),
+    porLotes(
+      sesiones.flatMap((s) => (s.plan_dia_id ? [s.plan_dia_id] : [])),
+      (l) => supabase.from("plan_dias").select("id, nombre").in("id", l),
+    ),
+  ]);
+  const alumnoDe = new Map(alumnos.map((a) => [a.id, a]));
+  const diaDe = new Map(dias.map((d) => [d.id, d.nombre]));
+  return sesiones.map((s) => ({
+    id: s.id,
+    alumnoId: s.alumno_id,
+    estado: s.estado,
+    fecha: s.programada_para ?? s.iniciada_en ?? s.completada_en,
+    rpe: s.rpe_sesion,
+    dia: s.plan_dia_id ? (diaDe.get(s.plan_dia_id) ?? null) : null,
+    alumno: alumnoDe.get(s.alumno_id) ?? null,
+  }));
+}

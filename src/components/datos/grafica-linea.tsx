@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { fechaCorta, fechaSinAnio, numero } from "@/lib/formato";
 
 export type Punto = { fecha: string; valor: number; nota?: string };
@@ -10,6 +11,7 @@ export type Punto = { fecha: string; valor: number; nota?: string };
  * fechas real (las mediciones no son regulares), ejes y cuadrícula discretos, el último punto
  * resaltado. La cruz se ajusta al punto más cercano (ratón, toque o flechas del teclado) y
  * muestra fecha y valor. Los mismos datos están en la tabla de "Ver datos".
+ * Al montarse, la línea se dibuja de izquierda a derecha y luego aparecen los puntos.
  */
 export function GraficaLinea({
   puntos,
@@ -29,6 +31,8 @@ export function GraficaLinea({
   const [ancho, setAncho] = useState(600);
   const [activo, setActivo] = useState<number | null>(null);
   const idTabla = useId();
+  // pathLength no es un desplazamiento: MotionConfig no lo frena, así que se apaga aquí.
+  const quieto = useReducedMotion();
 
   useEffect(() => {
     const caja = ref.current;
@@ -107,11 +111,33 @@ export function GraficaLinea({
             </text>
           ))}
 
-          <path d={ruta} fill="none" className="stroke-tinta" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+          <motion.path
+            d={ruta}
+            fill="none"
+            className="stroke-tinta"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            initial={quieto ? false : { pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
+          />
           {/* Puntos pequeños solo si son pocos; el último siempre, en cobalto con anillo del fondo. */}
-          {datos.length <= 24 &&
-            datos.slice(0, -1).map((p, i) => <circle key={p.fecha + i} cx={xs[i]} cy={y(p.valor)} r="3" className="fill-tinta" />)}
-          <circle cx={xs[ultimo]} cy={y(datos[ultimo].valor)} r="5" className="fill-acento stroke-superficie" strokeWidth="2" />
+          <motion.g initial={quieto ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.3 }}>
+            {datos.length <= 24 &&
+              datos.slice(0, -1).map((p, i) => <circle key={p.fecha + i} cx={xs[i]} cy={y(p.valor)} r="3" className="fill-tinta" />)}
+          </motion.g>
+          <motion.circle
+            cx={xs[ultimo]}
+            cy={y(datos[ultimo].valor)}
+            r="5"
+            className="fill-acento stroke-superficie"
+            strokeWidth="2"
+            style={{ transformBox: "fill-box", originX: 0.5, originY: 0.5 }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.85, type: "spring", stiffness: 500, damping: 22 }}
+          />
 
           {actual && activo !== null && (
             <g aria-hidden>

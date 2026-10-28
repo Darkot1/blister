@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { UserRound } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Avatar } from "@/components/ui/avatar";
+import { EnlaceBoton } from "@/components/ui/boton";
 import { Esqueleto } from "@/components/ui/esqueleto";
 import { cargarSesion } from "@/lib/entrenamiento/sesiones";
 import { etiquetaDiaLarga, partesLocales } from "@/lib/calendario";
@@ -49,9 +51,16 @@ async function Sesion({ params }: { params: PageProps<"/sesiones/[id]">["params"
   return (
     <div className="mx-auto max-w-2xl">
       <Encabezado
-        volver={alumno ? { href: `/progreso?alumno=${alumno.id}`, texto: "Progreso del alumno" } : { href: "/calendario", texto: "Calendario" }}
+        volver={{ href: "/sesiones", texto: "Sesiones" }}
         titulo={dia ? `${dia.nombre}` : "Sesión"}
         figura={alumno && <Avatar id={alumno.id} nombres={alumno.nombres} apellidos={alumno.apellidos} />}
+        acciones={
+          alumno && (
+            <EnlaceBoton href={`/alumnos/${alumno.id}`} variante="secundario">
+              <UserRound aria-hidden className="size-4" /> Ver alumno
+            </EnlaceBoton>
+          )
+        }
         descripcion={
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
             {alumno && (

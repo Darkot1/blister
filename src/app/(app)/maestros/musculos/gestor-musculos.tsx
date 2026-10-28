@@ -7,6 +7,7 @@ import { Boton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
 import { Dialogo } from "@/components/ui/dialogo";
+import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import { CabeceraTarjeta, Tarjeta } from "@/components/ui/tarjeta";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 import { actualizarMusculo, crearMusculo, eliminarMusculo } from "../acciones";
@@ -111,6 +112,7 @@ function FormularioMusculo({ edicion, grupos, alTerminar }: { edicion: Edicion; 
     return resultado;
   }, {});
   const [eliminando, iniciar] = useTransition();
+  const [confirmando, setConfirmando] = useState(false);
   const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
   const v = estado.valores;
 
@@ -138,17 +140,29 @@ function FormularioMusculo({ edicion, grupos, alTerminar }: { edicion: Edicion; 
             className="ml-auto"
             disabled={eliminando || musculo.ejercicios > 0}
             title={musculo.ejercicios > 0 ? "Está en uso: quítalo antes de los ejercicios que lo usan" : undefined}
-            onClick={() => {
-              if (!window.confirm(`¿Eliminar "${musculo.nombre}"? No se puede deshacer.`)) return;
-              iniciar(async () => {
-                const r = await eliminarMusculo(musculo.id);
-                if (r.error) setErrorEliminar(r.error);
-                else alTerminar();
-              });
-            }}
+            onClick={() => setConfirmando(true)}
           >
             <Trash2 aria-hidden className="size-4" /> Eliminar
           </Boton>
+        )}
+        {musculo && (
+          <DialogoConfirmar
+            abierto={confirmando}
+            titulo={`¿Eliminar «${musculo.nombre}»?`}
+            textoConfirmar={<><Trash2 aria-hidden className="size-4" /> Eliminar músculo</>}
+            pendiente={eliminando}
+            alCerrar={() => setConfirmando(false)}
+            alConfirmar={() =>
+              iniciar(async () => {
+                const r = await eliminarMusculo(musculo.id);
+                setConfirmando(false);
+                if (r.error) setErrorEliminar(r.error);
+                else alTerminar();
+              })
+            }
+          >
+            <p>Se borrará de tu catálogo. No se puede deshacer.</p>
+          </DialogoConfirmar>
         )}
       </div>
       {musculo && musculo.ejercicios > 0 && (

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { obtenerPerfil } from "@/lib/sesion";
 import { salir } from "@/app/(auth)/acciones";
+import { Pulso } from "@/components/ui/movimiento";
 import { FotoPerfil } from "./foto-perfil";
 
 /** Cuenta al pie del menú: foto (o iniciales), nombre con enlace a Ajustes y salida. */
@@ -32,5 +33,5 @@ export async function UsuarioActual() {
 }
 
 export function UsuarioActualCargando() {
-  return <div className="h-10 animate-pulse rounded-lg bg-tinta/[0.05]" aria-hidden />;
+  return <Pulso className="h-10 rounded-lg bg-tinta/[0.05]" />;
 }

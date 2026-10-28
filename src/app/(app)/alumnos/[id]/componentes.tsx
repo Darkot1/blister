@@ -6,6 +6,7 @@ import { AreaTexto, Campo } from "@/components/ui/campo";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { Boton } from "@/components/ui/boton";
 import { Aviso } from "@/components/ui/aviso";
+import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 
 type Accion = (estado: EstadoFormulario, formData: FormData) => Promise<EstadoFormulario>;
@@ -101,22 +102,40 @@ export function BotonCambioEstado({
 }: {
   accion: () => Promise<void>;
   texto: string;
-  confirmacion?: string;
+  /** Si se da, el cambio se confirma antes en un diálogo. */
+  confirmacion?: { titulo: string; texto: string };
   variante?: "secundario" | "peligro";
   className?: string;
 }) {
   const [pendiente, iniciar] = useTransition();
+  const [confirmando, setConfirmando] = useState(false);
   return (
-    <Boton
-      variante={variante}
-      className={className}
-      disabled={pendiente}
-      onClick={() => {
-        if (confirmacion && !window.confirm(confirmacion)) return;
-        iniciar(() => accion());
-      }}
-    >
-      {pendiente ? "Guardando…" : texto}
-    </Boton>
+    <>
+      <Boton
+        variante={variante}
+        className={className}
+        disabled={pendiente}
+        onClick={() => (confirmacion ? setConfirmando(true) : iniciar(() => accion()))}
+      >
+        {pendiente ? "Guardando…" : texto}
+      </Boton>
+      {confirmacion && (
+        <DialogoConfirmar
+          abierto={confirmando}
+          titulo={confirmacion.titulo}
+          textoConfirmar={texto}
+          pendiente={pendiente}
+          alCerrar={() => setConfirmando(false)}
+          alConfirmar={() =>
+            iniciar(async () => {
+              await accion();
+              setConfirmando(false);
+            })
+          }
+        >
+          <p>{confirmacion.texto}</p>
+        </DialogoConfirmar>
+      )}
+    </>
   );
 }

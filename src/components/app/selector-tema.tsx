@@ -1,63 +1,46 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { CLAVE_TEMA as CLAVE } from "./scripts-iniciales";
 
-export type Tema = "claro" | "oscuro" | "sistema";
-const avisos = new Set<() => void>();
-
 /** Sin preferencia guardada, el tema es el oscuro (la identidad "cumbre" nace oscura). */
-function leerTema(): Tema {
+function esClaro(): boolean {
   const t = document.documentElement.dataset.tema;
-  return t === "claro" || t === "sistema" ? t : "oscuro";
+  // "sistema" ya no se ofrece, pero puede seguir guardado de antes: se resuelve con el dispositivo.
+  return t === "claro" || (t === "sistema" && matchMedia("(prefers-color-scheme: light)").matches);
 }
 
-function aplicarTema(tema: Tema) {
-  if (tema === "oscuro") delete document.documentElement.dataset.tema;
-  else document.documentElement.dataset.tema = tema;
+function alternar() {
+  const claro = !esClaro();
+  if (claro) document.documentElement.dataset.tema = "claro";
+  else delete document.documentElement.dataset.tema;
   try {
-    if (tema === "oscuro") localStorage.removeItem(CLAVE);
-    else localStorage.setItem(CLAVE, tema);
+    if (claro) localStorage.setItem(CLAVE, "claro");
+    else localStorage.removeItem(CLAVE);
   } catch {
     // Sin almacenamiento (modo privado): el tema dura hasta recargar.
   }
-  avisos.forEach((avisar) => avisar());
 }
 
-const OPCIONES: { tema: Tema; texto: string; icono: typeof Sun }[] = [
-  { tema: "oscuro", texto: "Oscuro", icono: Moon },
-  { tema: "claro", texto: "Claro", icono: Sun },
-  { tema: "sistema", texto: "Sistema", icono: Monitor },
-];
-
+/** Un solo botón: muestra el sol en oscuro (pasar a claro) y la luna en claro (pasar a oscuro). */
 export function SelectorTema() {
-  // En el servidor no se conoce: ninguna opción aparece marcada hasta hidratar.
-  const actual = useSyncExternalStore(
-    (avisar) => {
-      avisos.add(avisar);
-      return () => avisos.delete(avisar);
-    },
-    leerTema,
-    () => null,
-  );
   return (
-    <div role="group" aria-label="Tema de color" className="grid grid-cols-3 gap-0.5 rounded-full bg-hueso p-0.5">
-      {OPCIONES.map(({ tema, texto, icono: Icono }) => (
-        <button
-          key={tema}
-          type="button"
-          aria-pressed={actual === tema}
-          title={texto}
-          onClick={() => aplicarTema(tema)}
-          className={`flex h-7 items-center justify-center gap-1.5 rounded-full text-xs transition-colors ${
-            actual === tema ? "bg-tinta font-medium text-sobre-tinta" : "text-tenue hover:text-tinta"
-          }`}
-        >
-          <Icono aria-hidden className="size-3.5" />
-          <span className="sr-only sm:not-sr-only">{texto}</span>
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={alternar}
+      aria-label="Cambiar entre tema claro y oscuro"
+      title="Cambiar tema"
+      className="grid size-8 shrink-0 place-items-center rounded-full text-tenue transition-colors hover:bg-hueso hover:text-tinta"
+    >
+      {/* Los dos iconos van en el HTML y el atributo decide cuál se ve: así coincide desde el primer pintado. */}
+      <Sun
+        aria-hidden
+        className="size-[18px] in-data-[tema=claro]:hidden in-data-[tema=sistema]:[@media(prefers-color-scheme:light)]:hidden"
+      />
+      <Moon
+        aria-hidden
+        className="hidden size-[18px] in-data-[tema=claro]:block in-data-[tema=sistema]:[@media(prefers-color-scheme:light)]:block"
+      />
+    </button>
   );
 }

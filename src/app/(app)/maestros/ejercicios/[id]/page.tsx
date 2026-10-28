@@ -70,7 +70,7 @@ async function Edicion({ params }: { params: PageProps<"/maestros/ejercicios/[id
             accion={cambiarEstadoEjercicio.bind(null, id, "archivado")}
             texto="Archivar"
             variante="peligro"
-            confirmacion={`¿Archivar "${ejercicio.nombre}"? Podrás reactivarlo cuando quieras.`}
+            confirmacion={{ titulo: `¿Archivar «${ejercicio.nombre}»?`, texto: "Podrás reactivarlo cuando quieras." }}
           />
         )}
       </Tarjeta>

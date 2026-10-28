@@ -236,7 +236,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
             accion={cambiarEstadoAlumno.bind(null, alumno.id, "archivado")}
             texto="Archivar"
             variante="peligro"
-            confirmacion={`¿Archivar a ${alumno.nombres}? Su historial se conserva y podrás reactivarlo cuando quieras.`}
+            confirmacion={{ titulo: `¿Archivar a ${alumno.nombres}?`, texto: "Su historial se conserva y podrás reactivarlo cuando quieras." }}
           />
         )}
       </Tarjeta>

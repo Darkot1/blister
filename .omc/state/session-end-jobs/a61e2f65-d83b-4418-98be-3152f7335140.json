@@ -1,0 +1,358 @@
+{
+  "version": 1,
+  "jobId": "40088166-fbd4-4fbc-ae51-61cac50aaa1a",
+  "sessionId": "a61e2f65-d83b-4418-98be-3152f7335140",
+  "scopeKey": "19f38604881d7d85b289bd5cd1c550be94a007d84b8c7d974dd8edcf35f004bf",
+  "revision": 65,
+  "createdAt": "2026-10-28T14:24:32.101Z",
+  "updatedAt": "2026-10-28T14:25:04.401Z",
+  "producerGraceExpiresAt": "2026-10-28T14:25:02.102Z",
+  "bestEffortDeadlineAt": "2026-10-28T14:25:55.102Z",
+  "producers": {
+    "core": {
+      "state": "sealed",
+      "intentKey": "7d571ed61a5804a04d9b61db7faf345db560c18e81ba416df1e6ca31ff4c79e5",
+      "payloadDigest": "7d571ed61a5804a04d9b61db7faf345db560c18e81ba416df1e6ca31ff4c79e5",
+      "sealedAt": "2026-10-28T14:25:02.941Z",
+      "sealedBy": "recovery"
+    },
+    "wiki": {
+      "state": "no-op",
+      "sealedAt": "2026-10-28T14:24:32.159Z",
+      "sealedBy": "wiki-producer"
+    }
+  },
+  "actions": {
+    "foreground-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "5c55a170a01bd1db232fa7f602a10a75f1c4975b42da606e7da0c0e2ab2a9da7",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "ended_at": "2026-10-28T14:25:02.518Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-28T14:25:02.190Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "147a7376-232b-43fb-b9f9-f3c52cc8c131",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:02.932Z"
+    },
+    "wiki-capture": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 0,
+      "idempotencyKey": "ad8c5ea02e388bd6b748039f57e1521ba7d16600d082d084d9fee1bbb40ee380",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 9000,
+      "completedAt": "2026-10-28T14:24:32.159Z"
+    },
+    "team-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "245aa9eb16b47bb40a485e5b8ad4bb2a959c1132be78024096b16106c22f860f",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "ended_at": "2026-10-28T14:25:02.518Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-28T14:25:02.964Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "c2fa9b67-ee9f-4f50-8f6d-89f7722dffba",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:03.160Z"
+    },
+    "python-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "4838340e1e7766694da34cfdb007fcd70454ddffaea8b2bdf35d0beac12cba9b",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "ended_at": "2026-10-28T14:25:02.518Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-28T14:25:03.178Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "86a758aa-32bb-4c10-8f49-ecbb785300ec",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:03.349Z"
+    },
+    "reply-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "1c00d2c3e37fa909a0dcef39f2fe807ff55b142c84b3dc6a671d3608c1093f94",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-28T14:25:03.369Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "0deccfae-094e-489e-92fc-d50668692ca0",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:03.550Z"
+    },
+    "callback": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "226d555d37f8669ffc6ea888b2503cd8b8c257742e1973058202cc399a0737fa",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "ended_at": "2026-10-28T14:25:02.518Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-28T14:25:03.567Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "0c063bfa-2046-4e31-be09-351fda8df17d",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:03.761Z"
+    },
+    "notification": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "d44ed8ed4398b4c820d9dfaebc08b0085e713cf0cc8e90e7a277c0c633a3a638",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "ended_at": "2026-10-28T14:25:02.518Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-28T14:25:03.785Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "2b03cf52-e738-47c1-83a7-1543ce84e0f7",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:04.007Z"
+    },
+    "openclaw": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "92ca5f2c03329a75d47ebd2b9240c9adcc4da2ca15a2f6c64d573890ec075baa",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "ended_at": "2026-10-28T14:25:02.518Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-28T14:25:04.029Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "c0847a34-bc3d-410d-a19d-0a5873090a89",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:04.189Z"
+    },
+    "spawn-next": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "7f102fe762c738b75c0f4aa9025a4e1290790a92e29d3167e8c0dd8e130b8cad",
+      "payload": {
+        "transcriptPath": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+        "cwd": "/Users/sebastianserna/Desktop/blister",
+        "reason": "other",
+        "input": {
+          "session_id": "a61e2f65-d83b-4418-98be-3152f7335140",
+          "transcript_path": "/Users/sebastianserna/.claude/projects/-Users-sebastianserna-Desktop-blister/a61e2f65-d83b-4418-98be-3152f7335140.jsonl",
+          "cwd": "/Users/sebastianserna/Desktop/blister",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-28T14:25:04.205Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "99f2fb35-2d0a-4858-a097-c9e6fd15411c",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-28T14:25:12.104Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-28T14:25:04.362Z"
+    }
+  },
+  "owner": null,
+  "phase": "complete",
+  "recoverableFailure": {
+    "reason": "actions-settled",
+    "releasedAt": "2026-10-28T14:25:04.382Z",
+    "ownerNonce": "1f7f40b2-93c6-4081-b56a-9ef0440e1441"
+  },
+  "completion": {
+    "completedAt": "2026-10-28T14:25:04.382Z",
+    "terminalDigest": "5c201357ea586db4cc8cfbbfc4078f1be55b1ed0ae77fe5e36bb923ab8309c58",
+    "terminalRevision": 64
+  }
+}

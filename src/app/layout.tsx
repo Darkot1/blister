@@ -3,6 +3,7 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/archivo/wdth.css";
 import "./globals.css";
 import { SCRIPT_INICIAL } from "@/components/app/scripts-iniciales";
+import { ProveedorMovimiento } from "@/components/app/proveedor-movimiento";
 
 export const metadata: Metadata = {
   title: { default: "Blister Fitness", template: "%s | Blister Fitness" },
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           Saltar al contenido
         </a>
-        {children}
+        <ProveedorMovimiento>{children}</ProveedorMovimiento>
       </body>
     </html>
   );

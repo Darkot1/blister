@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { LogOut, PauseCircle } from "lucide-react";
 import { Marca } from "@/components/app/marca";
 import { EnlaceBoton } from "@/components/ui/boton";
+import { Pulso } from "@/components/ui/movimiento";
 import { salir } from "@/app/(auth)/acciones";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 
@@ -15,7 +16,7 @@ export default function PaginaSuspendido() {
     <main id="contenido" className="grid min-h-dvh place-items-center px-6 py-10">
       <div className="w-full max-w-md">
         <Marca className="mb-8" />
-        <Suspense fallback={<div className="h-56 animate-pulse rounded-[var(--radius-tarjeta)] bg-tinta/[0.06]" />}>
+        <Suspense fallback={<Pulso className="h-56 rounded-[var(--radius-tarjeta)] bg-tinta/[0.06]" />}>
           <Estado />
         </Suspense>
       </div>

@@ -38,9 +38,9 @@ export default function PaginaAjustes({ searchParams }: PageProps<"/configuracio
         <Tarjeta className="overflow-hidden">
           <section aria-labelledby="titulo-apariencia">
             <CabeceraTarjeta id="titulo-apariencia" titulo="Apariencia" />
-            <div className="space-y-2 p-4">
+            <div className="flex items-center justify-between gap-3 p-4">
+              <p className="text-sm text-tenue">Cambia entre el modo claro y el oscuro.</p>
               <SelectorTema />
-              <p className="text-sm text-tenue">“Sistema” sigue el modo claro u oscuro de tu dispositivo.</p>
             </div>
           </section>
         </Tarjeta>

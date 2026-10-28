@@ -2,13 +2,11 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Esqueleto } from "@/components/ui/esqueleto";
-import { obtenerContexto } from "@/lib/sesion";
-import { crearEjercicio } from "../../acciones";
-import { catalogoFormulario } from "../datos";
-import { FormularioEjercicio } from "../formulario-ejercicio";
+import { FormularioNuevoEjercicio } from "./formulario-nuevo";
 
 export const metadata: Metadata = { title: "Nuevo ejercicio" };
 
+/** Página completa al entrar por URL o recargar; desde la app se abre como modal (`@modal/(.)maestros/ejercicios/nuevo`). */
 export default function PaginaNuevoEjercicio() {
   return (
     <>
@@ -18,14 +16,8 @@ export default function PaginaNuevoEjercicio() {
         descripcion="Será visible solo en tu espacio y aparecerá en las sugerencias del mapa muscular."
       />
       <Suspense fallback={<Esqueleto className="h-[40rem] max-w-3xl" />}>
-        <Formulario />
+        <FormularioNuevoEjercicio />
       </Suspense>
     </>
   );
-}
-
-async function Formulario() {
-  const { supabase } = await obtenerContexto();
-  const catalogo = await catalogoFormulario(supabase);
-  return <FormularioEjercicio accion={crearEjercicio} textoBoton="Crear ejercicio" {...catalogo} />;
 }

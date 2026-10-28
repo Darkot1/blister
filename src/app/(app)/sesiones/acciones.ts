@@ -1,6 +1,7 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { obtenerContexto } from "@/lib/sesion";
 import { sincronizarCita } from "@/lib/google/calendario";
@@ -119,4 +120,22 @@ export async function reabrirSesion(sesionId: string): Promise<{ error?: string 
   if (error) return { error: ERROR };
   refresh();
   return {};
+}
+
+/**
+ * Empieza ahora una sesión de un día del plan activo, sin cita en el calendario
+ * (entrenamiento improvisado o alumno que entrena por su cuenta). Abre la sesión para registrarla.
+ */
+export async function empezarSesion(planDiaId: string): Promise<{ error?: string }> {
+  if (!esId(planDiaId)) return { error: "Día no válido." };
+  const { supabase } = await obtenerContexto();
+  const { data: dia } = await supabase.from("plan_dias").select("plan_id").eq("id", planDiaId).maybeSingle();
+  const { data: plan } = dia ? await supabase.from("planes").select("estado").eq("id", dia.plan_id).maybeSingle() : { data: null };
+  if (plan?.estado !== "activo") return { error: "Ese día no es de un plan activo." };
+
+  const ahora = new Date().toISOString();
+  const { data: sesionId, error } = await supabase.rpc("iniciar_sesion_desde_plan", { p_plan_dia_id: planDiaId, p_programada_para: ahora });
+  if (error || !sesionId) return { error: "No se pudo preparar la sesión. Inténtalo de nuevo." };
+  await supabase.from("sesiones").update({ estado: "en_curso", iniciada_en: ahora }).eq("id", sesionId);
+  redirect(`/sesiones/${sesionId}`);
 }

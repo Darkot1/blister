@@ -4,6 +4,7 @@ import { Encabezado } from "@/components/app/encabezado";
 import { GraficaLinea } from "@/components/datos/grafica-linea";
 import { Avatar } from "@/components/ui/avatar";
 import { EnlaceBoton } from "@/components/ui/boton";
+import { Aparece } from "@/components/ui/movimiento";
 import { CabeceraTarjeta, Lista, Tarjeta, Vacio, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
 import { conParametros } from "@/components/ui/paginacion";
 import type { FilaResumen, progresoAlumno } from "@/lib/entrenamiento/progreso";
@@ -55,6 +56,7 @@ export function Resumen({ filas, filtro }: { filas: FilaResumen[]; filtro: strin
               </Link>
             ))}
           </nav>
+          <Aparece>
           <Tarjeta className="overflow-hidden">
             <div
               aria-hidden
@@ -102,6 +104,7 @@ export function Resumen({ filas, filtro }: { filas: FilaResumen[]; filtro: strin
               {visibles.length} de {filas.length} alumnos activos · asistencia = citas hechas sobre hechas + faltas
             </p>
           </Tarjeta>
+          </Aparece>
         </>
       )}
     </>
@@ -137,6 +140,7 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
       {/* Cifras clave */}
       <div className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Cifra
+          orden={0}
           etiqueta="Peso actual"
           valor={pesoActual ? numero(pesoActual.valor) : "—"}
           unidad={pesoActual ? "kg" : ""}
@@ -151,18 +155,21 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
           ancha
         />
         <Cifra
+          orden={1}
           etiqueta="Grasa corporal"
           valor={grasaActual ? numero(grasaActual.valor) : "—"}
           unidad={grasaActual ? "%" : ""}
           contexto={grasa.length > 1 ? `${conSigno(grasaActual!.valor - grasa[0].valor)} puntos desde el inicio` : "Sin datos suficientes"}
         />
         <Cifra
+          orden={2}
           etiqueta="Sesiones"
           valor={String(ultimas4)}
           unidad="en 4 semanas"
           contexto={`${sesiones.length} registradas en total`}
         />
         <Cifra
+          orden={3}
           etiqueta="Asistencia · 90 días"
           valor={asistencia90.porcentaje === null ? "—" : String(asistencia90.porcentaje)}
           unidad={asistencia90.porcentaje === null ? "" : "%"}
@@ -175,7 +182,7 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
         />
       </div>
 
-      <div className="mb-4 grid gap-4 lg:grid-cols-3">
+      <Aparece retraso={0.2} className="mb-4 grid gap-4 lg:grid-cols-3">
         <Tarjeta className="overflow-hidden lg:col-span-2">
           <section aria-labelledby="titulo-peso">
             <CabeceraTarjeta
@@ -205,9 +212,10 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
             </div>
           </section>
         </Tarjeta>
-      </div>
+      </Aparece>
 
       {/* Rendimiento por ejercicio */}
+      <Aparece retraso={0.3}>
       <Tarjeta className="mb-4 overflow-hidden">
         <section aria-labelledby="titulo-rendimiento">
           <CabeceraTarjeta id="titulo-rendimiento" titulo="Rendimiento por ejercicio" accion={<span className="text-xs text-tenue">1RM estimado (Epley)</span>} />
@@ -234,7 +242,7 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
                     : "Sin series con peso y repeticiones para estimar el 1RM."}
                 </p>
                 {elegido.serie.length >= 2 ? (
-                  <GraficaLinea puntos={elegido.serie} unidad="kg" titulo={`1RM estimado en ${elegido.nombre}`} alto={200} />
+                  <GraficaLinea key={elegido.ejercicioId} puntos={elegido.serie} unidad="kg" titulo={`1RM estimado en ${elegido.nombre}`} alto={200} />
                 ) : (
                   <p className="rounded-lg bg-hueso/60 px-3 py-4 text-sm text-tenue">Con dos sesiones de este ejercicio verás su evolución.</p>
                 )}
@@ -273,8 +281,9 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
           )}
         </section>
       </Tarjeta>
+      </Aparece>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <Aparece retraso={0.4} className="grid gap-4 lg:grid-cols-2">
         <Tarjeta className="overflow-hidden">
           <section aria-labelledby="titulo-medidas">
             <CabeceraTarjeta id="titulo-medidas" titulo="Medidas" />
@@ -335,13 +344,14 @@ export function VistaAlumno({ datos, ejercicioId, filas }: { datos: DatosProgres
             )}
           </section>
         </Tarjeta>
-      </div>
+      </Aparece>
     </>
   );
 }
 
 /** Cifra clave del bento: etiqueta, número grande en serif y una línea de contexto. */
 function Cifra({
+  orden,
   etiqueta,
   valor,
   unidad,
@@ -349,6 +359,8 @@ function Cifra({
   oscura = false,
   ancha = false,
 }: {
+  /** Posición en el bento: escalona la entrada. */
+  orden: number;
   etiqueta: string;
   valor: string;
   unidad: string;
@@ -358,7 +370,8 @@ function Cifra({
   ancha?: boolean;
 }) {
   return (
-    <div
+    <Aparece
+      retraso={orden * 0.05}
       className={`${ancha ? "col-span-2 sm:col-span-1" : ""} flex flex-col rounded-[var(--radius-tarjeta)] p-5 ${
         oscura ? "bg-panel text-white" : "border border-linea bg-superficie"
       }`}
@@ -369,6 +382,6 @@ function Cifra({
         {unidad && <span className={`ml-1.5 text-sm ${oscura ? "text-white/55" : "text-tenue"}`}>{unidad}</span>}
       </p>
       <p className={`mt-2 text-xs ${oscura ? "text-white/60" : "text-tenue"}`}>{contexto}</p>
-    </div>
+    </Aparece>
   );
 }

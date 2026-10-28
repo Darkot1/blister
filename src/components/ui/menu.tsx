@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Check, MoreHorizontal, type LucideIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { clasesBoton } from "./boton";
 
 /**
@@ -85,8 +86,9 @@ export function MenuAcciones({
       >
         {texto ?? <MoreHorizontal aria-hidden className="size-4" />}
       </button>
+      <AnimatePresence>
       {abierto && (
-        <div
+        <motion.div
           ref={refMenu}
           id={idMenu}
           role="menu"
@@ -94,13 +96,20 @@ export function MenuAcciones({
           onKeyDown={alTeclear}
           // Cualquier opción elegida cierra el menú.
           onClick={(e) => (e.target as HTMLElement).closest("[role^=menuitem]") && cerrar()}
+          // Brota desde la esquina del botón que lo abre.
+          initial={{ opacity: 0, scale: 0.96, y: arriba ? 4 : -4 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: arriba ? 4 : -4, transition: { duration: 0.1 } }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          style={{ transformOrigin: `${arriba ? "bottom" : "top"} ${texto ? "left" : "right"}` }}
           className={`absolute ${texto ? "left-0" : "right-0"} z-40 min-w-52 rounded-2xl bg-panel p-1.5 text-sm shadow-flotante ${
             arriba ? "bottom-full mb-1" : "top-full mt-1"
           }`}
         >
           {children}
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

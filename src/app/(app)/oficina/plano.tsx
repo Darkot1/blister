@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion } from "motion/react";
+import { APARECE, useBucle } from "@/components/ui/movimiento";
 import { Maximize, Plus, ZoomIn, ZoomOut } from "lucide-react";
 import { LIDER, type Agente } from "@/lib/agentes/catalogo";
 import {
@@ -533,17 +535,39 @@ function Globo({ v, texto }: { v: VistaActor; texto: string }) {
   const puntos3 = texto === "…";
   const ancho = puntos3 ? 30 : Math.min(180, texto.length * 6.1 + 18);
   return (
-    <g className="oficina-aparece" aria-hidden>
+    <motion.g {...APARECE} aria-hidden>
       <rect x={x - ancho / 2} y={base - 20} width={ancho} height={20} rx={10} className="fill-superficie stroke-linea-fuerte" strokeWidth={1} />
       <path d={`M ${x - 4} ${base - 1} l 4 6 l 4 -6`} className="fill-superficie" />
       {puntos3 ? (
-        [-6, 0, 6].map((dx, i) => <circle key={dx} cx={x + dx} cy={base - 10} r={1.8} className="oficina-punto fill-tinta" style={{ animationDelay: `${i * 160}ms` }} />)
+        [-6, 0, 6].map((dx, i) => <Luz key={dx} cx={x + dx} cy={base - 10} className="fill-tinta" suave retraso={i * 0.16} />)
       ) : (
         <text x={x} y={base - 6} textAnchor="middle" fontSize={11} className="fill-tinta">
           {texto}
         </text>
       )}
-    </g>
+    </motion.g>
+  );
+}
+
+/**
+ * Luz de 1,8 px que late: a saltos como un LED, o `suave` como los puntos de "escribiendo".
+ * `retraso` (s) desfasa luces vecinas para que no parpadeen al unísono.
+ */
+function Luz({ cx, cy, className, suave = false, retraso = 0 }: { cx: number; cy: number; className: string; suave?: boolean; retraso?: number }) {
+  const bucle = useBucle();
+  return (
+    <motion.circle
+      cx={cx}
+      cy={cy}
+      r={1.8}
+      className={className}
+      animate={bucle ? (suave ? { opacity: [1, 0.25, 1] } : { opacity: [1, 1, 0.25, 0.25] }) : undefined}
+      transition={
+        suave
+          ? { duration: 1, repeat: Infinity, ease: "easeInOut", delay: retraso }
+          : { duration: 1.8, repeat: Infinity, ease: "linear", times: [0, 0.5, 0.5, 1], delay: retraso }
+      }
+    />
   );
 }
 
@@ -586,7 +610,11 @@ function Escritorio({
   const h = 20;
   const luz = (cx: number) =>
     monitor === "apagado" ? null : (
-      <circle cx={cx} cy={y - h - 22} r={1.8} className={monitor === "trabajando" ? "oficina-led fill-acento" : monitor === "listo" ? "fill-tinta" : "fill-linea-fuerte"} />
+      monitor === "trabajando" ? (
+        <Luz cx={cx} cy={y - h - 22} className="fill-acento" />
+      ) : (
+        <circle cx={cx} cy={y - h - 22} r={1.8} className={monitor === "listo" ? "fill-tinta" : "fill-linea-fuerte"} />
+      )
     );
 
   return (
@@ -645,12 +673,12 @@ function MesaJuntas({ conPapeles }: { conPapeles: boolean }) {
         [8.5, 9.5, 10.5].map((c) => {
           const p = subir(iso(c, 2.6), 22);
           return (
-            <polygon
+            <motion.polygon
               key={c}
-              className="oficina-aparece"
+              {...APARECE}
               points={puntos(p, { x: p.x + 9, y: p.y + 4.5 }, { x: p.x, y: p.y + 9 }, { x: p.x - 9, y: p.y + 4.5 })}
               fill="var(--iso-tope)"
-              opacity={0.9}
+              style={{ opacity: 0.9 }}
             />
           );
         })}
@@ -687,7 +715,7 @@ function Rack({ r, activo, desfase }: { r: number; activo: boolean; desfase: num
         return (
           <g key={nivel}>
             <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} className="stroke-linea" strokeWidth={1.5} />
-            <circle cx={luz.x} cy={luz.y} r={1.8} className={`oficina-led ${activo ? "fill-acento" : "fill-linea-fuerte"}`} style={{ animationDelay: `${(i * 3 + desfase * 5) * 130}ms` }} />
+            <Luz cx={luz.x} cy={luz.y} className={activo ? "fill-acento" : "fill-linea-fuerte"} retraso={(i * 3 + desfase * 5) * 0.13} />
             <circle cx={luz2.x} cy={luz2.y} r={1.8} className="fill-linea-fuerte" opacity={0.5} />
           </g>
         );
@@ -708,7 +736,7 @@ function BaseDeDatos({ activo }: { activo: boolean }) {
           <g key={z}>
             <path d={`M ${x - rx} ${base - 14} V ${base} A ${rx} ${ry} 0 0 0 ${x + rx} ${base} V ${base - 14} z`} fill="var(--iso-izq)" />
             <ellipse cx={x} cy={base - 14} rx={rx} ry={ry} fill="var(--iso-tope)" />
-            <circle cx={x + 12} cy={base - 2} r={1.8} className={`oficina-led ${activo ? "fill-acento" : "fill-linea-fuerte"}`} style={{ animationDelay: `${z * 20}ms` }} />
+            <Luz cx={x + 12} cy={base - 2} className={activo ? "fill-acento" : "fill-linea-fuerte"} retraso={z * 0.02} />
           </g>
         );
       })}
@@ -718,16 +746,20 @@ function BaseDeDatos({ activo }: { activo: boolean }) {
 
 /** Consulta en curso: de la base de datos a quien la hace, sentado en la sala de juntas. */
 function FlujoDatos({ hacia }: { hacia: Pantalla }) {
+  const bucle = useBucle();
   const desde = subir(iso(BASE_DATOS.c, BASE_DATOS.r), 66);
   const control = { x: (desde.x + hacia.x) / 2, y: Math.min(desde.y, hacia.y) - 120 };
   return (
-    <path
+    <motion.path
       d={`M ${desde.x} ${desde.y} Q ${control.x} ${control.y} ${hacia.x} ${hacia.y}`}
       fill="none"
       strokeWidth={2}
       strokeDasharray="6 8"
       strokeLinecap="round"
-      className="oficina-flujo stroke-acento"
+      className="stroke-acento"
+      // El trazo discontinuo corre de la base de datos hacia quien consulta.
+      animate={bucle ? { strokeDashoffset: [0, -28] } : undefined}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
       aria-hidden
     />
   );

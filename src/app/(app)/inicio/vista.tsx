@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarClock, CalendarPlus, Dumbbell, UserPlus, Users } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
+import { Onda } from "@/components/ui/movimiento";
 import { BarrasSemana } from "@/components/datos/barras-semana";
 import { Avatar } from "@/components/ui/avatar";
 import { CabeceraTarjeta, EnlaceTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
@@ -59,7 +60,7 @@ function MarcaMomento({ momento }: { momento: Momento }) {
       {momento === "sin_marcar" && <circle cx="8" cy="8" r="6" className="fill-panel stroke-white/50 [stroke-dasharray:2.5_2] [stroke-width:1.5]" />}
       {momento === "en_curso" && (
         <>
-          <circle cx="8" cy="8" r="7.5" className="origin-center animate-ping fill-acento/40" />
+          <Onda cx={8} cy={8} r={7.5} className="fill-acento/40" />
           <circle cx="8" cy="8" r="5" className="fill-acento" />
         </>
       )}

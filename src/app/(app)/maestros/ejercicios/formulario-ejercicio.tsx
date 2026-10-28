@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react";
 import { Aviso } from "@/components/ui/aviso";
 import { Boton, EnlaceBoton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
+import { useCerrarModal } from "@/components/ui/modal-ruta";
 import { AreaTexto, Campo, Selector, claseSelector } from "@/components/ui/campo";
 import {
   DIFICULTADES,
@@ -48,6 +49,8 @@ export function FormularioEjercicio({
   textoBoton: string;
 }) {
   const [estado, enviar] = useActionState(accion, {});
+  // Abierto como modal, "Cancelar" lo cierra en vez de navegar.
+  const cerrarModal = useCerrarModal();
   // Músculos y equipamiento como estado: React reinicia los campos no controlados tras enviar.
   const [musculos, setMusculos] = useState(inicial?.musculos ?? []);
   const [equipos, setEquipos] = useState<string[]>(inicial?.equipos ?? []);
@@ -209,7 +212,11 @@ export function FormularioEjercicio({
 
       <div className="flex gap-3 pt-2">
         <BotonEnvio textoPendiente="Guardando…">{textoBoton}</BotonEnvio>
-        <EnlaceBoton href="/maestros/ejercicios?origen=propios" variante="fantasma">Cancelar</EnlaceBoton>
+        {cerrarModal ? (
+          <Boton type="button" variante="fantasma" onClick={cerrarModal}>Cancelar</Boton>
+        ) : (
+          <EnlaceBoton href="/maestros/ejercicios?origen=propios" variante="fantasma">Cancelar</EnlaceBoton>
+        )}
       </div>
     </form>
   );

@@ -70,6 +70,18 @@ export async function cambiarEstadoRutina(id: string, estado: "activo" | "archiv
   refresh();
 }
 
+/**
+ * Borra la rutina y sus días (en cascada). Los planes ya asignados son copias: se conservan
+ * igual, solo pierden el enlace a su rutina de origen.
+ */
+export async function eliminarRutina(id: string): Promise<{ error?: string }> {
+  if (!esId(id)) return { error: "Rutina no encontrada." };
+  const { supabase } = await obtenerContexto();
+  const { data, error } = await supabase.from("plantillas").delete().eq("id", id).select("id");
+  if (error || !data?.length) return { error: "No se pudo eliminar la rutina. Inténtalo de nuevo." };
+  redirect("/entrenamiento");
+}
+
 /** Copia la rutina con " (copia)" y abre la copia en el constructor. */
 export async function duplicarRutina(id: string) {
   if (!esId(id)) return;

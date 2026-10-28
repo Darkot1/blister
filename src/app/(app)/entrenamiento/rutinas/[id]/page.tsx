@@ -11,6 +11,7 @@ import { ETIQUETA_TIPO_OBJETIVO, fechaCorta } from "@/lib/formato";
 import { obtenerContexto } from "@/lib/sesion";
 import { asignarRutina, cambiarEstadoRutina, duplicarRutina } from "../../acciones";
 import { CargandoConstructor } from "../../constructor/cargando";
+import { EliminarRutina } from "./eliminar-rutina";
 import { ConstructorRutina } from "../../constructor/constructor";
 import { estadoInicial } from "../../constructor/estado";
 
@@ -93,23 +94,28 @@ async function Rutina({ params }: { params: PageProps<"/entrenamiento/rutinas/[i
         }}
       />
 
-      {!archivada && (
-        <section aria-labelledby="titulo-archivar" className="mt-10 rounded-[var(--radius-tarjeta)] border border-dashed border-linea p-4 sm:p-5">
+      <section aria-labelledby="titulo-archivar" className="mt-10 rounded-[var(--radius-tarjeta)] border border-dashed border-linea p-4 sm:p-5">
           <h2 id="titulo-archivar" className="font-semibold">
-            Archivar rutina
+            {archivada ? "Eliminar rutina" : "Archivar o eliminar rutina"}
           </h2>
           <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-xl text-sm text-tenue">
-              Deja de aparecer entre tus rutinas activas. Los planes que ya asignaste con ella no cambian, y puedes restaurarla cuando quieras.
+              {archivada
+                ? "Bórrala para siempre si ya no la vas a usar. Los planes que asignaste con ella se conservan."
+                : "Archivar la saca de tus rutinas activas y puedes restaurarla cuando quieras. Eliminar la borra para siempre. En ambos casos, los planes que ya asignaste con ella no cambian."}
             </p>
-            <form action={cambiarEstadoRutina.bind(null, id, "archivado")}>
-              <Boton type="submit" variante="peligro">
-                <Archive aria-hidden className="size-4" /> Archivar
-              </Boton>
-            </form>
+            <div className="flex flex-wrap gap-2">
+              {!archivada && (
+                <form action={cambiarEstadoRutina.bind(null, id, "archivado")}>
+                  <Boton type="submit" variante="secundario">
+                    <Archive aria-hidden className="size-4" /> Archivar
+                  </Boton>
+                </form>
+              )}
+              <EliminarRutina id={id} nombre={rutina.nombre} />
+            </div>
           </div>
         </section>
-      )}
     </>
   );
 }

@@ -8,6 +8,7 @@ import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/aviso";
 import { Dialogo } from "@/components/ui/dialogo";
+import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import { HORA_FIN_DIA, HORA_INICIO_DIA, etiquetaDia, etiquetaDiaLarga, partesLocales } from "@/lib/calendario";
 import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
@@ -406,8 +407,20 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
   const [pendiente, iniciar] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [moviendo, setMoviendo] = useState(false);
+  const [cancelando, setCancelando] = useState(false);
   const fecha = partesLocales(cita.iniciaEn).fecha;
   const pendienteDeAtender = cita.estado === "programada" || cita.estado === "confirmada";
+
+  const cambiarEstado = (estado: EstadoCita) => {
+    setError(null);
+    iniciar(async () => {
+      const resultado = await cambiarEstadoCita(cita.id, estado);
+      setCancelando(false);
+      // Si falla, el diálogo sigue abierto con el error: el entrenador no debe creer que se guardó.
+      if (resultado.error) setError(resultado.error);
+      else alTerminar();
+    });
+  };
 
   if (moviendo) return <FormularioReprogramar cita={cita} alCancelar={() => setMoviendo(false)} alGuardar={alTerminar} />;
 
@@ -479,16 +492,8 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
             // Un solo botón principal: si hay sesión que registrar, ese es el principal.
             variante={a.variante === "primario" && cita.sesionId && cita.rutina ? "secundario" : (a.variante ?? "secundario")}
             disabled={pendiente}
-            onClick={() => {
-              if (a.estado === "cancelada" && !window.confirm("¿Cancelar esta cita? El horario quedará libre.")) return;
-              setError(null);
-              iniciar(async () => {
-                const resultado = await cambiarEstadoCita(cita.id, a.estado);
-                // Si falla, el diálogo sigue abierto con el error: el entrenador no debe creer que se guardó.
-                if (resultado.error) setError(resultado.error);
-                else alTerminar();
-              });
-            }}
+            // Cancelar pide confirmación en un diálogo propio; el resto se aplica al tocar.
+            onClick={() => (a.estado === "cancelada" ? setCancelando(true) : cambiarEstado(a.estado))}
           >
             {a.texto}
           </Boton>
@@ -497,6 +502,24 @@ function DetalleCita({ cita, alTerminar }: { cita: CitaVista; alTerminar: () => 
           Ver alumno
         </Link>
       </div>
+
+      <DialogoConfirmar
+        abierto={cancelando}
+        titulo="¿Cancelar esta cita?"
+        textoConfirmar={<><CalendarX2 aria-hidden className="size-4" /> Cancelar cita</>}
+        pendiente={pendiente}
+        alConfirmar={() => cambiarEstado("cancelada")}
+        alCerrar={() => setCancelando(false)}
+      >
+        <p>
+          <span className="font-medium text-tinta">{cita.alumno}</span> · {etiquetaDiaLarga(fecha)}, {hora(cita.iniciaEn)}.
+        </p>
+        <p className="mt-2 text-tenue">
+          El horario quedará libre
+          {cita.sesionId ? " y la sesión preparada para esa cita se marcará como cancelada" : ""}
+          {cita.google ? ". Se quitará de Google Calendar y Google le avisará al alumno" : ""}.
+        </p>
+      </DialogoConfirmar>
     </div>
   );
 }

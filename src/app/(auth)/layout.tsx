@@ -50,7 +50,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
         <div className="w-full max-w-[24rem]">
           <div className="mb-8 flex items-center justify-between gap-3 lg:justify-end">
             <Marca className="lg:hidden" />
-            <div className="w-28 sm:w-56"><SelectorTema /></div>
+            <SelectorTema />
           </div>
           {children}
         </div>

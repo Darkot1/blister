@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { ArrowLeft, Database, Send, TriangleAlert, Unplug } from "lucide-react";
+import { motion } from "motion/react";
 import { AGENTES, LIDER, agentePorId, type Agente } from "@/lib/agentes/catalogo";
 import { CASOS, DURACION, guionDe, type CasoJunta, type Junta, type Paso } from "@/lib/agentes/juntas";
 import { Boton } from "@/components/ui/boton";
 import { Dialogo } from "@/components/ui/dialogo";
+import { APARECE } from "@/components/ui/movimiento";
 import { CabeceraTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
 import { PUESTOS, useOficinaViva } from "./movimiento";
 import { Plano } from "./plano";
@@ -415,7 +417,7 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
         <p className="mt-0.5 text-grafito">{junta.caso.contexto}</p>
 
         {terminada && (
-          <section aria-labelledby="decision-junta" className="oficina-aparece mt-5 rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white">
+          <motion.section {...APARECE} aria-labelledby="decision-junta" className="mt-5 rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white">
             <p className="text-xs text-white/60">Propuesta del líder</p>
             <h3 id="decision-junta" className="titulo-display mt-1 text-lg leading-snug">
               {junta.caso.decision.titulo}
@@ -437,7 +439,7 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
               </p>
             )}
             <p className="mt-3 border-t border-white/10 pt-3 text-xs text-white/60">Nada cambia en el plan del alumno hasta que tú lo apruebes.</p>
-          </section>
+          </motion.section>
         )}
 
         {terminada && (
@@ -448,9 +450,9 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
         {terminada && <h3 className="etiqueta mt-5">Cómo se llegó</h3>}
         <ol aria-live="polite" className={`space-y-3 border-l border-linea pl-4 ${terminada ? "mt-2 max-h-72 overflow-y-auto pr-1" : "mt-4"}`}>
           {vistos.map((p, i) => (
-            <li key={i} className="oficina-aparece">
+            <motion.li key={i} {...APARECE}>
               <Evento paso={p} alumno={junta.caso.alumno} />
-            </li>
+            </motion.li>
           ))}
         </ol>
       </div>

@@ -4,7 +4,9 @@ import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Menu } from "lucide-react";
+import { motion } from "motion/react";
 import { Dialogo } from "@/components/ui/dialogo";
+import { PULSO, RITMO_PULSO, useBucle } from "@/components/ui/movimiento";
 import { Marca } from "./marca";
 import { BotonPlegarMenu } from "./menu-plegable";
 import { SelectorTema } from "./selector-tema";
@@ -25,11 +27,20 @@ function RutaActual({ children }: { children: (ruta: string) => React.ReactNode 
 
 /** Mientras carga la sección elegida: un punto que late, siempre presente para no mover el texto. */
 function Cargando({ className = "" }: { className?: string }) {
+  return <PuntoPendiente className={`${className} ml-auto shrink-0`} />;
+}
+
+/** Punto de acento: invisible en reposo, late mientras el enlace que lo contiene navega. */
+function PuntoPendiente({ className }: { className: string }) {
   const { pending } = useLinkStatus();
+  const bucle = useBucle();
   return (
-    <span
+    <motion.span
       aria-hidden
-      className={`${className} ml-auto size-1.5 shrink-0 rounded-full bg-acento transition-opacity ${pending ? "animate-pulse opacity-100" : "opacity-0"}`}
+      initial={false}
+      animate={pending ? (bucle ? PULSO : { opacity: 1 }) : { opacity: 0 }}
+      transition={pending && bucle ? RITMO_PULSO : { duration: 0.15 }}
+      className={`${className} size-1.5 rounded-full bg-acento opacity-0`}
     />
   );
 }
@@ -189,11 +200,5 @@ function EnlaceInferior({ s, activa }: { s: Seccion; activa: boolean }) {
 }
 
 function PuntoCargando() {
-  const { pending } = useLinkStatus();
-  return (
-    <span
-      aria-hidden
-      className={`absolute top-0 right-1.5 size-1.5 rounded-full bg-acento transition-opacity ${pending ? "animate-pulse opacity-100" : "opacity-0"}`}
-    />
-  );
+  return <PuntoPendiente className="absolute top-0 right-1.5" />;
 }

@@ -8,6 +8,7 @@ import { Boton } from "@/components/ui/boton";
 import { claseControl, claseSelector } from "@/components/ui/campo";
 import { GrupoMenu, MenuAcciones, OpcionMenu } from "@/components/ui/menu";
 import { Dialogo } from "@/components/ui/dialogo";
+import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import { Tarjeta, Vacio } from "@/components/ui/tarjeta";
 import { ETIQUETA_TIPO_OBJETIVO } from "@/lib/formato";
 import type { Catalogo, EjercicioCatalogo } from "@/lib/entrenamiento/cargar";
@@ -69,6 +70,11 @@ export function ConstructorRutina({
   const [diaActual, setDiaActual] = useState(0);
   /** Clave del bloque que recibe los ejercicios; null = según el tipo de ejercicio. */
   const [destino, setDestino] = useState<string | null>(null);
+  /** Quitar un día o un bloque con ejercicios pide confirmación en un diálogo. */
+  const [confirmar, setConfirmar] = useState<{ titulo: string; texto: string; boton: string; alConfirmar: () => void } | null>(null);
+  // Lo último pedido sigue a la vista mientras el diálogo sale animado.
+  const [mostrado, setMostrado] = useState(confirmar);
+  if (confirmar && confirmar !== mostrado) setMostrado(confirmar);
   const [panel, setPanel] = useState<"anadir" | "resumen">("anadir");
   const [catalogoMovil, setCatalogoMovil] = useState(false);
   const [descripcionAbierta, setDescripcionAbierta] = useState(Boolean(inicial.descripcion));
@@ -220,14 +226,22 @@ export function ConstructorRutina({
   };
 
   const quitarDia = () => {
+    const quitar = () => {
+      cambiar((b) => {
+        b.dias.splice(diaActual, 1);
+        if (!b.dias.length) b.dias.push(diaVacio(1));
+      });
+      setDiaActual(Math.max(0, diaActual - 1));
+      setDestino(null);
+    };
     const n = dia.bloques.reduce((t, b) => t + b.ejercicios.length, 0);
-    if (n > 0 && !window.confirm(`¿Quitar «${dia.nombre}» y sus ${n} ejercicios? Podrás descartarlo sin guardar si te arrepientes.`)) return;
-    cambiar((b) => {
-      b.dias.splice(diaActual, 1);
-      if (!b.dias.length) b.dias.push(diaVacio(1));
+    if (!n) return quitar();
+    setConfirmar({
+      titulo: `¿Quitar «${dia.nombre}»?`,
+      texto: `Se quitará con sus ${n} ${n === 1 ? "ejercicio" : "ejercicios"}. Si te arrepientes, podrás descartar los cambios sin guardar.`,
+      boton: "Quitar día",
+      alConfirmar: quitar,
     });
-    setDiaActual(Math.max(0, diaActual - 1));
-    setDestino(null);
   };
 
   const moverDia = (direccion: -1 | 1) => {
@@ -495,9 +509,18 @@ export function ConstructorRutina({
                   }
                   alMover={(dir) => cambiarDia((d) => mover(d.bloques, i, i + dir))}
                   alQuitar={() => {
-                    if (bloque.ejercicios.length && !window.confirm(`¿Quitar el bloque ${letraBloque(i)} con ${bloque.ejercicios.length} ejercicios?`)) return;
-                    cambiarDia((d) => void d.bloques.splice(i, 1));
-                    if (destino === bloque.clave) setDestino(null);
+                    const quitar = () => {
+                      cambiarDia((d) => void d.bloques.splice(i, 1));
+                      if (destino === bloque.clave) setDestino(null);
+                    };
+                    const n = bloque.ejercicios.length;
+                    if (!n) return quitar();
+                    setConfirmar({
+                      titulo: `¿Quitar el bloque ${letraBloque(i)}?`,
+                      texto: `Se quitará con sus ${n} ${n === 1 ? "ejercicio" : "ejercicios"}. Si te arrepientes, podrás descartar los cambios sin guardar.`,
+                      boton: "Quitar bloque",
+                      alConfirmar: quitar,
+                    });
                   }}
                   alCambiarEjercicio={(j, campo, valor) =>
                     cambiarDia((d) => {
@@ -620,6 +643,18 @@ export function ConstructorRutina({
           Listo
         </Boton>
       </Dialogo>
+      <DialogoConfirmar
+        abierto={confirmar !== null}
+        titulo={mostrado?.titulo ?? ""}
+        textoConfirmar={<><Trash2 aria-hidden className="size-4" /> {mostrado?.boton}</>}
+        alCerrar={() => setConfirmar(null)}
+        alConfirmar={() => {
+          confirmar?.alConfirmar();
+          setConfirmar(null);
+        }}
+      >
+        <p>{mostrado?.texto}</p>
+      </DialogoConfirmar>
     </>
   );
 }

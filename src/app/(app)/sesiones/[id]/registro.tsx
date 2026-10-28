@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Check, Minus, Plus, RotateCcw } from "lucide-react";
+import { Check, CheckCheck, Minus, Plus, RotateCcw } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Aviso } from "@/components/ui/aviso";
 import { Boton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Selector } from "@/components/ui/campo";
+import { APARECE } from "@/components/ui/movimiento";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { numero } from "@/lib/formato";
 import type { EjercicioDeSesion, Serie } from "@/lib/entrenamiento/sesiones";
@@ -24,6 +26,40 @@ const repsObjetivo = (r: string | null | undefined) => {
   const n = Number.parseInt(r ?? "", 10);
   return Number.isFinite(n) ? n : null;
 };
+
+/** Curva de salida suave para alturas y anchos (entra rápido, frena al final). */
+const SUAVE = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Botón "hecha" al estilo de una lista de tareas: al marcarla da un pequeño salto y el ✓ se dibuja;
+ * sin marcar, el ✓ queda tenue como pista de para qué sirve.
+ */
+function MarcaHecha({ hecha, quieto, ...props }: { hecha: boolean; quieto: boolean } & React.ComponentProps<typeof motion.button>) {
+  return (
+    <motion.button
+      type="button"
+      aria-pressed={hecha}
+      initial={false}
+      animate={{ scale: hecha && !quieto ? [1, 1.18, 1] : 1 }}
+      whileTap={{ scale: 0.9 }}
+      transition={{ duration: 0.3 }}
+      className={`grid size-11 place-items-center justify-self-center rounded-full border transition-colors ${
+        hecha ? "border-exito bg-exito text-superficie" : "border-linea-fuerte/70 text-tenue hover:border-tinta hover:text-tinta"
+      }`}
+      {...props}
+    >
+      <svg aria-hidden viewBox="0 0 24 24" className="size-5 fill-none stroke-current [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:2.5]">
+        {!hecha && <path d="M20 6 9 17l-5-5" className="opacity-60" />}
+        <motion.path
+          d="M20 6 9 17l-5-5"
+          initial={false}
+          animate={{ pathLength: hecha ? 1 : 0, opacity: hecha ? 1 : 0 }}
+          transition={quieto ? { duration: 0 } : { pathLength: { duration: 0.3, ease: "easeOut", delay: 0.05 }, opacity: { duration: 0.05 } }}
+        />
+      </svg>
+    </motion.button>
+  );
+}
 
 /** "80 kg × 8 · 8 · 7" (mismas cargas) o "80×8 · 85×6" (cargas distintas). */
 function resumenSeries(series: Serie[]) {
@@ -52,6 +88,7 @@ export function RegistroSesion({
   const [guardando, setGuardando] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [pendiente, iniciar] = useTransition();
+  const quieto = Boolean(useReducedMotion());
 
   const valor = (s: Serie): Edicion => ediciones[s.id] ?? { peso: texto(s.peso), repeticiones: texto(s.repeticiones), completada: s.completada };
   // Lo último que quedó guardado de cada serie: al salir de un campo solo se guarda si cambió respecto a eso.
@@ -77,6 +114,20 @@ export function RegistroSesion({
     setError(resultado.error ?? null);
   };
 
+  /** Marca o desmarca una serie. Marcarla sin anotar nada = hizo lo que pedía el plan. */
+  const marcar = (s: Serie, p: EjercicioDeSesion["prescripcion"], hecha: boolean) => {
+    const v = valor(s);
+    const reps = hecha && v.repeticiones.trim() === "" ? texto(repsObjetivo(p?.repeticiones)) : v.repeticiones;
+    const peso = hecha && v.peso.trim() === "" && p?.peso !== null && p?.peso !== undefined ? String(p.peso) : v.peso;
+    return guardar(s, { completada: hecha, repeticiones: reps, peso });
+  };
+
+  /** Todo el ejercicio de una vez: las series se marcan en cascada, como tachar una lista. */
+  const marcarEjercicio = (e: EjercicioDeSesion, hecha: boolean) =>
+    e.series
+      .filter((s) => valor(s).completada !== hecha)
+      .forEach((s, k) => setTimeout(() => void marcar(s, e.prescripcion, hecha), quieto ? 0 : k * 90));
+
   const total = ejercicios.reduce((t, e) => t + e.series.length, 0);
   const hechas = ejercicios.reduce((t, e) => t + e.series.filter((s) => valor(s).completada).length, 0);
 
@@ -89,7 +140,12 @@ export function RegistroSesion({
         <span>{guardando.size ? "Guardando…" : error ? "" : "Todo guardado"}</span>
       </p>
       <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-hueso">
-        <div className="h-full rounded-full bg-tinta transition-[width] duration-300" style={{ width: `${total ? (hechas / total) * 100 : 0}%` }} />
+        <motion.div
+          className="h-full rounded-full bg-tinta"
+          initial={false}
+          animate={{ width: `${total ? (hechas / total) * 100 : 0}%` }}
+          transition={quieto ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30 }}
+        />
       </div>
       {error && <Aviso>{error}</Aviso>}
 
@@ -113,13 +169,30 @@ export function RegistroSesion({
           : null;
         const unidad = e.series[0]?.unidad_peso ?? p?.unidad ?? "kg";
         const ultima = e.series.at(-1);
+        const completo = e.series.length > 0 && e.series.every((s) => valor(s).completada);
         return (
-          <Tarjeta key={e.id} className="overflow-hidden">
+          <motion.div key={e.id} {...APARECE} transition={{ ...APARECE.transition, delay: Math.min(i, 8) * 0.05 }}>
+          <Tarjeta className="overflow-hidden">
             <section aria-labelledby={`ej-${e.id}`}>
               <div className="border-b border-linea px-4 py-3 sm:px-5">
                 <h2 id={`ej-${e.id}`} className="flex items-baseline gap-2 font-semibold">
                   <span className="tabular-nums text-xs text-tenue">{i + 1}</span>
                   {e.nombre}
+                  {/* Todas sus series hechas: el ejercicio se tacha de la lista. */}
+                  <AnimatePresence>
+                    {completo && (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                        className="grid size-5 shrink-0 place-items-center self-center rounded-full bg-exito text-superficie"
+                      >
+                        <Check aria-hidden className="size-3.5" strokeWidth={3} />
+                        <span className="sr-only">(todas las series hechas)</span>
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </h2>
                 {objetivo && <p className="mt-0.5 tabular-nums text-sm text-grafito">Objetivo: {objetivo}</p>}
                 {e.ultimaVez && (
@@ -137,17 +210,26 @@ export function RegistroSesion({
                   <span className="text-center">Hecha</span>
                 </div>
                 <ol>
+                  {/* Como una lista de tareas: las series nuevas se abren paso y las quitadas se cierran. */}
+                  <AnimatePresence initial={false}>
                   {e.series.map((s) => {
                     const v = valor(s);
                     const id = (campo: string) => `${s.id}-${campo}`;
                     return (
-                      <li
+                      <motion.li
                         key={s.id}
-                        className={`grid grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)_3rem] items-center gap-2 rounded-lg px-2 py-1.5 transition-colors ${
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={quieto ? { duration: 0 } : { duration: 0.25, ease: SUAVE }}
+                        className="overflow-hidden"
+                      >
+                      <div
+                        className={`grid grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)_3rem] items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-300 ${
                           v.completada ? "bg-exito/[0.07]" : ""
                         }`}
                       >
-                        <span className="tabular-nums text-sm text-tenue">{s.numero_serie}</span>
+                        <span className={`tabular-nums text-sm transition-colors ${v.completada ? "text-exito" : "text-tenue"}`}>{s.numero_serie}</span>
                         <label className="sr-only" htmlFor={id("peso")}>
                           Peso de la serie {s.numero_serie}
                         </label>
@@ -174,27 +256,29 @@ export function RegistroSesion({
                           onBlur={(ev) => ev.target.value !== guardado(s).repeticiones && guardar(s, { repeticiones: ev.target.value })}
                           className="h-11 w-full min-w-0 rounded-full border border-linea-fuerte/70 bg-superficie px-3 text-center tabular-nums text-base focus:border-acento focus:ring-[3px] focus:ring-acento/25 focus:outline-none"
                         />
-                        <button
-                          type="button"
-                          aria-pressed={v.completada}
+                        <MarcaHecha
+                          hecha={v.completada}
+                          quieto={quieto}
                           aria-label={`Serie ${s.numero_serie} hecha`}
-                          onClick={() => {
-                            // Marcar sin anotar repeticiones = hizo las que pedía el plan.
-                            const reps = !v.completada && v.repeticiones.trim() === "" ? texto(repsObjetivo(p?.repeticiones)) : v.repeticiones;
-                            const peso = !v.completada && v.peso.trim() === "" && p?.peso !== null && p?.peso !== undefined ? String(p.peso) : v.peso;
-                            void guardar(s, { completada: !v.completada, repeticiones: reps, peso });
-                          }}
-                          className={`grid size-11 place-items-center justify-self-center rounded-full border transition-colors ${
-                            v.completada ? "border-exito bg-exito text-superficie" : "border-linea-fuerte/70 text-tenue hover:border-tinta hover:text-tinta"
-                          }`}
-                        >
-                          <Check aria-hidden className="size-5" />
-                        </button>
-                      </li>
+                          onClick={() => void marcar(s, p, !v.completada)}
+                        />
+                      </div>
+                      </motion.li>
                     );
                   })}
+                  </AnimatePresence>
                 </ol>
                 <div className="flex flex-wrap gap-2 px-2 pt-2 pb-1">
+                  {e.series.length > 1 && (
+                    <Boton
+                      type="button"
+                      variante="fantasma"
+                      className={`h-8 px-2.5 ${completo ? "text-tenue" : ""}`}
+                      onClick={() => marcarEjercicio(e, !completo)}
+                    >
+                      <CheckCheck aria-hidden className="size-4" /> {completo ? "Desmarcar todas" : "Marcar todas"}
+                    </Boton>
+                  )}
                   <Boton
                     type="button"
                     variante="fantasma"
@@ -219,10 +303,13 @@ export function RegistroSesion({
               </div>
             </section>
           </Tarjeta>
+          </motion.div>
         );
       })}
 
+      <AnimatePresence mode="wait" initial={false}>
       {completada ? (
+        <motion.div key="completada" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <Tarjeta className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
           <p className="text-sm">
             <span className="font-semibold">Sesión completada.</span>{" "}
@@ -240,7 +327,9 @@ export function RegistroSesion({
             <RotateCcw aria-hidden className="size-4" /> Reabrir
           </Boton>
         </Tarjeta>
+        </motion.div>
       ) : (
+        <motion.div key="abierta" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <Tarjeta className="p-4 sm:p-5">
           <form
             action={async (datos) => {
@@ -266,7 +355,9 @@ export function RegistroSesion({
             {hechas < total && <p className="text-xs text-tenue">Quedan {total - hechas} series sin marcar; se guardan como no hechas.</p>}
           </form>
         </Tarjeta>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

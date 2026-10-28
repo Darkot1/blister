@@ -2,6 +2,7 @@ import {
   BookOpen,
   Building2,
   CalendarDays,
+  ClipboardList,
   Dumbbell,
   LayoutDashboard,
   LineChart,
@@ -39,6 +40,7 @@ export const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
     titulo: "Entrenamiento",
     secciones: [
       { href: "/entrenamiento", texto: "Rutinas y planes", resumen: "Constructor de rutinas, plantillas y planes", icono: ListChecks },
+      { href: "/sesiones", texto: "Sesiones", resumen: "Registro de series, pesos y repeticiones", icono: ClipboardList },
       { href: "/ejercicios", texto: "Ejercicios", resumen: "Biblioteca por músculo", icono: Dumbbell },
       { href: "/progreso", texto: "Progreso", resumen: "Gráficas y resultados", icono: LineChart },
       { href: "/oficina", texto: "Oficina", resumen: "Agentes que te ayudan con rutinas, pesos y recomendaciones", icono: Building2 },
