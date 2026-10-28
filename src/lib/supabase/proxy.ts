@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const RUTAS_PUBLICAS = ["/ingresar", "/registro", "/recuperar", "/auth"];
+// "/e": página pública de cada espacio (/e/<slug>), para quien aún no es alumno.
+const RUTAS_PUBLICAS = ["/ingresar", "/registro", "/recuperar", "/auth", "/e"];
 const RUTAS_SOLO_INVITADOS = ["/ingresar", "/registro", "/recuperar"];
 
 const empiezaCon = (ruta: string, prefijos: string[]) =>

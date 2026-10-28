@@ -11,9 +11,9 @@ export type Apariencia = {
 };
 
 /**
- * Agentes de la oficina. Por ahora son solo presentación: más adelante cada uno
- * se conectará a Claude con su propio encargo. Como todo en Blister, sugieren;
- * el entrenador decide.
+ * Agentes de la oficina. En una junta, cada uno responde con IA (OpenRouter, ver
+ * `lib/agentes/consulta.ts`) según su rol, habilidades y forma de trabajar. Como todo
+ * en Blister, sugieren; el entrenador decide.
  */
 export type Agente = {
   id: string;

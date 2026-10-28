@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, Copy, Dumbbell, Plus, Save, Trash2, X } from "lucide-react";
 import { Aviso } from "@/components/ui/aviso";
 import { Boton } from "@/components/ui/boton";
-import { claseControl, claseSelector } from "@/components/ui/campo";
+import { claseAreaTexto, claseControl, claseSelector } from "@/components/ui/campo";
 import { GrupoMenu, MenuAcciones, OpcionMenu } from "@/components/ui/menu";
 import { Dialogo } from "@/components/ui/dialogo";
 import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
@@ -361,7 +361,7 @@ export function ConstructorRutina({
                   onChange={(e) => cambiar((b) => void (b.descripcion = e.target.value))}
                   maxLength={1000}
                   placeholder="Para quién es, cómo progresar, qué cuidar…"
-                  className={`${claseControl} h-auto min-h-20 py-2`}
+                  className={claseAreaTexto}
                 />
               </div>
             )}

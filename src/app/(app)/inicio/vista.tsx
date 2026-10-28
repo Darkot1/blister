@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, CalendarPlus, Dumbbell, UserPlus, Users } from "lucide-react";
+import { ArrowRight, CalendarClock, CalendarPlus, Dumbbell, Inbox, UserPlus, Users } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Onda } from "@/components/ui/movimiento";
 import { BarrasSemana } from "@/components/datos/barras-semana";
 import { Avatar } from "@/components/ui/avatar";
 import { CabeceraTarjeta, EnlaceTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
 import { etiquetaDiaLarga } from "@/lib/calendario";
-import { ETIQUETA_TIPO_CITA, fechaSinAnio, hora } from "@/lib/formato";
+import { ETIQUETA_TIPO_CITA, ETIQUETA_TIPO_OBJETIVO, fechaSinAnio, hora } from "@/lib/formato";
 import type { DiaDeSesion } from "@/lib/entrenamiento/planes";
 import { FilaCita, type CitaResumen } from "../calendario/fila-cita";
 
@@ -85,6 +85,9 @@ export function VistaPanel({
   activos,
   inactivos,
   porAtender,
+  solicitudes,
+  solicitudesNuevas,
+  paginaActiva,
 }: {
   hoy: string;
   titulo: string;
@@ -99,6 +102,10 @@ export function VistaPanel({
   activos: number;
   inactivos: number;
   porAtender: number;
+  /** Las solicitudes nuevas más recientes de la página pública (hasta 4) y cuántas hay en total. */
+  solicitudes: { id: string; tipo: string; nombres: string; apellidos: string; objetivo: string | null; creado_en: string }[];
+  solicitudesNuevas: number;
+  paginaActiva: boolean;
 }) {
   const totalSemana = semana.reduce((s, d) => s + d.valor, 0);
   const momentos = deHoy.map((c) => momentoDe(c, ahora, siguienteId));
@@ -263,7 +270,62 @@ export function VistaPanel({
           </section>
         </Tarjeta>
 
-        <Tarjeta className="col-span-2 overflow-hidden sm:col-span-1">
+        <Tarjeta className="col-span-2 overflow-hidden">
+          <section aria-labelledby="titulo-solicitudes">
+            <CabeceraTarjeta
+              id="titulo-solicitudes"
+              titulo={
+                <span className="inline-flex items-center gap-2">
+                  Solicitudes
+                  {solicitudesNuevas > 0 && (
+                    <span className="grid h-5 min-w-5 place-items-center rounded-full bg-acento px-1.5 text-xs font-semibold tabular-nums text-sobre-acento">
+                      {solicitudesNuevas}
+                    </span>
+                  )}
+                </span>
+              }
+              accion={<EnlaceTarjeta href="/alumnos/solicitudes">Todas</EnlaceTarjeta>}
+            />
+            {solicitudes.length ? (
+              <Lista>
+                {solicitudes.map((s) => (
+                  <li key={s.id}>
+                    <Link href="/alumnos/solicitudes" className="flex items-center gap-2.5 px-4 py-2.5 transition-colors hover:bg-hueso/40">
+                      <Avatar id={s.id} nombres={s.nombres} apellidos={s.apellidos} tamano="sm" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">
+                          {s.nombres} {s.apellidos}
+                        </span>
+                        <span className="block truncate text-xs text-tenue">
+                          {s.tipo === "registro" ? "Quiere entrenar" : "Pregunta"}
+                          {s.objetivo ? ` · ${ETIQUETA_TIPO_OBJETIVO[s.objetivo] ?? s.objetivo}` : ""}
+                        </span>
+                      </span>
+                      <span className="shrink-0 tabular-nums text-[0.7rem] text-tenue">{fechaSinAnio(s.creado_en)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </Lista>
+            ) : (
+              <div className="flex items-start gap-3 px-4 py-5 text-sm text-tenue">
+                <Inbox aria-hidden className="mt-0.5 size-4 shrink-0" />
+                {paginaActiva ? (
+                  <p>Sin solicitudes nuevas. Comparte el enlace de tu página pública para recibir más.</p>
+                ) : (
+                  <p>
+                    Activa tu{" "}
+                    <Link href="/configuracion/pagina" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">
+                      página pública
+                    </Link>{" "}
+                    para que nuevos alumnos te escriban desde un enlace.
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+        </Tarjeta>
+
+        <Tarjeta className="col-span-2 overflow-hidden sm:col-span-1 lg:col-span-2">
           <section aria-labelledby="titulo-recientes">
             <CabeceraTarjeta id="titulo-recientes" titulo="Nuevos alumnos" accion={<EnlaceTarjeta href="/alumnos">Todos</EnlaceTarjeta>} />
             {recientes.length ? (
@@ -285,7 +347,7 @@ export function VistaPanel({
         </Tarjeta>
 
         {/* Accesos rápidos: banda en superficie interactiva (hueso), sin color. */}
-        <nav aria-labelledby="titulo-accesos" className="col-span-2 flex flex-col justify-between gap-4 rounded-[var(--radius-tarjeta)] bg-hueso p-2 sm:col-span-1">
+        <nav aria-labelledby="titulo-accesos" className="col-span-2 flex flex-col justify-between gap-4 rounded-[var(--radius-tarjeta)] bg-hueso p-2 sm:col-span-1 lg:col-span-2">
           <div className="px-2.5 pt-2.5">
             <h2 id="titulo-accesos" className="etiqueta">Accesos rápidos</h2>
             <p className="titulo-display mt-2 hidden text-2xl leading-[1.2] sm:block">¿Qué hacemos ahora?</p>

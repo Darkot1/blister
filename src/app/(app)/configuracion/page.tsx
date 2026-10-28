@@ -11,6 +11,7 @@ import { fechaCorta } from "@/lib/formato";
 import { obtenerContexto, obtenerCuenta } from "@/lib/sesion";
 import { googleConfigurado } from "@/lib/google/calendario";
 import { TarjetaGoogle } from "./google";
+import { TarjetaPaginaPublica } from "./pagina-publica";
 
 export const metadata: Metadata = { title: "Ajustes" };
 
@@ -32,6 +33,9 @@ export default function PaginaAjustes({ searchParams }: PageProps<"/configuracio
           <MiPerfil />
         </Suspense>
         <div className="space-y-4">
+          <Suspense fallback={<Esqueleto className="h-48" />}>
+            <PaginaPublica />
+          </Suspense>
           <Suspense fallback={<Esqueleto className="h-48" />}>
             <Google searchParams={searchParams} />
           </Suspense>
@@ -58,6 +62,22 @@ async function Google({ searchParams }: { searchParams: PageProps<"/configuracio
     .eq("usuario_id", usuarioId)
     .maybeSingle();
   return <TarjetaGoogle resultado={typeof google === "string" ? google : undefined} conexion={conexion} configurado={googleConfigurado()} />;
+}
+
+async function PaginaPublica() {
+  const { supabase, usuarioId, organizacionId } = await obtenerContexto();
+  const [{ data: espacio }, { data: membresia }] = await Promise.all([
+    supabase.from("organizaciones").select("slug, pagina_publica").eq("id", organizacionId).single(),
+    supabase.from("miembros_organizacion").select("rol").eq("organizacion_id", organizacionId).eq("usuario_id", usuarioId).maybeSingle(),
+  ]);
+  if (!espacio) return null;
+  return (
+    <TarjetaPaginaPublica
+      activa={espacio.pagina_publica}
+      slug={espacio.slug}
+      editable={membresia?.rol === "propietario" || membresia?.rol === "admin"}
+    />
+  );
 }
 
 async function MiPerfil() {

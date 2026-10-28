@@ -7,6 +7,7 @@ import { Boton, clasesBoton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/aviso";
+import { BuscadorOpciones } from "@/components/ui/buscador-opciones";
 import { Dialogo } from "@/components/ui/dialogo";
 import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import { HORA_FIN_DIA, HORA_INICIO_DIA, etiquetaDia, etiquetaDiaLarga, partesLocales } from "@/lib/calendario";
@@ -347,14 +348,16 @@ function FormularioCita({
   return (
     <form action={enviar} className="space-y-4" noValidate>
       {estado.error && <Aviso>{estado.error}</Aviso>}
-      <Selector
+      <BuscadorOpciones
         etiqueta="Alumno"
         nombre="alumno_id"
         required
-        value={alumnoId}
-        onChange={(e) => setAlumnoId(e.target.value)}
+        valor={alumnoId}
+        alCambiar={setAlumnoId}
+        marcador="Busca por nombre"
+        vacio="Ningún alumno activo con ese nombre."
         errores={estado.errores?.alumno_id}
-        opciones={[{ valor: "", texto: "Elige un alumno" }, ...alumnos.map((a) => ({ valor: a.id, texto: a.nombre }))]}
+        opciones={alumnos.map((a) => ({ valor: a.id, texto: a.nombre, detalle: a.plan ? `Rutina: ${a.plan.nombre}` : undefined }))}
       />
       {alumno && <AvisoGoogle alumno={alumno} conectado={googleConectado} />}
       <div className="grid grid-cols-2 gap-3">

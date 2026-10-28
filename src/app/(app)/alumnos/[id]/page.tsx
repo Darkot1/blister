@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarPlus, Pencil } from "lucide-react";
+import { CalendarPlus, ClipboardList, Pencil } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { LineaTendencia } from "@/components/datos/linea-tendencia";
 import { EnlaceBoton } from "@/components/ui/boton";
@@ -55,7 +55,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
 
   const { supabase } = await obtenerContexto();
-  const [{ data: alumno }, { data: mediciones }, { data: notas }, { data: objetivo }] = await Promise.all([
+  const [{ data: alumno }, { data: mediciones }, { data: notas }, { data: objetivo }, { count: sesiones }] = await Promise.all([
     supabase.from("alumnos").select("*").eq("id", id).maybeSingle(),
     supabase.from("mediciones").select("*").eq("alumno_id", id).order("medido_en", { ascending: false }).limit(100),
     supabase
@@ -72,6 +72,7 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
       .eq("es_principal", true)
       .eq("estado", "activo")
       .maybeSingle(),
+    supabase.from("sesiones").select("id", { count: "exact", head: true }).eq("alumno_id", id),
   ]);
 
   // RLS devuelve vacío si el alumno no es de tu espacio: se trata igual que inexistente.
@@ -109,6 +110,12 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
         }
         acciones={
           <>
+            {(sesiones ?? 0) > 0 && (
+              <EnlaceBoton href={`/sesiones?alumno=${alumno.id}`} variante="secundario">
+                <ClipboardList aria-hidden className="size-4" /> Sesiones
+                <span className="tabular-nums text-xs text-tenue">{sesiones}</span>
+              </EnlaceBoton>
+            )}
             {!archivado && (
               <EnlaceBoton href={`/calendario?alumno=${alumno.id}`} variante="secundario">
                 <CalendarPlus aria-hidden className="size-4" /> Agendar

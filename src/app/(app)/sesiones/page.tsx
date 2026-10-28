@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import Form from "next/form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowRight, ChevronRight, ClipboardList, ListChecks } from "lucide-react";
+import { ArrowRight, ChevronRight, ClipboardList, ListChecks, Search } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Avatar } from "@/components/ui/avatar";
 import { EnlaceBoton } from "@/components/ui/boton";
+import { claseControl } from "@/components/ui/campo";
 import { EsqueletoLista } from "@/components/ui/esqueleto";
 import { Aparece } from "@/components/ui/movimiento";
 import { Paginacion, conParametros, leerPagina } from "@/components/ui/paginacion";
@@ -38,6 +40,24 @@ const POR_PAGINA = 25;
 /** Sesiones que muestra cada alumno en la vista general; el resto, en su historial. */
 const RECIENTES = 4;
 
+/** Sin tildes ni mayúsculas: "jose" encuentra a "José". */
+const normalizar = (t: string) => t.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+
+/** Buscador de la página: va en el encabezado para que se vea siempre, en la vista general y en la de un alumno. */
+function Buscador({ q, alumnoId, estado, marcador }: { q: string; alumnoId?: string; estado?: string; marcador: string }) {
+  return (
+    <Form action="/sesiones" className="relative w-full sm:w-72" role="search">
+      {alumnoId && <input type="hidden" name="alumno" value={alumnoId} />}
+      {estado && <input type="hidden" name="estado" value={estado} />}
+      <label>
+        <span className="sr-only">{marcador}</span>
+        <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-tenue" />
+        <input name="q" type="search" defaultValue={q} placeholder={marcador} className={`${claseControl} pl-9`} />
+      </label>
+    </Form>
+  );
+}
+
 const esId = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
 
 export default function PaginaSesiones({ searchParams }: PageProps<"/sesiones">) {
@@ -50,6 +70,7 @@ export default function PaginaSesiones({ searchParams }: PageProps<"/sesiones">)
 
 async function Contenido({ searchParams }: { searchParams: PageProps<"/sesiones">["searchParams"] }) {
   const parametros = await searchParams;
+  const q = typeof parametros.q === "string" ? parametros.q.trim() : "";
   const { supabase } = await obtenerContexto();
   const [sesiones, planes, { data: activos }] = await Promise.all([
     listarSesiones(supabase),
@@ -72,6 +93,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/sesiones"
         sesiones={sesionesDe.get(alumno.id) ?? []}
         estado={parametros.estado}
         pagina={parametros.pagina}
+        q={q}
       />
     );
   }
@@ -85,6 +107,10 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/sesiones"
       ultima(b.id).localeCompare(ultima(a.id)) ||
       `${a.nombres} ${a.apellidos}`.localeCompare(`${b.nombres} ${b.apellidos}`, "es"),
   );
+  // Buscar por nombre del alumno o de su rutina.
+  const visibles = q
+    ? orden.filter((a) => normalizar(`${a.nombres} ${a.apellidos} ${planes.get(a.id)?.nombre ?? ""}`).includes(normalizar(q)))
+    : orden;
 
   return (
     <>
@@ -92,6 +118,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/sesiones"
         titulo="Sesiones"
         miga="Entrenamiento"
         descripcion="Por alumno: empieza una sesión de su rutina cuando quieras, sin agendarla, o retoma las que ya tiene."
+        acciones={orden.length > 0 && <Buscador q={q} marcador="Buscar alumno o rutina" />}
       />
       {!orden.length ? (
         <Vacio
@@ -101,13 +128,32 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/sesiones"
           accion={<EnlaceBoton href="/entrenamiento" variante="secundario">Ir a rutinas</EnlaceBoton>}
         />
       ) : (
-        <div className="grid items-start gap-4 lg:grid-cols-2">
-          {orden.map((a, i) => (
-            <Aparece key={a.id} retraso={Math.min(i, 8) * 0.05}>
-              <TarjetaAlumno alumno={a} plan={planes.get(a.id) ?? null} sesiones={sesionesDe.get(a.id) ?? []} />
-            </Aparece>
-          ))}
-        </div>
+        <>
+          {q && (
+            <p className="mb-4 tabular-nums text-sm text-tenue" role="status">
+              {visibles.length} de {orden.length} alumnos para «{q}» ·{" "}
+              <Link href="/sesiones" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">
+                Quitar búsqueda
+              </Link>
+            </p>
+          )}
+          {visibles.length ? (
+            <div className="grid items-start gap-4 lg:grid-cols-2">
+              {visibles.map((a, i) => (
+                <Aparece key={a.id} retraso={Math.min(i, 8) * 0.05}>
+                  <TarjetaAlumno alumno={a} plan={planes.get(a.id) ?? null} sesiones={sesionesDe.get(a.id) ?? []} />
+                </Aparece>
+              ))}
+            </div>
+          ) : (
+            <Vacio
+              icono={<Search aria-hidden className="size-5" />}
+              titulo="Nadie coincide con la búsqueda"
+              texto="Prueba con otro nombre o con el nombre de la rutina."
+              accion={<EnlaceBoton href="/sesiones" variante="secundario">Ver todos</EnlaceBoton>}
+            />
+          )}
+        </>
       )}
     </>
   );
@@ -180,8 +226,8 @@ function Rutina({ alumnoId, plan }: { alumnoId: string; plan: PlanActivo | null 
   );
 }
 
-function ListaSesiones({ sesiones }: { sesiones: FilaSesion[] }) {
-  if (!sesiones.length) return <p className="px-4 py-4 text-sm text-tenue sm:px-5">Sin sesiones todavía.</p>;
+function ListaSesiones({ sesiones, vacio = "Sin sesiones todavía." }: { sesiones: FilaSesion[]; vacio?: string }) {
+  if (!sesiones.length) return <p className="px-4 py-4 text-sm text-tenue sm:px-5">{vacio}</p>;
   return (
     <ul className="divide-y divide-linea">
       {sesiones.map((s) => {
@@ -221,19 +267,24 @@ function HistorialAlumno({
   sesiones,
   estado,
   pagina: paginaParametro,
+  q,
 }: {
   alumno: Alumno;
   plan: PlanActivo | null;
   sesiones: FilaSesion[];
   estado: string | string[] | undefined;
   pagina: string | string[] | undefined;
+  /** Busca por el día de la rutina o la fecha ("pierna", "15 de octubre"). */
+  q: string;
 }) {
   const elegido = FILTROS.find((f) => f.valor === estado) ?? FILTROS[0];
   const cumple = (f: (typeof FILTROS)[number], e: string) => !f.estados || (f.estados as readonly string[]).includes(e);
-  const filtradas = sesiones.filter((s) => cumple(elegido, s.estado));
+  const coincide = (s: FilaSesion) =>
+    !q || normalizar(`${s.dia ?? "Sesión libre"} ${s.fecha ? etiquetaDiaLarga(partesLocales(s.fecha).fecha) : ""}`).includes(normalizar(q));
+  const filtradas = sesiones.filter((s) => cumple(elegido, s.estado) && coincide(s));
   const pagina = leerPagina(paginaParametro, filtradas.length, POR_PAGINA);
   const url = (cambios: { estado?: string; pagina?: number }) =>
-    conParametros("/sesiones", { alumno: alumno.id, estado: cambios.estado ?? elegido.valor, pagina: cambios.pagina ?? 1 });
+    conParametros("/sesiones", { alumno: alumno.id, q, estado: cambios.estado ?? elegido.valor, pagina: cambios.pagina ?? 1 });
 
   return (
     <>
@@ -243,9 +294,12 @@ function HistorialAlumno({
         figura={<Avatar id={alumno.id} nombres={alumno.nombres} apellidos={alumno.apellidos} tamano="xl" />}
         descripcion={plan ? `Rutina activa: ${plan.nombre}` : "Sin rutina activa"}
         acciones={
-          <EnlaceBoton href={`/progreso?alumno=${alumno.id}`} variante="secundario">
-            Ver progreso
-          </EnlaceBoton>
+          <>
+            <Buscador q={q} alumnoId={alumno.id} estado={elegido.valor || undefined} marcador="Buscar por día o fecha" />
+            <EnlaceBoton href={`/progreso?alumno=${alumno.id}`} variante="secundario">
+              Ver progreso
+            </EnlaceBoton>
+          </>
         }
       />
       <Aparece className="mb-4">
@@ -264,7 +318,7 @@ function HistorialAlumno({
             className={`${claseSegmento(f === elegido)} inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap`}
           >
             {f.texto}
-            <span className="tabular-nums text-xs text-tenue">{sesiones.filter((s) => cumple(f, s.estado)).length}</span>
+            <span className="tabular-nums text-xs text-tenue">{sesiones.filter((s) => cumple(f, s.estado) && coincide(s)).length}</span>
           </Link>
         ))}
       </nav>
@@ -272,7 +326,10 @@ function HistorialAlumno({
       <Aparece retraso={0.1}>
         <Tarjeta className="overflow-hidden">
           <CabeceraTarjeta titulo="Sesiones" accion={<span className="tabular-nums text-xs text-tenue">{filtradas.length}</span>} />
-          <ListaSesiones sesiones={filtradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)} />
+          <ListaSesiones
+            sesiones={filtradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)}
+            vacio={q ? `Ninguna sesión coincide con «${q}».` : "Sin sesiones en este estado."}
+          />
           <Paginacion pagina={pagina} total={filtradas.length} porPagina={POR_PAGINA} href={(n) => url({ pagina: n })} />
         </Tarjeta>
       </Aparece>
