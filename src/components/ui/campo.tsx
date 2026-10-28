@@ -1,9 +1,19 @@
 import type { ComponentProps } from "react";
 
-export const claseControl =
-  "w-full h-10 rounded-full border border-linea-fuerte/80 bg-transparent px-4 text-sm text-tinta placeholder:text-tenue/80 transition-[border-color,box-shadow] duration-200 " +
+/** Borde, foco y error comunes a todos los campos; la forma (alto, esquinas) la pone cada tipo. */
+const baseCampo =
+  "w-full border border-linea-fuerte/80 bg-transparent text-sm text-tinta placeholder:text-tenue/80 transition-[border-color,box-shadow] duration-200 " +
   "hover:border-linea-fuerte focus:border-acento focus:outline-none focus:ring-[3px] focus:ring-acento/25 " +
   "aria-[invalid=true]:border-peligro aria-[invalid=true]:ring-peligro/10";
+
+/** Campo de una línea: píldora. */
+export const claseControl = `${baseCampo} h-10 rounded-full px-4`;
+
+/**
+ * Área de texto: esquinas suaves (una píldora con varias líneas se ve como un óvalo) y solo
+ * crece hacia abajo, para que el tirador no la ensanche fuera de su columna.
+ */
+export const claseAreaTexto = `${baseCampo} block min-h-20 resize-y rounded-xl px-3.5 py-2.5 leading-relaxed`;
 
 /** Desplegable con la misma flecha en todos los navegadores; `claseSelector.replace("w-full", …)` para otro ancho. */
 export const claseSelector =
@@ -59,7 +69,7 @@ export function AreaTexto({
       <textarea
         id={nombre}
         name={nombre}
-        className={`${claseControl} h-auto min-h-24 rounded-2xl py-2.5`}
+        className={`${claseAreaTexto} min-h-24`}
         aria-invalid={Boolean(idError)}
         aria-describedby={idError}
         {...props}

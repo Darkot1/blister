@@ -141,6 +141,42 @@
   },
   "hotPaths": [
     {
+      "path": "supabase/migrations/20261028001500_pagina_publica.sql",
+      "accessCount": 4,
+      "lastAccessed": 1793204000023,
+      "type": "file"
+    },
+    {
+      "path": "src/components/pagina-publica/vista.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1793207683395,
+      "type": "file"
+    },
+    {
+      "path": "supabase/migrations/20261028001600_pagina_publica_contenido.sql",
+      "accessCount": 3,
+      "lastAccessed": 1793204722119,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/editor.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1793208033285,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/agentes/openrouter.ts",
+      "accessCount": 3,
+      "lastAccessed": 1793220094330,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/agentes/consulta.ts",
+      "accessCount": 3,
+      "lastAccessed": 1793221950812,
+      "type": "file"
+    },
+    {
       "path": "src/app/layout.tsx",
       "accessCount": 2,
       "lastAccessed": 1793199917591,
@@ -156,6 +192,24 @@
       "path": "src/app/(app)/sesiones/page.tsx",
       "accessCount": 2,
       "lastAccessed": 1793202243255,
+      "type": "file"
+    },
+    {
+      "path": "src/app/e/[slug]/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1793204930434,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina-publica.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1793205093571,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/diseno.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1793207349107,
       "type": "file"
     },
     {
@@ -204,6 +258,72 @@
       "path": "src/app/(app)/calendario/semana.tsx",
       "accessCount": 1,
       "lastAccessed": 1793202105351,
+      "type": "file"
+    },
+    {
+      "path": "src/app/e/[slug]/formulario.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793203498002,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/alumnos/solicitudes/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793203655165,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793204981064,
+      "type": "file"
+    },
+    {
+      "path": "supabase/migrations/20261028001700_pagina_publica_diseno.sql",
+      "accessCount": 1,
+      "lastAccessed": 1793206391066,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/ajustar-foto.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793208022757,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ui/buscador-opciones.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793208429505,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/oficina/plano.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793214051317,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/agentes/expediente.ts",
+      "accessCount": 1,
+      "lastAccessed": 1793218441976,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/oficina/acciones.ts",
+      "accessCount": 1,
+      "lastAccessed": 1793218475703,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/oficina/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793218548115,
+      "type": "file"
+    },
+    {
+      "path": "supabase/migrations/20261028001800_juntas.sql",
+      "accessCount": 1,
+      "lastAccessed": 1793223351884,
       "type": "file"
     }
   ],

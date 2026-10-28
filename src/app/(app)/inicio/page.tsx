@@ -47,15 +47,23 @@ function saludo(minutos: number) {
 const PENDIENTES = ["programada", "confirmada"];
 
 async function Panel() {
-  const { supabase } = await obtenerContexto();
+  const { supabase, organizacionId } = await obtenerContexto();
   // La hora actual se lee después de un acceso dinámico (Cache Components).
   const ahora = partesLocales(new Date().toISOString());
   const hoy = hoyLocal();
   const lunes = inicioSemana(hoy);
   const fin = sumarDias(hoy, 8);
 
-  const [perfil, { count: activos }, { count: inactivos }, { count: porAtender }, { data: recientes }, { data: citas }] =
-    await Promise.all([
+  const [
+    perfil,
+    { count: activos },
+    { count: inactivos },
+    { count: porAtender },
+    { data: recientes },
+    { data: citas },
+    { data: solicitudes, count: solicitudesNuevas },
+    { data: espacio },
+  ] = await Promise.all([
       obtenerPerfil(),
       supabase.from("alumnos").select("id", { count: "exact", head: true }).eq("estado", "activo"),
       supabase.from("alumnos").select("id", { count: "exact", head: true }).eq("estado", "inactivo"),
@@ -77,6 +85,14 @@ async function Panel() {
         .not("estado", "in", "(cancelada,reprogramada)")
         .order("inicia_en")
         .limit(300),
+      // Lo que llegó desde la página pública y espera respuesta.
+      supabase
+        .from("solicitudes")
+        .select("id, tipo, nombres, apellidos, objetivo, creado_en", { count: "exact" })
+        .eq("estado", "nueva")
+        .order("creado_en", { ascending: false })
+        .limit(4),
+      supabase.from("organizaciones").select("pagina_publica").eq("id", organizacionId).maybeSingle(),
     ]);
 
   const conFecha = (citas ?? []).map((c) => ({ ...c, ...partesLocales(c.inicia_en) }));
@@ -118,6 +134,9 @@ async function Panel() {
       recientes={recientes ?? []}
       activos={activos ?? 0}
       inactivos={inactivos ?? 0}
+      solicitudes={solicitudes ?? []}
+      solicitudesNuevas={solicitudesNuevas ?? 0}
+      paginaActiva={espacio?.pagina_publica ?? false}
       porAtender={porAtender ?? 0}
     />
   );

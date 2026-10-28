@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Form from "next/form";
 import { Suspense } from "react";
-import { ChevronRight, ListChecks, Plus, Search, Users } from "lucide-react";
+import { ChevronRight, Inbox, ListChecks, Plus, Search, Users } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Avatar } from "@/components/ui/avatar";
 import { EnlaceBoton } from "@/components/ui/boton";
@@ -25,15 +25,37 @@ export default function PaginaAlumnos({ searchParams }: PageProps<"/alumnos">) {
         titulo="Alumnos"
         miga="Gestión"
         acciones={
-          <EnlaceBoton href="/alumnos/nuevo">
-            <Plus aria-hidden className="size-4" /> Nuevo alumno
-          </EnlaceBoton>
+          <>
+            <Suspense fallback={null}>
+              <BotonSolicitudes />
+            </Suspense>
+            <EnlaceBoton href="/alumnos/nuevo">
+              <Plus aria-hidden className="size-4" /> Nuevo alumno
+            </EnlaceBoton>
+          </>
         }
       />
       <Suspense fallback={<EsqueletoLista />}>
         <ListaAlumnos searchParams={searchParams} />
       </Suspense>
     </>
+  );
+}
+
+/** Acceso a lo que llega desde la página pública, con cuántas solicitudes esperan respuesta. */
+async function BotonSolicitudes() {
+  const { supabase } = await obtenerContexto();
+  const { count } = await supabase.from("solicitudes").select("id", { count: "exact", head: true }).eq("estado", "nueva");
+  const nuevas = count ?? 0;
+  return (
+    <EnlaceBoton href="/alumnos/solicitudes" variante="secundario" aria-label={`Solicitudes${nuevas ? `: ${nuevas} nuevas` : ""}`}>
+      <Inbox aria-hidden className="size-4" /> Solicitudes
+      {nuevas > 0 && (
+        <span aria-hidden className="grid h-5 min-w-5 place-items-center rounded-full bg-acento px-1.5 text-xs font-semibold tabular-nums text-sobre-acento">
+          {nuevas}
+        </span>
+      )}
+    </EnlaceBoton>
   );
 }
 

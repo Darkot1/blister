@@ -40,10 +40,22 @@ export function Onda({ className = "", ...circulo }: { cx: number; cy: number; r
 }
 
 /** Bloque que entra con {@link APARECE}; `retraso` (s) escalona bloques vecinos (bento, tarjetas). */
-export function Aparece({ retraso = 0, className, children }: { retraso?: number; className?: string; children: React.ReactNode }) {
+export function Aparece({
+  retraso = 0,
+  como = "div",
+  className,
+  children,
+}: {
+  retraso?: number;
+  /** `li` para que una lista siga siendo válida (ul > li). */
+  como?: "div" | "li";
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const Elemento = como === "li" ? motion.li : motion.div;
   return (
-    <motion.div initial={APARECE.initial} animate={APARECE.animate} transition={{ ...APARECE.transition, delay: retraso }} className={className}>
+    <Elemento initial={APARECE.initial} animate={APARECE.animate} transition={{ ...APARECE.transition, delay: retraso }} className={className}>
       {children}
-    </motion.div>
+    </Elemento>
   );
 }

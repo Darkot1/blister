@@ -4,6 +4,36 @@
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+/** Una junta de la oficina ya terminada: lo que se pidió y el resultado (historial, no se edita). */
+export type JuntaFila = {
+  id: string;
+  organizacion_id: string;
+  alumno_id: string | null;
+  autor_id: string | null;
+  pedido: string;
+  /** El CasoJunta tal como lo ve el entrenador (lib/agentes/juntas.ts). */
+  resultado: Json;
+  modelos: string[];
+  creado_en: string;
+};
+
+/** Lesión, dolor o limitación de un alumno (la leen los agentes de la oficina). */
+export type CondicionFila = {
+  id: string;
+  alumno_id: string;
+  tipo: "lesion" | "limitacion" | "dolor" | "restriccion" | "otro";
+  region_corporal_id: string | null;
+  articulacion_id: string | null;
+  descripcion: string;
+  severidad: "leve" | "moderada" | "alta" | null;
+  estado: "activo" | "resuelto" | "inactivo";
+  fecha_inicio: string | null;
+  fecha_resolucion: string | null;
+  notas_entrenador: string | null;
+  creado_en: string;
+  actualizado_en: string;
+};
+
 /** Fila de la RPC admin_usuarios (superadministrador). */
 export type UsuarioAdmin = {
   id: string;
@@ -114,8 +144,51 @@ export type OrganizacionFila = {
   slug: string;
   zona_horaria: string;
   estado: string;
+  /** /e/<slug> visible y aceptando solicitudes. */
+  pagina_publica: boolean;
+  presentacion: string | null;
+  titular: string | null;
+  /** Portada en el bucket paginas-publicas ({organizacion_id}/...). */
+  foto_ruta: string | null;
+  metodos: MetodoTrabajo[];
+  modalidad: "presencial" | "en_linea" | "mixta" | null;
+  ubicacion: string | null;
+  experiencia_anos: number | null;
+  certificaciones: string | null;
+  instagram: string | null;
+  whatsapp: string | null;
+  /** Diseño de la página (orden de secciones, color, portada…). Se lee con normalizarDiseno(). */
+  diseno: Json;
   creado_en: string;
   actualizado_en: string;
+};
+
+/** Lo que llega del formulario de la página pública: el entrenador la acepta (crea el alumno) o la descarta. */
+export type SolicitudFila = {
+  id: string;
+  organizacion_id: string;
+  tipo: "registro" | "contacto";
+  nombres: string;
+  apellidos: string;
+  correo: string | null;
+  telefono: string | null;
+  objetivo: string | null;
+  mensaje: string | null;
+  estado: "nueva" | "aceptada" | "descartada";
+  alumno_id: string | null;
+  creado_en: string;
+  actualizado_en: string;
+};
+
+/** Un método de trabajo de la página pública ("Cómo trabajo"). */
+export type MetodoTrabajo = { titulo: string; descripcion: string };
+
+/** Respuesta de la RPC pagina_publica. */
+export type PaginaPublica = Pick<
+  OrganizacionFila,
+  "nombre" | "titular" | "presentacion" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno"
+> & {
+  entrenadores: { nombres: string; apellidos: string; avatar_url: string | null }[];
 };
 
 export type MiembroFila = {
@@ -303,13 +376,22 @@ export type Database = {
         MedicionFila,
         Opcional<MedicionFila, "id" | "registrado_por" | "medido_en" | "peso_kg" | "estatura_cm" | "grasa_corporal_pct" | "cintura_cm" | "cadera_cm" | "pecho_cm" | "brazo_izq_cm" | "brazo_der_cm" | "muslo_izq_cm" | "muslo_der_cm" | "notas" | "creado_en">
       >;
+      juntas: Tabla<JuntaFila, Opcional<JuntaFila, "id" | "alumno_id" | "autor_id" | "modelos" | "creado_en">>;
+      condiciones_alumno: Tabla<
+        CondicionFila,
+        Opcional<CondicionFila, "id" | "region_corporal_id" | "articulacion_id" | "severidad" | "estado" | "fecha_inicio" | "fecha_resolucion" | "notas_entrenador" | "creado_en" | "actualizado_en">
+      >;
       notas_alumno: Tabla<NotaFila, Opcional<NotaFila, "id" | "creado_en" | "actualizado_en" | "archivado_en">>;
       objetivos_alumno: Tabla<
         ObjetivoFila,
         Opcional<ObjetivoFila, "id" | "descripcion" | "valor_meta" | "unidad" | "es_principal" | "fecha_inicio" | "fecha_meta" | "estado" | "creado_en" | "actualizado_en">
       >;
       perfiles: Tabla<PerfilFila, Opcional<PerfilFila, "nombres" | "apellidos" | "avatar_url" | "telefono" | "creado_en" | "actualizado_en">>;
-      organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "creado_en" | "actualizado_en">>;
+      organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "pagina_publica" | "presentacion" | "titular" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "creado_en" | "actualizado_en">>;
+      solicitudes: Tabla<
+        SolicitudFila,
+        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "estado" | "alumno_id" | "creado_en" | "actualizado_en">
+      >;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
       conexiones_google: Tabla<
         ConexionGoogleFila,
@@ -395,6 +477,21 @@ export type Database = {
         Args: { p_plan_dia_id: string; p_programada_para?: string };
         Returns: string;
       };
+      pagina_publica: { Args: { p_slug: string }; Returns: PaginaPublica | null };
+      enviar_solicitud: {
+        Args: {
+          p_slug: string;
+          p_tipo: "registro" | "contacto";
+          p_nombres: string;
+          p_apellidos: string;
+          p_correo: string;
+          p_telefono: string;
+          p_objetivo: string;
+          p_mensaje: string;
+        };
+        Returns: string;
+      };
+      aceptar_solicitud: { Args: { p_solicitud_id: string }; Returns: string };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
