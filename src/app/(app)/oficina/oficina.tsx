@@ -675,7 +675,7 @@ function Pregunta({ agente, alumnos }: { agente: Agente; alumnos: AlumnoJunta[] 
         <p className="etiqueta">
           {alumno
             ? "Le llegan los datos del alumno sin nombre ni contacto. Las notas van tal cual: evita nombres en ellas."
-            : "Responde con IA (modelos gratuitos de OpenRouter). Elige un alumno para que use sus datos."}
+            : "Responde con IA (modelos gratuitos de Groq, OpenRouter y Gemini). Elige un alumno para que use sus datos."}
         </p>
       )}
     </div>

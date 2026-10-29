@@ -96,7 +96,7 @@ export default function PaginaPrivacidad() {
         <li><strong>El proveedor de alojamiento de la aplicación</strong>, que sirve las páginas.</li>
         <li><strong>Google</strong>, para entrar con Google y para Google Calendar si lo conectas.</li>
         <li>
-          <strong>Proveedores de inteligencia artificial</strong> (OpenRouter y Google AI Studio), solo cuando un entrenador convoca una
+          <strong>Proveedores de inteligencia artificial</strong> (OpenRouter, Groq y Google AI Studio), solo cuando un entrenador convoca una
           junta o hace una pregunta en la Oficina. Enviamos el caso sin el nombre ni los datos de contacto del alumno, pidiendo que no se
           guarden ni se usen para entrenar modelos cuando el proveedor lo permite. Las respuestas son sugerencias para el entrenador, no
           un diagnóstico médico.

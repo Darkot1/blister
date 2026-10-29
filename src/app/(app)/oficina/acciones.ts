@@ -27,7 +27,7 @@ export type ResultadoJunta =
   | { ok: false; error: string };
 
 const MENSAJES: Record<ErrorAgentes["motivo"], string> = {
-  sin_clave: "Los agentes no están conectados: falta la clave de OpenRouter en el servidor.",
+  sin_clave: "Los agentes no están conectados: falta la clave de OpenRouter, Groq o Gemini en el servidor.",
   limite: "Se agotaron las consultas gratuitas de hoy (o del minuto). Vuelve a intentarlo más tarde.",
   saturado: "Los modelos gratuitos están saturados en este momento. Vuelve a convocar la junta en un minuto.",
   vacio: "Los modelos gratuitos no devolvieron respuesta esta vez. Vuelve a intentarlo.",

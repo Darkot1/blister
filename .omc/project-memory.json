@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1793197471274,
+  "lastScanned": 1793285409129,
   "projectRoot": "/Users/sebastianserna/Desktop/blister",
   "techStack": {
     "languages": [
@@ -24,7 +24,7 @@
     "frameworks": [
       {
         "name": "next",
-        "version": "16.4.0",
+        "version": "16.4.3",
         "category": "fullstack"
       },
       {
@@ -77,7 +77,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 1,
-      "lastAccessed": 1793197471140,
+      "lastAccessed": 1793285409053,
       "keyFiles": [
         "hoja-de-ruta.md"
       ]
@@ -86,7 +86,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1793197471141,
+      "lastAccessed": 1793285409054,
       "keyFiles": [
         "proxy.ts"
       ]
@@ -95,43 +95,43 @@
       "path": "supabase",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1793197471141,
+      "lastAccessed": 1793285409054,
       "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
-      "fileCount": 7,
-      "lastAccessed": 1793197471141,
+      "fileCount": 11,
+      "lastAccessed": 1793285409056,
       "keyFiles": [
         "apple-icon.png",
-        "favicon.ico",
-        "globals.css"
+        "error.tsx",
+        "favicon.ico"
       ]
     },
     "src/components": {
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 0,
-      "lastAccessed": 1793197471147,
+      "lastAccessed": 1793285409060,
       "keyFiles": []
     },
     "src/lib": {
       "path": "src/lib",
       "purpose": "Library code",
-      "fileCount": 4,
-      "lastAccessed": 1793197471148,
+      "fileCount": 6,
+      "lastAccessed": 1793285409063,
       "keyFiles": [
         "calendario.ts",
-        "formato.ts",
-        "rutas.ts"
+        "dnd-accesible.ts",
+        "formato.ts"
       ]
     },
     "supabase/migrations": {
       "path": "supabase/migrations",
       "purpose": "Database migrations",
-      "fileCount": 17,
-      "lastAccessed": 1793197471148,
+      "fileCount": 23,
+      "lastAccessed": 1793285409070,
       "keyFiles": [
         "20261007000100_esquema.sql",
         "20261007000200_funciones_y_seguridad.sql",

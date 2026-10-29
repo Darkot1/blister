@@ -2,8 +2,12 @@ import "server-only";
 import { AsyncLocalStorage } from "node:async_hooks";
 
 /**
- * Cliente mínimo de OpenRouter (formato chat completions). Solo servidor: usa la clave secreta
- * OPENROUTER_API_KEY. Solo modelos gratuitos (`:free`), nunca de pago: los que OpenRouter ofrece en
+ * Cliente mínimo de los agentes: Groq primero, después OpenRouter y Gemini (formato chat completions).
+ *
+ * Groq (GROQ_API_KEY, plan gratuito: cuota diaria por modelo; no guarda prompts por defecto) va primero:
+ * es muy rápido y sus modelos de producción no se saturan como los gratuitos de OpenRouter.
+ *
+ * Después, OpenRouter (solo servidor, con la clave secreta OPENROUTER_API_KEY). Solo modelos gratuitos (`:free`), nunca de pago: los que OpenRouter ofrece en
  * ese momento (su API pública), con los preferidos de OPENROUTER_MODELOS primero. Plan gratis: 50
  * peticiones al día (1.000 con 10 créditos comprados).
  *
@@ -11,13 +15,16 @@ import { AsyncLocalStorage } from "node:async_hooks";
  * con `models` no salta cuando un gratuito está saturado). No se usa "openrouter/free": elige al azar
  * entre todos los gratuitos, incluidos clasificadores de seguridad y modelos de código que no conversan.
  *
- * Respaldo: si OpenRouter no responde o se acabó su cuota, Gemini de Google AI Studio (GEMINI_API_KEY,
- * plan gratuito sin facturación: al pasarse del límite responde 429 y no cobra), por su endpoint
- * compatible con el mismo formato de chat.
+ * Último respaldo: Gemini de Google AI Studio (GEMINI_API_KEY, plan gratuito sin facturación). Sin facturación,
+ * al pasarse del límite Groq y Gemini responden 429 y no cobran. Los dos tienen endpoint compatible con el
+ * mismo formato de chat.
  */
 
 const URL_API = "https://openrouter.ai/api/v1/chat/completions";
 const URL_GEMINI = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+const URL_GROQ = "https://api.groq.com/openai/v1/chat/completions";
+/** Groq (modelos de producción, se prueban primero), cada uno con su propia cuota diaria del plan gratuito. */
+const GROQ_POR_DEFECTO = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b"];
 /**
  * Gemini de respaldo, cada uno con su propia cuota del plan gratuito. Primero los Flash (responden mejor,
  * pero 20 consultas al día: 2 o 3 juntas cada uno); agotados, su 429 llega al instante y siguen los
@@ -42,6 +49,7 @@ const lista = (variable: string | undefined, porDefecto: string[]) => {
   return valores.length ? valores : porDefecto;
 };
 /** Solo `:free`: un modelo de pago puesto por error en OPENROUTER_MODELOS se ignora (nunca se cobra). */
+const modelosGroq = () => (process.env.GROQ_API_KEY ? lista(process.env.GROQ_MODELOS, GROQ_POR_DEFECTO) : []);
 const modelosGemini = () => (process.env.GEMINI_API_KEY ? lista(process.env.GEMINI_MODELOS, GEMINI_POR_DEFECTO) : []);
 const preferidos = () => lista(process.env.OPENROUTER_MODELOS, PREFERIDOS_POR_DEFECTO).filter((m) => m.endsWith(":free"));
 
@@ -93,13 +101,16 @@ const plazo = new AsyncLocalStorage<number>();
 /** Corre `fn` con un tope total: los modelos que falten por probar se saltan al acercarse el límite. */
 export const conPlazo = <T>(ms: number, fn: () => Promise<T>) => plazo.run(Date.now() + ms, fn);
 
-export const agentesConfigurados = () => Boolean(process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY);
+export const agentesConfigurados = () => Boolean(process.env.OPENROUTER_API_KEY || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY);
 
-type Proveedor = "openrouter" | "gemini";
+type Proveedor = "openrouter" | "groq" | "gemini";
+
+const URLS: Record<Proveedor, string> = { openrouter: URL_API, groq: URL_GROQ, gemini: URL_GEMINI };
+const CLAVES: Record<Proveedor, string> = { openrouter: "OPENROUTER_API_KEY", groq: "GROQ_API_KEY", gemini: "GEMINI_API_KEY" };
 
 /**
- * Una respuesta de texto del modelo, con el nombre del modelo que la dio. Prueba los gratuitos de
- * OpenRouter en orden y después Gemini (ver arriba). `maxTokens` deja margen: algunos modelos razonan antes de responder y ese
+ * Una respuesta de texto del modelo, con el nombre del modelo que la dio. Prueba los modelos de
+ * Groq, después los gratuitos de OpenRouter en orden y por último Gemini (ver arriba). `maxTokens` deja margen: algunos modelos razonan antes de responder y ese
  * razonamiento también cuenta (lo que se guarda se recorta después).
  */
 export async function completar(
@@ -119,6 +130,7 @@ export async function completar(
   /** Clave o red de OpenRouter fallaron: otro modelo suyo tampoco va a responder, Gemini sí puede. */
   let openRouterCaido = false;
   const intentos: [Proveedor, string][] = [
+    ...modelosGroq().map((m): [Proveedor, string] => ["groq", m]),
     ...(process.env.OPENROUTER_API_KEY && !limite ? (await modelosGratis()).slice(0, MAX_GRATIS).map((m): [Proveedor, string] => ["openrouter", m]) : []),
     ...modelosGemini().map((m): [Proveedor, string] => ["gemini", m]),
   ];
@@ -138,8 +150,8 @@ export async function completar(
       return resultado;
     } catch (error) {
       if (!(error instanceof ErrorAgentes)) throw error;
-      if (proveedor === "gemini") {
-        // Su cuota o su clave no cambian el aviso: el de OpenRouter dice más (p. ej., a qué hora vuelve).
+      if (proveedor !== "openrouter") {
+        // Su cuota o su clave (cada modelo de Groq y Gemini tiene la suya) no cambian el aviso: el de OpenRouter dice más (p. ej., a qué hora vuelve).
         ultimo ??= error;
         continue;
       }
@@ -152,7 +164,7 @@ export async function completar(
       if (!PASAR_AL_SIGUIENTE.has(error.motivo)) openRouterCaido = true;
     }
   }
-  throw limite ?? ultimo ?? new ErrorAgentes("sin_clave", "Falta OPENROUTER_API_KEY o GEMINI_API_KEY en el entorno.");
+  throw limite ?? ultimo ?? new ErrorAgentes("sin_clave", "Falta OPENROUTER_API_KEY, GROQ_API_KEY o GEMINI_API_KEY en el entorno.");
 }
 
 async function completarUnaVez(
@@ -161,12 +173,12 @@ async function completarUnaVez(
   modelo: string,
   opciones: { maxTokens?: number; esperaMs?: number },
 ): Promise<{ texto: string; modelo: string }> {
-  const clave = proveedor === "gemini" ? process.env.GEMINI_API_KEY : process.env.OPENROUTER_API_KEY;
+  const clave = process.env[CLAVES[proveedor]];
   if (!clave) throw new ErrorAgentes("sin_clave", "Falta la clave del proveedor en el entorno.");
 
   let respuesta: Response;
   try {
-    respuesta = await fetch(proveedor === "gemini" ? URL_GEMINI : URL_API, {
+    respuesta = await fetch(URLS[proveedor], {
       method: "POST",
       headers: {
         Authorization: `Bearer ${clave}`,
@@ -179,6 +191,8 @@ async function completarUnaVez(
         max_tokens: opciones.maxTokens ?? 1500,
         // Van datos de salud: solo proveedores que no guardan ni entrenan con los prompts.
         ...(proveedor === "openrouter" && { provider: { data_collection: "deny" } }),
+        // gpt-oss razona antes de responder: con poco esfuerzo no se come los tokens de la respuesta.
+        ...(proveedor === "groq" && modelo.startsWith("openai/gpt-oss") && { reasoning_effort: "low" }),
       }),
       signal: AbortSignal.timeout(opciones.esperaMs ?? ESPERA_MAXIMA_MS),
       cache: "no-store",
