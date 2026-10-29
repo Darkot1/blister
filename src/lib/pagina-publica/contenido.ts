@@ -1,4 +1,3 @@
-import { z } from "zod";
 import type { PaginaPublica } from "@/lib/supabase/tipos-bd";
 
 /** Lo que el entrenador edita de su página pública (todo opcional salvo el enlace). */
@@ -93,13 +92,26 @@ export function normalizarDiseno(guardado: unknown): Diseno {
   };
 }
 
-const esquemaDiseno = z.object({
-  secciones: z.array(z.object({ id: z.enum(SECCIONES), visible: z.boolean(), ancho: z.enum(ANCHOS) })).max(SECCIONES.length),
-  acento: z.string().regex(/^#[0-9a-f]{6}$/i, "Color no válido."),
-  portada: z.enum(ESTILOS_PORTADA),
-  fondo: z.enum(FONDOS_PORTADA),
-  boton: z.string().trim().min(1, "Escribe el texto del botón.").max(30, "Máximo 30 caracteres."),
-});
+/** Luminancia relativa (WCAG 2) de un color "#rrggbb". */
+function luminancia(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = Number.parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** Contraste WCAG entre dos colores (1 a 21; texto normal pide 4,5 y grande o iconos 3). */
+export function contraste(a: string, b: string) {
+  const [claro, oscuro] = [luminancia(a), luminancia(b)].sort((x, y) => y - x);
+  return (claro + 0.05) / (oscuro + 0.05);
+}
+
+/** Texto legible sobre el color elegido: blanco, o casi negro si el color es claro (amarillo, verde lima…). */
+export const textoSobre = (hex: string) => (contraste(hex, "#ffffff") >= contraste(hex, "#12121b") ? "#ffffff" : "#12121b");
+
+/** ¿El color se lee como texto sobre los fondos de la página (oscuro y claro)? Para avisar en el editor. */
+export const contrasteBajo = (hex: string) => Math.min(contraste(hex, "#171721"), contraste(hex, "#f5f5f8")) < 2.2;
 
 /** URL pública de la portada (el bucket es público: no hace falta firmarla). */
 export const urlFoto = (ruta: string | null) =>
@@ -111,54 +123,6 @@ export const listaCertificaciones = (texto: string | null) =>
     .split(/[\n,;]+/)
     .map((c) => c.trim())
     .filter(Boolean);
-
-const textoOpcional = (max: number, mensaje = `Máximo ${max} caracteres.`) =>
-  z
-    .string()
-    .trim()
-    .max(max, mensaje)
-    .transform((v) => v || null);
-
-/** Validación del editor (la base de datos repite los límites por si alguien se salta la app). */
-export const esquemaContenido = z.object({
-  pagina_publica: z.boolean(),
-  slug: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .min(3, "Mínimo 3 caracteres.")
-    .max(40, "Máximo 40 caracteres.")
-    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Solo minúsculas, números y guiones (sin espacios ni tildes)."),
-  titular: textoOpcional(120),
-  presentacion: textoOpcional(1500),
-  foto_ruta: z.string().max(300).nullable(),
-  metodos: z
-    .array(
-      z.object({
-        titulo: z.string().trim().min(1, "Ponle un título.").max(60, "Máximo 60 caracteres."),
-        descripcion: z.string().trim().max(300, "Máximo 300 caracteres."),
-      }),
-    )
-    .max(MAX_METODOS, `Máximo ${MAX_METODOS} métodos.`),
-  modalidad: z.enum(["presencial", "en_linea", "mixta"]).nullable(),
-  ubicacion: textoOpcional(80),
-  experiencia_anos: z.number().int().min(0).max(60, "Máximo 60 años.").nullable(),
-  certificaciones: textoOpcional(400),
-  instagram: z
-    .string()
-    .trim()
-    .transform((v) => v.replace(/^@/, ""))
-    .refine((v) => v === "" || /^[A-Za-z0-9._]{1,30}$/.test(v), "Solo el usuario, sin @ ni enlaces.")
-    .transform((v) => v || null),
-  whatsapp: z
-    .string()
-    .transform((v) => v.replace(/[\s()-]/g, ""))
-    .refine((v) => v === "" || /^\+?[0-9]{7,15}$/.test(v), "Número con indicativo, p. ej. +57 300 123 4567.")
-    .transform((v) => v || null),
-  diseno: esquemaDiseno,
-});
-
-export type EntradaContenido = z.input<typeof esquemaContenido>;
 
 /** WhatsApp: con 10 dígitos que empiezan por 3 se asume un celular de Colombia (+57). */
 export const enlaceWhatsapp = (telefono: string) => {

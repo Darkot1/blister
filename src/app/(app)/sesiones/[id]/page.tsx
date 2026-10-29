@@ -88,6 +88,7 @@ async function Sesion({ params }: { params: PageProps<"/sesiones/[id]">["params"
       <RegistroSesion
         sesionId={sesion.id}
         completada={sesion.estado === "completada"}
+        cerrada={sesion.estado === "cancelada" || sesion.estado === "omitida" ? ESTADO[sesion.estado] : null}
         rpe={sesion.rpe_sesion}
         notas={sesion.notas}
         ejercicios={ejercicios}

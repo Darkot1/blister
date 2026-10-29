@@ -5,14 +5,18 @@ import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { consultarEncargo, deADos, decidir, disenarRutina, repartir, responder, type Respuesta } from "@/lib/agentes/consulta";
 import { expedienteAlumno } from "@/lib/agentes/expediente";
-import { textoDeJunta, type CasoJunta, type RutinaPropuesta } from "@/lib/agentes/juntas";
+import { textoDeJunta, type CasoJunta, type JuntaGuardada, type RutinaPropuesta } from "@/lib/agentes/juntas";
 import { fechaCorta } from "@/lib/formato";
-import { ErrorAgentes, agentesConfigurados } from "@/lib/agentes/openrouter";
+import { ErrorAgentes, agentesConfigurados, conPlazo } from "@/lib/agentes/openrouter";
 import { obtenerContexto } from "@/lib/sesion";
 import { guardarRutina } from "../entrenamiento/acciones";
 
 /** Largo máximo de un caso escrito o una pregunta: suficiente para contarlo y acota el gasto. */
 const MAX_TEXTO = 600;
+/** Tope total de una junta o pregunta: por debajo del maxDuration de /oficina (300 s). */
+const PLAZO_JUNTA_MS = 280_000;
+/** Juntas por espacio en 24 h: la cuota de los modelos es una sola para todos los espacios. */
+const MAX_JUNTAS_DIA = 15;
 /** Sin texto, con un alumno elegido: revisión general de su situación. */
 const REVISION_GENERAL = "Revisa su situación general y dime qué conviene ajustar.";
 
@@ -56,6 +60,15 @@ export async function consultarJunta(entrada: { alumnoId: string | null; situaci
   const equipo = AGENTES.filter((a) => entrada.presentes.includes(a.id));
   if (!equipo.length) return { ok: false, error: "Sienta al menos a un agente." };
 
+  const { count: juntasHoy } = await supabase
+    .from("juntas")
+    .select("id", { count: "exact", head: true })
+    .eq("organizacion_id", organizacionId)
+    .gte("creado_en", new Date(Date.now() - 86_400_000).toISOString());
+  if ((juntasHoy ?? 0) >= MAX_JUNTAS_DIA) {
+    return { ok: false, error: `Tu espacio ya convocó ${MAX_JUNTAS_DIA} juntas en las últimas 24 horas. Vuelve a intentarlo más tarde.` };
+  }
+
   // RLS: un alumno de otro espacio no se encuentra.
   const expediente = entrada.alumnoId ? await expedienteAlumno(supabase, entrada.alumnoId) : null;
   if (entrada.alumnoId && !expediente) return { ok: false, error: "Alumno no encontrado." };
@@ -64,6 +77,7 @@ export async function consultarJunta(entrada: { alumnoId: string | null; situaci
   const contextoModelo = expediente ? `${situacion}\n\nExpediente del alumno (datos de la app):\n${expediente.texto}` : situacion;
 
   try {
+    return await conPlazo(PLAZO_JUNTA_MS, async (): Promise<ResultadoJunta> => {
     const reparto = await repartir(situacion, contextoModelo, equipo);
     // Si se pidió una rutina, Rutinas elige entre los ejercicios de tu biblioteca (globales y propios).
     const armaRutina = reparto.entregable === "rutina" && reparto.encargos.some((e) => e.agente === "rutinas");
@@ -97,6 +111,7 @@ export async function consultarJunta(entrada: { alumnoId: string | null; situaci
       .maybeSingle();
     if (guardada) refresh();
     return { ok: true, modelos, caso, juntaId: guardada?.id ?? null };
+    });
   } catch (error) {
     if (error instanceof ErrorAgentes) return { ok: false, error: mensajeDe(error) };
     return { ok: false, error: MENSAJES.proveedor };
@@ -120,7 +135,7 @@ export async function preguntarAgente(agenteId: string, pregunta: string, alumno
   const expediente = alumnoId ? await expedienteAlumno(supabase, alumnoId) : null;
   if (alumnoId && !expediente) return { ok: false, error: "Alumno no encontrado." };
   try {
-    return { ok: true, ...(await responder(agenteId, texto, expediente?.texto ?? null)) };
+    return { ok: true, ...(await conPlazo(PLAZO_JUNTA_MS, () => responder(agenteId, texto, expediente?.texto ?? null))) };
   } catch (error) {
     if (error instanceof ErrorAgentes) return { ok: false, error: mensajeDe(error) };
     return { ok: false, error: MENSAJES.proveedor };
@@ -191,6 +206,15 @@ export async function guardarNotaJunta(juntaId: string): Promise<{ ok?: boolean;
 }
 
 /** Borra una junta del historial (no toca notas ni rutinas que se crearon a partir de ella). */
+/** El caso completo de una junta del historial, al abrirla. */
+export async function leerJunta(juntaId: string): Promise<{ junta: JuntaGuardada } | { error: string }> {
+  if (!esId(juntaId)) return { error: "Junta no encontrada." };
+  const { supabase } = await obtenerContexto();
+  const { data } = await supabase.from("juntas").select("id, alumno_id, resultado, modelos, creado_en").eq("id", juntaId).maybeSingle();
+  if (!data) return { error: "No se pudo abrir la junta. Inténtalo de nuevo." };
+  return { junta: { id: data.id, alumnoId: data.alumno_id, creadoEn: data.creado_en, modelos: data.modelos, caso: data.resultado as CasoJunta } };
+}
+
 export async function borrarJunta(juntaId: string): Promise<{ error?: string }> {
   if (!esId(juntaId)) return { error: "Junta no encontrada." };
   const { supabase } = await obtenerContexto();

@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { Check, Copy, ExternalLink, Globe, Pencil } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { EnlaceBoton } from "@/components/ui/boton";
 import { CabeceraTarjeta, Tarjeta } from "@/components/ui/tarjeta";
 
@@ -58,9 +58,9 @@ export function TarjetaPaginaPublica({ activa, slug, editable }: { activa: boole
                 className="grid size-8 shrink-0 place-items-center rounded-full text-tenue transition-colors hover:bg-superficie hover:text-tinta"
               >
                 <AnimatePresence mode="wait" initial={false}>
-                  <motion.span key={copiado ? "si" : "no"} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>
+                  <m.span key={copiado ? "si" : "no"} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>
                     {copiado ? <Check aria-hidden className="size-4 text-exito" /> : <Copy aria-hidden className="size-4" />}
-                  </motion.span>
+                  </m.span>
                 </AnimatePresence>
               </button>
               <a

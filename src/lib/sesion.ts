@@ -18,29 +18,27 @@ export type Contexto = {
  */
 export const obtenerContexto = cache(async (): Promise<Contexto> => {
   const supabase = await crearClienteServidor();
-  const { data } = await supabase.auth.getClaims();
-  const usuarioId = data?.claims?.sub;
+  const { data: sesion } = await supabase.auth.getClaims();
+  const usuarioId = sesion?.claims?.sub;
   if (!usuarioId) redirect("/ingresar");
 
-  const { data: membresia } = await supabase
+  // Membresía y estado del espacio en un solo viaje (se paga en cada pantalla y cada acción).
+  // tipos-bd.ts no declara relaciones, así que el embebido se tipa a mano.
+  const { data } = await supabase
     .from("miembros_organizacion")
-    .select("organizacion_id")
+    .select("organizacion_id, organizaciones(estado)")
     .eq("usuario_id", usuarioId)
     .eq("estado", "activo")
     .order("creado_en", { ascending: true })
     .limit(1)
     .maybeSingle();
+  const membresia = data as unknown as { organizacion_id: string; organizaciones: { estado: string } | null } | null;
 
   if (!membresia) {
     throw new Error("Tu cuenta no tiene un espacio de trabajo activo.");
   }
-
-  const { data: espacio } = await supabase
-    .from("organizaciones")
-    .select("estado")
-    .eq("id", membresia.organizacion_id)
-    .maybeSingle();
-  if (espacio?.estado !== "activo") redirect("/suspendido");
+  // Suspendido: la RLS ya no deja ver el espacio (llega null) o llega con su estado.
+  if (membresia.organizaciones?.estado !== "activo") redirect("/suspendido");
 
   return { supabase, usuarioId, organizacionId: membresia.organizacion_id };
 });

@@ -61,13 +61,14 @@ export async function guardarRutina(id: string | null, entrada: RutinaEntrada): 
   return { ok: true, id: data };
 }
 
-export async function cambiarEstadoRutina(id: string, estado: "activo" | "archivado") {
-  if (!esId(id) || (estado !== "activo" && estado !== "archivado")) throw new Error("Cambio de estado no válido.");
+export async function cambiarEstadoRutina(id: string, estado: "activo" | "archivado"): Promise<{ error?: string }> {
+  if (!esId(id) || (estado !== "activo" && estado !== "archivado")) return { error: "Cambio de estado no válido." };
   const { supabase } = await obtenerContexto();
   const { data, error } = await supabase.from("plantillas").update({ estado }).eq("id", id).select("id");
-  if (error || !data?.length) throw new Error("No se pudo cambiar el estado de la rutina.");
+  if (error || !data?.length) return { error: "No se pudo cambiar el estado de la rutina. Inténtalo de nuevo." };
   if (estado === "archivado") redirect("/entrenamiento");
   refresh();
+  return {};
 }
 
 /**
@@ -83,11 +84,11 @@ export async function eliminarRutina(id: string): Promise<{ error?: string }> {
 }
 
 /** Copia la rutina con " (copia)" y abre la copia en el constructor. */
-export async function duplicarRutina(id: string) {
-  if (!esId(id)) return;
+export async function duplicarRutina(id: string): Promise<{ error?: string }> {
+  if (!esId(id)) return { error: "Rutina no encontrada." };
   const { supabase, organizacionId } = await obtenerContexto();
   const original = await cargarPlantilla(supabase, id);
-  if (!original) return;
+  if (!original) return { error: "Rutina no encontrada." };
   const { data, error } = await supabase.rpc("guardar_plantilla", {
     p_plantilla_id: null,
     p_organizacion_id: organizacionId,
@@ -118,7 +119,7 @@ export async function duplicarRutina(id: string) {
       })),
     })),
   });
-  if (error) throw new Error("No se pudo duplicar la rutina.");
+  if (error) return { error: "No se pudo duplicar la rutina. Inténtalo de nuevo." };
   redirect(`/entrenamiento/rutinas/${data}`);
 }
 
@@ -157,15 +158,16 @@ async function asignar(plantillaId: string, formData: FormData, volverA: "plan" 
 
 const ESTADOS_PLAN = ["activo", "completado", "archivado"] as const;
 
-export async function cambiarEstadoPlan(id: string, estado: (typeof ESTADOS_PLAN)[number]) {
-  if (!esId(id) || !ESTADOS_PLAN.includes(estado)) throw new Error("Cambio de estado no válido.");
+export async function cambiarEstadoPlan(id: string, estado: (typeof ESTADOS_PLAN)[number]): Promise<{ error?: string }> {
+  if (!esId(id) || !ESTADOS_PLAN.includes(estado)) return { error: "Cambio de estado no válido." };
   const { supabase } = await obtenerContexto();
   if (estado === "activo") {
     const { error } = await supabase.rpc("activar_plan", { p_plan_id: id });
-    if (error) throw new Error("No se pudo activar el plan.");
+    if (error) return { error: "No se pudo activar el plan. Inténtalo de nuevo." };
   } else {
     const { data, error } = await supabase.from("planes").update({ estado }).eq("id", id).select("id");
-    if (error || !data?.length) throw new Error("No se pudo cambiar el estado del plan.");
+    if (error || !data?.length) return { error: "No se pudo cambiar el estado del plan. Inténtalo de nuevo." };
   }
   refresh();
+  return {};
 }

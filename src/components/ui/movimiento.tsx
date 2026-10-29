@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion, type Transition } from "motion/react";
+import { m, useReducedMotion, type Transition } from "motion/react";
 
-/** Entrada corta: sube 6 px mientras aparece. Se esparce en cualquier `motion.*` ({...APARECE}). */
+/** Entrada corta: sube 6 px mientras aparece. Se esparce en cualquier `m.*` ({...APARECE}). */
 export const APARECE = {
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0 },
@@ -22,14 +22,14 @@ export const useBucle = () => !useReducedMotion();
 /** Bloque que late mientras carga: base de los esqueletos. */
 export function Pulso({ className = "" }: { className?: string }) {
   const bucle = useBucle();
-  return <motion.div aria-hidden className={className} animate={bucle ? PULSO : undefined} transition={RITMO_PULSO} />;
+  return <m.div aria-hidden className={className} animate={bucle ? PULSO : undefined} transition={RITMO_PULSO} />;
 }
 
 /** Onda que se expande y se desvanece (como un radar) sobre un círculo SVG: "en curso". */
 export function Onda({ className = "", ...circulo }: { cx: number; cy: number; r: number; className?: string }) {
   const bucle = useBucle();
   return (
-    <motion.circle
+    <m.circle
       {...circulo}
       className={className}
       style={{ transformBox: "fill-box", originX: 0.5, originY: 0.5 }}
@@ -52,7 +52,7 @@ export function Aparece({
   className?: string;
   children: React.ReactNode;
 }) {
-  const Elemento = como === "li" ? motion.li : motion.div;
+  const Elemento = como === "li" ? m.li : m.div;
   return (
     <Elemento initial={APARECE.initial} animate={APARECE.animate} transition={{ ...APARECE.transition, delay: retraso }} className={className}>
       {children}

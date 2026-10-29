@@ -11,9 +11,9 @@ import { BuscadorOpciones } from "@/components/ui/buscador-opciones";
 import { Dialogo } from "@/components/ui/dialogo";
 import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import { HORA_FIN_DIA, HORA_INICIO_DIA, etiquetaDia, etiquetaDiaLarga, partesLocales } from "@/lib/calendario";
-import { ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
+import { ETIQUETA_ESTADO_CITA, ETIQUETA_TIPO_CITA, hora } from "@/lib/formato";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
-import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita";
+import { DURACIONES_CITA, type EstadoCita } from "@/lib/validaciones/cita-constantes";
 import type { DiaDeSesion, PlanActivo } from "@/lib/entrenamiento/planes";
 import { cambiarEstadoCita, crearCita, elegirDiaCita, reprogramarCita, resincronizarCita } from "./acciones";
 import { ESTADOS_VISIBLES, IconoEstadoCita, InsigniaCita, puntoEstadoCita, tonoEstadoCita } from "./estado-cita";
@@ -92,6 +92,7 @@ export function CalendarioSemana({
   citas,
   alumnos,
   alumnoInicial,
+  abrirNueva = false,
   barra,
   resumen,
   googleConectado = false,
@@ -105,10 +106,13 @@ export function CalendarioSemana({
   citas: CitaVista[];
   alumnos: AlumnoAgenda[];
   alumnoInicial?: string;
+  abrirNueva?: boolean;
 }) {
   const fechaPorDefecto = dias.includes(hoy) ? hoy : dias[0];
   // Desde la ficha del alumno (?alumno=…) el formulario abre con el alumno y la fecha de hoy ya puestos.
-  const [borrador, setBorrador] = useState<Borrador | null>(alumnoInicial ? { alumnoId: alumnoInicial, fecha: fechaPorDefecto } : null);
+  const [borrador, setBorrador] = useState<Borrador | null>(
+    alumnoInicial ? { alumnoId: alumnoInicial, fecha: fechaPorDefecto } : abrirNueva ? { fecha: fechaPorDefecto } : null,
+  );
   const [idSeleccionada, setIdSeleccionada] = useState<string | null>(null);
   const seleccionada = citas.find((c) => c.id === idSeleccionada) ?? null;
 
@@ -222,10 +226,10 @@ function RejillaSemana({
 
             {ahora && ahora.fecha === d && ahora.minutos >= MIN_INICIO && ahora.minutos < MIN_FIN && (
               // Por encima de las citas (z-30 > z-20) y sin capturar clics: se ve aunque cruce una cita.
-              <div aria-hidden className="pointer-events-none absolute inset-x-0 z-30 border-t-2 border-peligro shadow-[0_0_0_1px_var(--superficie)]"
+              <div aria-hidden className="pointer-events-none absolute inset-x-0 z-30 border-t-2 border-acento shadow-[0_0_0_1px_var(--superficie)]"
                 style={{ top: ((ahora.minutos - MIN_INICIO) / 60) * PX_HORA }}>
-                <span className="absolute -top-[6px] -left-[6px] size-2.5 rounded-full border-2 border-superficie bg-peligro" />
-                <span className="absolute -top-2.5 right-1 rounded bg-peligro px-1 tabular-nums text-[0.6rem] leading-4 font-semibold text-superficie">
+                <span className="absolute -top-[6px] -left-[6px] size-2.5 rounded-full border-2 border-superficie bg-acento" />
+                <span className="absolute -top-2.5 right-1 rounded bg-acento px-1 tabular-nums text-[0.6rem] leading-4 font-semibold text-sobre-acento">
                   {String(Math.floor(ahora.minutos / 60)).padStart(2, "0")}:{String(ahora.minutos % 60).padStart(2, "0")}
                 </span>
               </div>
@@ -242,6 +246,9 @@ function RejillaSemana({
                   key={c.id}
                   type="button"
                   onClick={() => alElegirCita(c.id)}
+                  // El estado solo se ve por color e icono, y la hora no cabe en citas cortas: se dicen completos.
+                  aria-label={`${c.alumno}, ${etiquetaDiaLarga(d)} ${hora(c.iniciaEn)}, ${queSeHace(c)}, ${ETIQUETA_ESTADO_CITA[c.estado] ?? c.estado}`}
+                  title={`${hora(c.iniciaEn)} · ${c.alumno} · ${ETIQUETA_ESTADO_CITA[c.estado] ?? c.estado}`}
                   className={`absolute inset-x-1 z-20 overflow-hidden rounded-md px-2 py-1 text-left text-xs leading-tight transition-[filter] hover:brightness-95 ${tonoEstadoCita(c.estado)}`}
                   style={{ top: ((inicio - MIN_INICIO) / 60) * PX_HORA + 1, height: alto }}
                 >

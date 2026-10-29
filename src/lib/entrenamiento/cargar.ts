@@ -2,6 +2,7 @@ import "server-only";
 import type { Contexto } from "@/lib/sesion";
 import type { BloqueFila, PrescripcionFila } from "@/lib/supabase/tipos-bd";
 import type { Rol } from "@/lib/ejercicios/ranking";
+import { todasLasFilas } from "@/lib/supabase/paginar";
 
 type Supabase = Contexto["supabase"];
 
@@ -17,7 +18,9 @@ export type Catalogo = {
 export async function cargarCatalogo(supabase: Supabase): Promise<Catalogo> {
   const [{ data: ejercicios }, { data: relaciones }, { data: musculos }] = await Promise.all([
     supabase.from("ejercicios").select("id, nombre, tipo, dificultad, estado").order("nombre"),
-    supabase.from("ejercicios_musculos").select("ejercicio_id, musculo_id, rol"),
+    todasLasFilas((desde, hasta) =>
+      supabase.from("ejercicios_musculos").select("ejercicio_id, musculo_id, rol").order("ejercicio_id").order("musculo_id").range(desde, hasta),
+    ),
     supabase.from("musculos").select("id, slug, nombre").order("orden"),
   ]);
   const slugDe = new Map((musculos ?? []).map((m) => [m.id, m.slug]));

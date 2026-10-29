@@ -6,7 +6,6 @@ import { Archive, CheckCheck, Play } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Aviso } from "@/components/ui/aviso";
 import { Avatar } from "@/components/ui/avatar";
-import { Boton } from "@/components/ui/boton";
 import { Esqueleto } from "@/components/ui/esqueleto";
 import { conParametros } from "@/components/ui/paginacion";
 import { cargarPlan } from "@/lib/entrenamiento/cargar";
@@ -14,6 +13,7 @@ import { ETIQUETA_TIPO_OBJETIVO, fechaCorta } from "@/lib/formato";
 import { obtenerContexto } from "@/lib/sesion";
 import { cambiarEstadoPlan } from "../../acciones";
 import { HojaDia, InsigniaPlan, PorDondeVa, resumenDia } from "../../componentes";
+import { BotonAccion } from "@/components/ui/boton-accion";
 
 export const metadata: Metadata = { title: "Plan" };
 
@@ -125,18 +125,18 @@ async function Plan({
         acciones={
           <>
             {plan.estado !== "activo" && plan.estado !== "archivado" && (
-              <form action={cambiarEstadoPlan.bind(null, id, "activo")}>
-                <Boton type="submit">
-                  <Play aria-hidden className="size-4" /> Activar plan
-                </Boton>
-              </form>
+              <BotonAccion accion={cambiarEstadoPlan.bind(null, id, "activo")} variante="primario" textoPendiente="Activando…">
+                <Play aria-hidden className="size-4" /> Activar plan
+              </BotonAccion>
             )}
             {enCurso && (
-              <form action={cambiarEstadoPlan.bind(null, id, "completado")}>
-                <Boton type="submit" variante="secundario">
-                  <CheckCheck aria-hidden className="size-4" /> Marcar como completado
-                </Boton>
-              </form>
+              <BotonAccion
+                accion={cambiarEstadoPlan.bind(null, id, "completado")}
+                textoPendiente="Guardando…"
+                confirmacion={{ titulo: "¿Marcar el plan como completado?", texto: "Deja de ser el plan en curso. Sus sesiones registradas se conservan.", textoConfirmar: "Marcar como completado" }}
+              >
+                <CheckCheck aria-hidden className="size-4" /> Marcar como completado
+              </BotonAccion>
             )}
           </>
         }
@@ -236,11 +236,14 @@ async function Plan({
               </h2>
               <p className="text-sm text-tenue">Sale de los planes en curso. Las sesiones que {quien} ya registró se conservan.</p>
             </div>
-            <form action={cambiarEstadoPlan.bind(null, id, "archivado")}>
-              <Boton type="submit" variante="peligro">
-                <Archive aria-hidden className="size-4" /> Archivar
-              </Boton>
-            </form>
+            <BotonAccion
+              accion={cambiarEstadoPlan.bind(null, id, "archivado")}
+              variante="peligro"
+              textoPendiente="Archivando…"
+              confirmacion={{ titulo: "¿Archivar este plan?", texto: "Sale de los planes en curso. Las sesiones registradas se conservan.", textoConfirmar: "Archivar" }}
+            >
+              <Archive aria-hidden className="size-4" /> Archivar
+            </BotonAccion>
           </section>
         )}
       </footer>

@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { AreaTexto, Campo } from "@/components/ui/campo";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { Boton } from "@/components/ui/boton";
 import { Aviso } from "@/components/ui/aviso";
-import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
+import { BotonAccion } from "@/components/ui/boton-accion";
 import type { EstadoFormulario } from "@/lib/validaciones/alumno";
 
 type Accion = (estado: EstadoFormulario, formData: FormData) => Promise<EstadoFormulario>;
@@ -100,42 +100,16 @@ export function BotonCambioEstado({
   variante = "secundario",
   className = "",
 }: {
-  accion: () => Promise<void>;
+  accion: () => Promise<{ error?: string } | void>;
   texto: string;
   /** Si se da, el cambio se confirma antes en un diálogo. */
   confirmacion?: { titulo: string; texto: string };
   variante?: "secundario" | "peligro";
   className?: string;
 }) {
-  const [pendiente, iniciar] = useTransition();
-  const [confirmando, setConfirmando] = useState(false);
   return (
-    <>
-      <Boton
-        variante={variante}
-        className={className}
-        disabled={pendiente}
-        onClick={() => (confirmacion ? setConfirmando(true) : iniciar(() => accion()))}
-      >
-        {pendiente ? "Guardando…" : texto}
-      </Boton>
-      {confirmacion && (
-        <DialogoConfirmar
-          abierto={confirmando}
-          titulo={confirmacion.titulo}
-          textoConfirmar={texto}
-          pendiente={pendiente}
-          alCerrar={() => setConfirmando(false)}
-          alConfirmar={() =>
-            iniciar(async () => {
-              await accion();
-              setConfirmando(false);
-            })
-          }
-        >
-          <p>{confirmacion.texto}</p>
-        </DialogoConfirmar>
-      )}
-    </>
+    <BotonAccion accion={accion} variante={variante} className={className} confirmacion={confirmacion && { ...confirmacion, textoConfirmar: texto }}>
+      {texto}
+    </BotonAccion>
   );
 }

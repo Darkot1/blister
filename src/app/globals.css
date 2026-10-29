@@ -171,6 +171,23 @@ p {
   text-wrap: pretty;
 }
 
+/*
+  Área táctil mínima de 44 px sin cambiar el tamaño visible: para controles compactos (chips, botones
+  de icono) que se tocan con el dedo en el móvil. El elemento pasa a relative; no usar en uno absolute.
+*/
+@utility tactil {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 2.75rem);
+    height: max(100%, 2.75rem);
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* En una capa: así las utilidades de Tailwind pueden sobrescribirlas. */
 @layer components {
   /* Cifras: números tabulares, para que las columnas y los KPI no bailen. */

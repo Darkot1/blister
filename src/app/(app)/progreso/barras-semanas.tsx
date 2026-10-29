@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { fechaSinAnio } from "@/lib/formato";
 
 /**
@@ -21,16 +21,16 @@ export function BarrasSemanas({ datos }: { datos: { lunes: string; valor: number
             className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
           >
             {d.valor > 0 && (
-              <motion.span
+              <m.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 + i * 0.03 }}
                 className="tabular-nums text-[11px] text-grafito"
               >
                 {d.valor}
-              </motion.span>
+              </m.span>
             )}
-            <motion.span
+            <m.span
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ duration: 0.5, delay: 0.25 + i * 0.03, ease: [0.22, 1, 0.36, 1] }}

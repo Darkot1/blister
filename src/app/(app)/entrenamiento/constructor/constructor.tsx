@@ -142,6 +142,24 @@ export function ConstructorRutina({
     return () => window.removeEventListener("beforeunload", alSalir);
   }, [sucio]);
 
+  // Y antes de irse por un enlace de la app (menú, barra inferior, migas): beforeunload no los ve.
+  const [salirA, setSalirA] = useState<string | null>(null);
+  useEffect(() => {
+    if (!sucio) return;
+    const alHacerClic = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const enlace = (e.target as HTMLElement).closest("a");
+      if (!enlace || enlace.target === "_blank" || enlace.hasAttribute("download")) return;
+      const destino = new URL(enlace.href, location.href);
+      if (destino.origin !== location.origin || destino.pathname === location.pathname) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setSalirA(destino.pathname + destino.search + destino.hash);
+    };
+    document.addEventListener("click", alHacerClic, true);
+    return () => document.removeEventListener("click", alHacerClic, true);
+  }, [sucio]);
+
   const guardar = useCallback(() => {
     if (!estado.nombre.trim()) {
       setError("Escribe el nombre de la rutina.");
@@ -149,7 +167,14 @@ export function ConstructorRutina({
       return;
     }
     iniciar(async () => {
-      const resultado = await guardarRutina(id, aEntrada(estado));
+      let resultado: Awaited<ReturnType<typeof guardarRutina>>;
+      try {
+        resultado = await guardarRutina(id, aEntrada(estado));
+      } catch {
+        // Sin red o el servidor no respondió: la rutina sigue aquí, sin perder nada.
+        setError("No se pudo guardar: revisa tu conexión. Tus cambios siguen aquí, vuelve a intentarlo.");
+        return;
+      }
       if (!resultado.ok) {
         setError(resultado.error);
         return;
@@ -261,7 +286,7 @@ export function ConstructorRutina({
           type="button"
           onClick={() => setDestino(null)}
           aria-label="Dejar de añadir a este bloque"
-          className="-mr-1 grid size-6 shrink-0 place-items-center rounded-full text-tenue hover:bg-superficie hover:text-tinta"
+          className="tactil -mr-1 grid size-6 shrink-0 place-items-center rounded-full text-tenue hover:bg-superficie hover:text-tinta"
         >
           <X aria-hidden className="size-3.5" />
         </button>
@@ -463,7 +488,7 @@ export function ConstructorRutina({
                     key={nombre}
                     type="button"
                     onClick={() => cambiarDia((d) => void (d.nombre = nombre))}
-                    className="h-7 rounded-full border border-linea bg-superficie px-2.5 text-xs font-medium text-tenue hover:border-tinta/30 hover:text-tinta"
+                    className="tactil h-7 rounded-full border border-linea bg-superficie px-2.5 text-xs font-medium text-tenue hover:border-tinta/30 hover:text-tinta"
                   >
                     {nombre}
                   </button>
@@ -654,6 +679,21 @@ export function ConstructorRutina({
         }}
       >
         <p>{mostrado?.texto}</p>
+      </DialogoConfirmar>
+      <DialogoConfirmar
+        abierto={salirA !== null}
+        titulo="¿Salir sin guardar?"
+        textoConfirmar="Salir sin guardar"
+        textoVolver="Seguir editando"
+        alCerrar={() => setSalirA(null)}
+        alConfirmar={() => {
+          const destino = salirA;
+          setSucio(false);
+          setSalirA(null);
+          if (destino) router.push(destino);
+        }}
+      >
+        <p>Tienes cambios en esta rutina que no se han guardado. Si sales, se pierden.</p>
       </DialogoConfirmar>
     </>
   );

@@ -1,9 +1,10 @@
 import { CalendarCheck2, CalendarPlus, Unplug } from "lucide-react";
 import { Aviso } from "@/components/ui/aviso";
-import { Boton, clasesBoton } from "@/components/ui/boton";
+import { clasesBoton } from "@/components/ui/boton";
 import { CabeceraTarjeta, Tarjeta } from "@/components/ui/tarjeta";
 import { fechaCorta } from "@/lib/formato";
 import { desconectarGoogleCalendar } from "./acciones";
+import { BotonAccion } from "@/components/ui/boton-accion";
 
 const MENSAJES: Record<string, { tipo: "exito" | "error"; texto: string }> = {
   conectado: { tipo: "exito", texto: "Google Calendar conectado. Tus próximas citas ya se están pasando a tu calendario." },
@@ -47,11 +48,17 @@ export function TarjetaGoogle({
                 <li>Si el alumno tiene correo, Google le envía la invitación, los cambios y sus recordatorios.</li>
                 <li>Tú recibes un aviso 1 h antes y un correo 24 h antes.</li>
               </ul>
-              <form action={desconectarGoogleCalendar}>
-                <Boton type="submit" variante="secundario">
-                  <Unplug aria-hidden className="size-4" /> Desconectar
-                </Boton>
-              </form>
+              <BotonAccion
+                accion={desconectarGoogleCalendar}
+                textoPendiente="Desconectando…"
+                confirmacion={{
+                  titulo: "¿Desconectar Google Calendar?",
+                  texto: "Tus próximas citas dejarán de sincronizarse con tu calendario. Puedes volver a conectarlo cuando quieras.",
+                  textoConfirmar: "Desconectar",
+                }}
+              >
+                <Unplug aria-hidden className="size-4" /> Desconectar
+              </BotonAccion>
             </>
           ) : (
             <>

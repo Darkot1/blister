@@ -5,6 +5,7 @@ import { Esqueleto } from "@/components/ui/esqueleto";
 import { obtenerContexto } from "@/lib/sesion";
 import { PestanasMaestros } from "../pestanas";
 import { GestorMusculos } from "./gestor-musculos";
+import { todasLasFilas } from "@/lib/supabase/paginar";
 
 export const metadata: Metadata = { title: "Maestro de músculos" };
 
@@ -37,7 +38,9 @@ async function Musculos() {
   const [{ data: grupos }, { data: musculos }, { data: usos }] = await Promise.all([
     supabase.from("grupos_musculares").select("id, nombre, orden").order("orden"),
     supabase.from("musculos").select("id, nombre, descripcion, grupo_muscular_id, organizacion_id, orden").order("orden").order("nombre"),
-    supabase.from("ejercicios_musculos").select("musculo_id"),
+    todasLasFilas((desde, hasta) =>
+      supabase.from("ejercicios_musculos").select("ejercicio_id, musculo_id").order("ejercicio_id").order("musculo_id").range(desde, hasta),
+    ),
   ]);
   const enUso = new Map<string, number>();
   for (const u of usos ?? []) enUso.set(u.musculo_id, (enUso.get(u.musculo_id) ?? 0) + 1);

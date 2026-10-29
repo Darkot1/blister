@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Form from "next/form";
 import { Suspense } from "react";
-import { ChevronRight, Inbox, ListChecks, Plus, Search, Users } from "lucide-react";
+import { ChevronRight, Inbox, ListChecks, Plus, RotateCcw, Search, Users } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Avatar } from "@/components/ui/avatar";
 import { EnlaceBoton } from "@/components/ui/boton";
-import { conParametros } from "@/components/ui/paginacion";
+import { Paginacion, conParametros } from "@/components/ui/paginacion";
 import { claseControl } from "@/components/ui/campo";
 import { InsigniaEstado } from "@/components/ui/insignia-estado";
 import { Tarjeta, Vacio, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
@@ -59,6 +59,8 @@ async function BotonSolicitudes() {
   );
 }
 
+const POR_PAGINA = 25;
+
 const FILTROS = [
   { valor: "activo", texto: "Activos" },
   { valor: "inactivo", texto: "Inactivos" },
@@ -70,20 +72,38 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
   const parametros = await searchParams;
   const q = typeof parametros.q === "string" ? parametros.q.trim() : "";
   const estado = typeof parametros.estado === "string" ? parametros.estado : "activo";
+  const pedida = Math.max(1, Number.parseInt(typeof parametros.pagina === "string" ? parametros.pagina : "1", 10) || 1);
 
   const { supabase } = await obtenerContexto();
-  let consulta = supabase
-    .from("alumnos")
-    .select("id, nombres, apellidos, fecha_nacimiento, telefono, fecha_inicio, estado")
-    .order("apellidos")
-    .order("nombres")
-    .limit(200);
-  if (estado !== "todos") consulta = consulta.eq("estado", estado);
-  if (q) {
-    const patron = `%${q.replace(/[%_,()]/g, " ")}%`;
-    consulta = consulta.or(`nombres.ilike.${patron},apellidos.ilike.${patron},telefono.ilike.${patron}`);
+  // Paginada en la base: con muchos alumnos no se trae la lista entera (antes se cortaba en 200 sin avisar).
+  const consultar = (pagina: number) => {
+    let consulta = supabase
+      .from("alumnos")
+      .select("id, nombres, apellidos, fecha_nacimiento, telefono, fecha_inicio, estado", { count: "exact" })
+      .order("apellidos")
+      .order("nombres")
+      .order("id")
+      .range((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA - 1);
+    if (estado !== "todos") consulta = consulta.eq("estado", estado);
+    if (q) {
+      const patron = `%${q.replace(/[%_,()]/g, " ")}%`;
+      consulta = consulta.or(`nombres.ilike.${patron},apellidos.ilike.${patron},telefono.ilike.${patron}`);
+    }
+    return consulta;
+  };
+  let pagina = pedida;
+  let { data: alumnos, error, count } = await consultar(pagina);
+  // Página fuera de rango (p. ej. tras archivar alumnos): se muestra la última.
+  if (!error && !alumnos?.length && count && pagina > 1) {
+    pagina = Math.ceil(count / POR_PAGINA);
+    ({ data: alumnos, error, count } = await consultar(pagina));
   }
-  const { data: alumnos, error } = await consulta;
+  const total = count ?? alumnos?.length ?? 0;
+  // Sin alumnos activos ni filtros: ¿no hay ninguno, o solo inactivos/archivados?
+  const { count: otros } =
+    !error && !alumnos?.length && !q && estado === "activo"
+      ? await supabase.from("alumnos").select("id", { count: "exact", head: true })
+      : { count: 0 };
   const ids = (alumnos ?? []).map((a) => a.id);
   const { data: planes } = ids.length
     ? await supabase.from("planes").select("id, alumno_id, nombre").eq("estado", "activo").in("alumno_id", ids)
@@ -118,9 +138,18 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
       </div>
 
       {error ? (
-        <p className="text-peligro">No se pudieron cargar los alumnos. Recarga la página.</p>
+        <Vacio
+          icono={<RotateCcw aria-hidden className="size-5" />}
+          titulo="No se pudieron cargar los alumnos"
+          texto="Revisa tu conexión e inténtalo de nuevo."
+          accion={
+            <EnlaceBoton href={conParametros("/alumnos", { q, estado: estado === "activo" ? undefined : estado, pagina: pagina > 1 ? String(pagina) : undefined })} variante="secundario">
+              <RotateCcw aria-hidden className="size-4" /> Reintentar
+            </EnlaceBoton>
+          }
+        />
       ) : !alumnos?.length ? (
-        <SinResultados hayFiltro={Boolean(q) || estado !== "activo"} />
+        <SinResultados hayFiltro={Boolean(q) || estado !== "activo"} soloInactivos={(otros ?? 0) > 0} />
       ) : (
         <>
           <Tarjeta className="overflow-hidden">
@@ -172,9 +201,18 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
                 );
               })}
             </ul>
-            <p className="border-t border-linea bg-hueso/50 px-4 py-2.5 tabular-nums text-xs text-tenue">
-              {alumnos.length === 1 ? "1 alumno" : `${alumnos.length} alumnos`}
-            </p>
+            {total > POR_PAGINA ? (
+              <Paginacion
+                pagina={pagina}
+                total={total}
+                porPagina={POR_PAGINA}
+                href={(n) => conParametros("/alumnos", { q, estado: estado === "activo" ? undefined : estado, pagina: n > 1 ? String(n) : undefined })}
+              />
+            ) : (
+              <p className="border-t border-linea bg-hueso/50 px-4 py-2.5 tabular-nums text-xs text-tenue">
+                {total === 1 ? "1 alumno" : `${total} alumnos`}
+              </p>
+            )}
           </Tarjeta>
         </>
       )}
@@ -182,7 +220,21 @@ async function ListaAlumnos({ searchParams }: { searchParams: Busqueda }) {
   );
 }
 
-function SinResultados({ hayFiltro }: { hayFiltro: boolean }) {
+function SinResultados({ hayFiltro, soloInactivos }: { hayFiltro: boolean; soloInactivos: boolean }) {
+  if (soloInactivos) {
+    return (
+      <Vacio
+        icono={<Users aria-hidden className="size-5" />}
+        titulo="No tienes alumnos activos"
+        texto="Los que tienes están inactivos o archivados. Míralos todos o registra uno nuevo."
+        accion={
+          <EnlaceBoton href="/alumnos?estado=todos" variante="secundario">
+            Ver todos
+          </EnlaceBoton>
+        }
+      />
+    );
+  }
   return hayFiltro ? (
     <Vacio
       icono={<Search aria-hidden className="size-5" />}

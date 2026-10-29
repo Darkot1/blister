@@ -11,6 +11,11 @@ export default function PaginaRegistro() {
       <p className="mt-1.5 mb-7 text-tenue">Tu espacio de trabajo se crea automáticamente.</p>
       <AccesoGoogle />
       <FormularioRegistro />
+      <p className="mt-5 text-center text-xs leading-relaxed text-tenue">
+        Al crear tu cuenta, también con Google, aceptas los{" "}
+        <Link href="/terminos" className="text-tinta underline underline-offset-2 hover:no-underline">términos</Link> y la{" "}
+        <Link href="/privacidad" className="text-tinta underline underline-offset-2 hover:no-underline">política de privacidad</Link>.
+      </p>
       <p className="mt-7 text-center text-sm text-tenue">
         ¿Ya tienes cuenta?{" "}
         <Link href="/ingresar" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">Ingresa</Link>

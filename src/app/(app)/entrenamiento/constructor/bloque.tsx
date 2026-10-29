@@ -18,6 +18,7 @@ import { AYUDA_BLOQUE, ETIQUETA_BLOQUE, TIPOS_BLOQUE, esPorRondas, letraBloque, 
 import type { BloqueEstado, EjercicioEstado } from "./estado";
 import { COLUMNAS_PRESCRIPCION, FilaEjercicio, claseCompacta } from "./fila-ejercicio";
 import { ICONO_BLOQUE } from "./iconos";
+import { anunciosDnd, instruccionesDnd } from "@/lib/dnd-accesible";
 import type { RolMuscular } from "@/components/anatomia/mapa-corporal";
 
 /** Al arrastrar, el ejercicio solo se mueve en vertical. */
@@ -157,7 +158,20 @@ export function EditorBloque({
       )}
 
       {bloque.ejercicios.length > 0 ? (
-        <DndContext id={idDnd} sensors={sensores} collisionDetection={closestCenter} modifiers={[soloVertical]} onDragEnd={alSoltar}>
+        <DndContext
+          id={idDnd}
+          sensors={sensores}
+          collisionDetection={closestCenter}
+          modifiers={[soloVertical]}
+          onDragEnd={alSoltar}
+          accessibility={{
+            announcements: anunciosDnd((id) => {
+              const e = bloque.ejercicios.find((x) => x.clave === id);
+              return e ? infoDe(e.ejercicio_id).nombre : "el ejercicio";
+            }),
+            screenReaderInstructions: instruccionesDnd,
+          }}
+        >
           <SortableContext items={bloque.ejercicios.map((e) => e.clave)} strategy={verticalListSortingStrategy}>
             {/* Fila ancha: las columnas se nombran una vez aquí, no en cada ejercicio. */}
             <div aria-hidden className="hidden grid-cols-[minmax(0,1fr)_auto_2rem] gap-x-3 px-4 pt-2.5 @2xl:grid">

@@ -1,4 +1,5 @@
 import "server-only";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 /**
  * Cliente mínimo de OpenRouter (formato chat completions). Solo servidor: usa la clave secreta
@@ -31,6 +32,8 @@ const NO_CONVERSAN = /safety|guard|moderation|code|coder|embed|laguna|lfm-/i;
 const MAX_GRATIS = 3;
 /** Un agente lento no debe dejar la junta colgada (diseñar una rutina pide más: ver `esperaMs`). */
 const ESPERA_MAXIMA_MS = 75_000;
+/** Margen para responder al entrenador antes de que la plataforma corte la función. */
+const MARGEN_MS = 5_000;
 /** Fallos que se arreglan probando otro modelo; los demás (clave, red) no. */
 const PASAR_AL_SIGUIENTE = new Set(["saturado", "vacio", "proveedor"]);
 
@@ -84,6 +87,12 @@ export class ErrorAgentes extends Error {
   }
 }
 
+/** Hora límite (ms) de la operación en curso: una junta entera no puede pasarse de su plazo. */
+const plazo = new AsyncLocalStorage<number>();
+
+/** Corre `fn` con un tope total: los modelos que falten por probar se saltan al acercarse el límite. */
+export const conPlazo = <T>(ms: number, fn: () => Promise<T>) => plazo.run(Date.now() + ms, fn);
+
 export const agentesConfigurados = () => Boolean(process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY);
 
 type Proveedor = "openrouter" | "gemini";
@@ -114,10 +123,17 @@ export async function completar(
     ...modelosGemini().map((m): [Proveedor, string] => ["gemini", m]),
   ];
 
+  const hasta = plazo.getStore();
   for (const [proveedor, modelo] of intentos) {
     if (proveedor === "openrouter" && (limite || openRouterCaido)) continue;
+    const queda = hasta === undefined ? Infinity : hasta - Date.now() - MARGEN_MS;
+    if (queda < 3_000) {
+      ultimo ??= new ErrorAgentes("vacio", "Se acabó el tiempo de la junta.");
+      break;
+    }
     try {
-      const resultado = await completarUnaVez(mensajes, proveedor, modelo, opciones);
+      const espera = Math.min(opciones.esperaMs ?? ESPERA_MAXIMA_MS, queda);
+      const resultado = await completarUnaVez(mensajes, proveedor, modelo, { ...opciones, esperaMs: espera });
       if (opciones.json && !extraerJson(resultado.texto)) throw new ErrorAgentes("vacio", "La respuesta no trae el formato pedido.");
       return resultado;
     } catch (error) {
@@ -161,6 +177,8 @@ async function completarUnaVez(
         model: modelo,
         messages: mensajes,
         max_tokens: opciones.maxTokens ?? 1500,
+        // Van datos de salud: solo proveedores que no guardan ni entrenan con los prompts.
+        ...(proveedor === "openrouter" && { provider: { data_collection: "deny" } }),
       }),
       signal: AbortSignal.timeout(opciones.esperaMs ?? ESPERA_MAXIMA_MS),
       cache: "no-store",

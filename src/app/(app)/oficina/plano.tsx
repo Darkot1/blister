@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { APARECE, useBucle } from "@/components/ui/movimiento";
 import { Maximize, Plus, ZoomIn, ZoomOut } from "lucide-react";
 import { LIDER, type Agente } from "@/lib/agentes/catalogo";
@@ -535,7 +535,7 @@ function Globo({ v, texto }: { v: VistaActor; texto: string }) {
   const puntos3 = texto === "…";
   const ancho = puntos3 ? 30 : Math.min(180, texto.length * 6.1 + 18);
   return (
-    <motion.g {...APARECE} aria-hidden>
+    <m.g {...APARECE} aria-hidden>
       <rect x={x - ancho / 2} y={base - 20} width={ancho} height={20} rx={10} className="fill-superficie stroke-linea-fuerte" strokeWidth={1} />
       <path d={`M ${x - 4} ${base - 1} l 4 6 l 4 -6`} className="fill-superficie" />
       {puntos3 ? (
@@ -545,7 +545,7 @@ function Globo({ v, texto }: { v: VistaActor; texto: string }) {
           {texto}
         </text>
       )}
-    </motion.g>
+    </m.g>
   );
 }
 
@@ -556,7 +556,7 @@ function Globo({ v, texto }: { v: VistaActor; texto: string }) {
 function Luz({ cx, cy, className, suave = false, retraso = 0 }: { cx: number; cy: number; className: string; suave?: boolean; retraso?: number }) {
   const bucle = useBucle();
   return (
-    <motion.circle
+    <m.circle
       cx={cx}
       cy={cy}
       r={1.8}
@@ -665,15 +665,15 @@ function Escritorio({
 }
 
 function MesaJuntas({ conPapeles }: { conPapeles: boolean }) {
-  const m = MESA_JUNTAS;
+  const mesa = MESA_JUNTAS;
   return (
     <g aria-hidden>
-      <Caja c={m.c} r={m.r} dc={m.dc} dr={m.dr} h={22} tope="var(--iso-mesa)" />
+      <Caja c={mesa.c} r={mesa.r} dc={mesa.dc} dr={mesa.dr} h={22} tope="var(--iso-mesa)" />
       {conPapeles &&
         [8.5, 9.5, 10.5].map((c) => {
           const p = subir(iso(c, 2.6), 22);
           return (
-            <motion.polygon
+            <m.polygon
               key={c}
               {...APARECE}
               points={puntos(p, { x: p.x + 9, y: p.y + 4.5 }, { x: p.x, y: p.y + 9 }, { x: p.x - 9, y: p.y + 4.5 })}
@@ -750,7 +750,7 @@ function FlujoDatos({ hacia }: { hacia: Pantalla }) {
   const desde = subir(iso(BASE_DATOS.c, BASE_DATOS.r), 66);
   const control = { x: (desde.x + hacia.x) / 2, y: Math.min(desde.y, hacia.y) - 120 };
   return (
-    <motion.path
+    <m.path
       d={`M ${desde.x} ${desde.y} Q ${control.x} ${control.y} ${hacia.x} ${hacia.y}`}
       fill="none"
       strokeWidth={2}

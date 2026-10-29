@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { EnlaceAdmin, Navegacion } from "@/components/app/navegacion";
 import { UsuarioActual, UsuarioActualCargando } from "@/components/app/usuario-actual";
 import { esSuperadmin } from "@/lib/sesion";
+
+// Detrás del inicio de sesión: nada aquí debe aparecer en buscadores.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 /** `modal`: slot para rutas abiertas como modal sobre la página actual (ver `@modal/`). */
 export default function LayoutApp({ children, modal }: { children: React.ReactNode; modal: React.ReactNode }) {

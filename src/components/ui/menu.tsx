@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Check, MoreHorizontal, type LucideIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { clasesBoton } from "./boton";
 
 /**
@@ -88,7 +88,7 @@ export function MenuAcciones({
       </button>
       <AnimatePresence>
       {abierto && (
-        <motion.div
+        <m.div
           ref={refMenu}
           id={idMenu}
           role="menu"
@@ -107,7 +107,7 @@ export function MenuAcciones({
           }`}
         >
           {children}
-        </motion.div>
+        </m.div>
       )}
       </AnimatePresence>
     </div>

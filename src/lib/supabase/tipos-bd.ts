@@ -176,6 +176,8 @@ export type SolicitudFila = {
   mensaje: string | null;
   estado: "nueva" | "aceptada" | "descartada";
   alumno_id: string | null;
+  /** Cuándo autorizó el tratamiento de sus datos; null en solicitudes anteriores a la autorización. */
+  autoriza_datos_en: string | null;
   creado_en: string;
   actualizado_en: string;
 };
@@ -390,7 +392,7 @@ export type Database = {
       organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "pagina_publica" | "presentacion" | "titular" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "creado_en" | "actualizado_en">>;
       solicitudes: Tabla<
         SolicitudFila,
-        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "estado" | "alumno_id" | "creado_en" | "actualizado_en">
+        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "estado" | "alumno_id" | "autoriza_datos_en" | "creado_en" | "actualizado_en">
       >;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
       conexiones_google: Tabla<
@@ -488,10 +490,16 @@ export type Database = {
           p_telefono: string;
           p_objetivo: string;
           p_mensaje: string;
+          p_autoriza: boolean;
         };
         Returns: string;
       };
       aceptar_solicitud: { Args: { p_solicitud_id: string }; Returns: string };
+      paginas_publicas: { Args: Record<string, never>; Returns: { slug: string; actualizado_en: string }[] };
+      reemplazar_relaciones_ejercicio: {
+        Args: { p_ejercicio_id: string; p_musculos: { id: string; rol: string }[]; p_equipos: string[] };
+        Returns: undefined;
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
