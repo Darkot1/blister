@@ -7,33 +7,32 @@ import { enlaceWhatsapp } from "@/lib/pagina-publica/contenido";
 
 /**
  * Botón fijo abajo en el celular para llegar al formulario desde cualquier punto de la página.
- * Solo aparece cuando ya no se ve el botón de la portada y se esconde cuando el formulario o la franja de llamada están en pantalla.
+ * Aparece cuando ya no se ve el botón de la portada y se queda fija en todas las secciones; solo se esconde
+ * mientras el formulario está en pantalla (ahí ya no hace falta).
  */
 export function BarraMovil({ texto, whatsapp }: { texto: string; whatsapp: string | null }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const portada = document.getElementById("boton-portada");
-    // Lo que ya muestra el botón: el formulario y la franja de llamada a mitad de página.
-    const conBoton = [document.getElementById("empezar"), document.getElementById("llamada")].filter((e) => e !== null);
-    if (!portada || !conBoton.length) return;
+    const formulario = document.getElementById("empezar");
+    if (!portada || !formulario) return;
     let botonPasado = false;
-    const visibles = new Set<Element>();
+    let formularioVisible = false;
     const observador = new IntersectionObserver(
       (entradas) => {
         for (const e of entradas) {
           // El botón de la portada ya quedó arriba (no basta con que no se vea: en pantallas bajas empieza debajo).
           if (e.target === portada) botonPasado = !e.isIntersecting && e.boundingClientRect.top < 0;
-          else if (e.isIntersecting) visibles.add(e.target);
-          else visibles.delete(e.target);
+          else formularioVisible = e.isIntersecting;
         }
-        setVisible(botonPasado && visibles.size === 0);
+        setVisible(botonPasado && !formularioVisible);
       },
       // El hueco de abajo es el de la propia barra: lo que quede debajo de ella no cuenta como visto.
       { rootMargin: "0px 0px -80px 0px" },
     );
     observador.observe(portada);
-    for (const e of conBoton) observador.observe(e);
+    observador.observe(formulario);
     return () => observador.disconnect();
   }, []);
 
