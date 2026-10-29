@@ -1,292 +1,175 @@
-import Image from "next/image";
-import { ArrowRight, AtSign, Award, Clock, MapPin, MessageCircle, MonitorSmartphone } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { Marca } from "@/components/app/marca";
-import { Aparece } from "@/components/ui/movimiento";
-import {
-  ETIQUETA_MODALIDAD,
-  enlaceWhatsapp,
-  listaCertificaciones,
-  normalizarDiseno,
-  textoSobre,
-  urlFoto,
-  type Diseno,
-  type Seccion,
-} from "@/lib/pagina-publica/contenido";
+import { AlVerse } from "@/components/ui/movimiento";
+import { listaCertificaciones, nombrePublico, normalizarDiseno, textoSobre, urlFoto, type Seccion } from "@/lib/pagina-publica/contenido";
 import type { PaginaPublica } from "@/lib/supabase/tipos-bd";
+import { BarraMovil } from "./barra-movil";
+import { Portada, type Cifra } from "./portada";
+import { Contacto, Equipo, Metodos, SobreMi, Testimonios } from "./secciones";
 
 /**
- * Fondo de la portada. Sin foto es su color; con foto, el velo encima de ella (para que el texto se lea),
- * orientado según dónde va el texto. `claro`: el texto va en blanco.
- */
-const FONDO: Record<Diseno["fondo"], { solido: string; velo: Record<Diseno["portada"], string>; claro: boolean }> = {
-  suave: {
-    solido: "border border-linea bg-superficie",
-    velo: {
-      izquierda: "bg-gradient-to-r from-superficie via-superficie/85 to-superficie/20",
-      centrada: "bg-superficie/80",
-      abajo: "bg-gradient-to-t from-superficie via-superficie/80 to-superficie/5",
-    },
-    claro: false,
-  },
-  oscuro: {
-    solido: "bg-[#12121b]",
-    velo: {
-      izquierda: "bg-gradient-to-r from-black/85 via-black/55 to-black/10",
-      centrada: "bg-black/60",
-      abajo: "bg-gradient-to-t from-black/90 via-black/45 to-black/5",
-    },
-    claro: true,
-  },
-  color: {
-    solido: "bg-acento",
-    velo: {
-      izquierda: "bg-gradient-to-r from-acento via-acento/75 to-acento/15",
-      centrada: "bg-acento/75",
-      abajo: "bg-gradient-to-t from-acento via-acento/60 to-acento/5",
-    },
-    claro: true,
-  },
-};
-
-/** Posición del texto dentro de la portada según el estilo. */
-const POSICION: Record<Diseno["portada"], { caja: string; texto: string; centrado: boolean }> = {
-  izquierda: { caja: "min-h-[18rem] items-center sm:min-h-[21rem]", texto: "max-w-2xl", centrado: false },
-  centrada: { caja: "min-h-[18rem] items-center justify-center text-center sm:min-h-[21rem]", texto: "mx-auto max-w-3xl", centrado: true },
-  abajo: { caja: "min-h-[20rem] items-end sm:min-h-[24rem]", texto: "max-w-2xl", centrado: false },
-};
-
-/**
- * La página pública de un espacio. La usan /e/<slug> y la vista previa del editor, así que lo que se
- * edita es exactamente lo que se publica. El diseño (orden, ancho y visibilidad de secciones, color,
- * estilo y fondo de portada, texto del botón) viene de `datos.diseno`; cada sección sale solo si tiene
- * contenido.
+ * La página pública de un espacio, armada como una landing: portada con el nombre en grande, franjas
+ * de fondo alterno para cada sección y un cierre con el formulario. La usan /e/<slug> y la vista
+ * previa del editor, así que lo que se edita es exactamente lo que se publica.
+ *
+ * Todo se adapta a su contenedor (`@container`), no a la ventana: la vista previa del editor, más
+ * estrecha, se ve como se verá en un celular o en un computador según su ancho real.
+ *
+ * El diseño (orden, ancho y visibilidad de secciones, color, estilo y tono de portada, texto del botón)
+ * viene de `datos.diseno`; cada sección sale solo si tiene contenido.
  */
 export function VistaPaginaPublica({
-  datos,
+  datos: recibidos,
   formulario,
   extremo,
+  barraMovil = false,
 }: {
   datos: PaginaPublica;
   formulario: React.ReactNode;
   /** Algo más en la cabecera, a la derecha (el cambio de tema en la página real). */
   extremo?: React.ReactNode;
+  /** Botón fijo abajo en el celular hacia el formulario (solo en la página real, no en la vista previa). */
+  barraMovil?: boolean;
 }) {
+  // Lo nuevo puede faltar si la base aún no tiene sus columnas: se lee como vacío.
+  const datos: PaginaPublica = {
+    ...recibidos,
+    testimonios: recibidos.testimonios ?? [],
+    respuesta_horas: recibidos.respuesta_horas ?? null,
+    oferta_inicial: recibidos.oferta_inicial ?? null,
+  };
   const diseno = normalizarDiseno(datos.diseno);
-  const [principal] = datos.entrenadores;
-  const nombre = principal ? `${principal.nombres} ${principal.apellidos}`.trim() : datos.nombre;
-  const quien = principal?.nombres || "tu entrenador";
+  const nombre = nombrePublico(datos.entrenadores);
+  const quien = datos.entrenadores[0]?.nombres || "tu entrenador";
+  const certificaciones = listaCertificaciones(datos.certificaciones);
+
   // El color elegido reemplaza al cobalto en toda la página (botones, números, detalles).
   const estilo = {
     "--acento": diseno.acento,
     // Con un color claro el texto encima va oscuro, y el hover oscurece en vez de aclarar.
     "--sobre-acento": textoSobre(diseno.acento),
     "--acento-hover": `color-mix(in oklab, ${diseno.acento} 85%, ${textoSobre(diseno.acento) === "#ffffff" ? "white" : "black"})`,
+    // Texto sobre un botón invertido (fondo `sobre-acento`): siempre el contrario, nunca el acento.
+    "--contra-acento": textoSobre(diseno.acento) === "#ffffff" ? "#12121b" : "#ffffff",
   } as React.CSSProperties;
+
+  // Prueba rápida bajo el botón de la portada: solo cifras reales que el entrenador escribió.
+  const cifras: Cifra[] = [
+    datos.experiencia_anos ? { valor: String(datos.experiencia_anos), texto: datos.experiencia_anos === 1 ? "año de experiencia" : "años de experiencia" } : null,
+    certificaciones.length ? { valor: String(certificaciones.length), texto: certificaciones.length === 1 ? "certificación" : "certificaciones" } : null,
+    datos.entrenadores.length > 1 ? { valor: String(datos.entrenadores.length), texto: "entrenadores" } : null,
+  ].filter((c) => c !== null);
 
   const contenido: Record<Seccion, React.ReactNode> = {
     sobre: <SobreMi datos={datos} />,
     metodos: <Metodos datos={datos} />,
+    testimonios: <Testimonios datos={datos} />,
+    equipo: <Equipo entrenadores={datos.entrenadores} />,
     contacto: <Contacto datos={datos} quien={quien} formulario={formulario} />,
   };
-  // Una sección vacía no ocupa su celda de la rejilla.
   const tieneContenido: Record<Seccion, boolean> = {
-    sobre: Boolean(datos.presentacion) || listaCertificaciones(datos.certificaciones).length > 0,
+    sobre: Boolean(datos.presentacion) || certificaciones.length > 0,
     metodos: datos.metodos.some((m) => m.titulo.trim()),
+    testimonios: datos.testimonios.some((t) => t.nombre.trim() && t.texto.trim()),
+    // Con un solo entrenador, "el equipo" repetiría la portada.
+    equipo: datos.entrenadores.length > 1,
     contacto: true,
   };
   const secciones = diseno.secciones
     // El formulario no se oculta: es adonde lleva el botón principal.
     .filter((s) => (s.visible || s.id === "contacto") && tieneContenido[s.id]);
 
+  // Franjas: cada sección ocupa la suya, salvo dos "mitad" seguidas, que comparten franja lado a lado.
+  const franjas: (typeof secciones)[] = [];
+  for (const s of secciones) {
+    const ultima = franjas.at(-1);
+    if (s.ancho === "mitad" && ultima?.length === 1 && ultima[0].ancho === "mitad") ultima.push(s);
+    else franjas.push([s]);
+  }
+
+  // Un recordatorio a mitad de página, para quien ya se convenció antes de llegar al final: va antes de
+  // la tercera franja, si el formulario aún no ha salido.
+  const indiceContacto = franjas.findIndex((f) => f.some((s) => s.id === "contacto"));
+  const indiceLlamada = franjas.length >= 3 && indiceContacto > 2 ? 2 : -1;
+
   return (
-    <div style={estilo} className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-      <header className="flex items-center justify-between gap-3 py-4 sm:py-5">
-        <p className="titulo-display truncate text-lg sm:text-xl">{nombre}</p>
-        <div className="flex shrink-0 items-center gap-2">
-          {extremo}
-          <a href="#empezar" className="inline-flex h-9 items-center rounded-full bg-acento px-4 text-sm font-semibold text-sobre-acento transition-colors hover:bg-acento-hover">
-            {diseno.boton}
+    <div style={estilo} className="@container/pagina min-w-0 bg-fondo text-tinta">
+      <header className="sticky top-0 z-30 border-b border-linea bg-fondo/85 backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-5 @3xl:px-10">
+          <a href="#portada" className="titulo-display min-w-0 truncate text-lg">
+            {nombre}
           </a>
+          <div className="flex shrink-0 items-center gap-2">
+            {extremo}
+            <a
+              href="#empezar"
+              className="hidden h-10 items-center rounded-full bg-acento px-5 text-sm font-semibold text-sobre-acento transition-colors hover:bg-acento-hover @lg:inline-flex"
+            >
+              {diseno.boton}
+            </a>
+          </div>
         </div>
       </header>
 
-      <Portada datos={datos} diseno={diseno} nombre={nombre} />
+      <Portada datos={datos} diseno={diseno} nombre={nombre} foto={urlFoto(datos.foto_ruta)} cifras={cifras} estilo={estilo} />
 
-      {/* Rejilla de dos columnas: cada sección ocupa una ("mitad") o las dos ("completo"). */}
-      <div className="mt-10 grid gap-x-6 gap-y-10 sm:mt-12 sm:gap-y-12 lg:grid-cols-2">
-        {secciones.map((s, i) => (
-          <Aparece key={s.id} retraso={0.15 + i * 0.05} className={`@container min-w-0 ${s.ancho === "completo" ? "lg:col-span-2" : ""}`}>
-            {contenido[s.id]}
-          </Aparece>
-        ))}
-      </div>
+      {franjas.map((franja, i) => (
+        <div key={franja.map((s) => s.id).join("-")}>
+          {i === indiceLlamada && <Llamada boton={diseno.boton} oferta={datos.oferta_inicial} horas={datos.respuesta_horas} quien={quien} />}
+          <Franja par={i % 2 === 1} pegada={franja.length === 1 && franja[0].id === "contacto"}>
+            <div className={`grid gap-14 ${franja.length === 2 ? "@4xl:grid-cols-2 @4xl:gap-12" : ""}`}>
+              {franja.map((s, j) => (
+                <AlVerse key={s.id} retraso={j * 0.08} className="@container min-w-0">
+                  {contenido[s.id]}
+                </AlVerse>
+              ))}
+            </div>
+          </Franja>
+        </div>
+      ))}
 
-      <footer className="mt-12 flex items-center justify-center gap-2 border-t border-linea py-6 text-xs text-tenue">
-        Con la tecnología de <Marca className="scale-90" />
+      <footer className={`border-t border-linea ${barraMovil ? "pb-24 md:pb-0" : ""}`}>
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-tenue @3xl:px-10">
+          <p className="min-w-0 truncate">{nombre}</p>
+          <p className="flex items-center gap-2">
+            Con la tecnología de <Marca className="origin-right scale-90" />
+          </p>
+        </div>
       </footer>
+
+      {barraMovil && <BarraMovil texto={diseno.boton} whatsapp={datos.whatsapp} />}
     </div>
   );
 }
 
-/* ---------- Portada ---------- */
-
-function Portada({ datos, diseno, nombre }: { datos: PaginaPublica; diseno: Diseno; nombre: string }) {
-  const foto = urlFoto(datos.foto_ruta);
-  const fondo = FONDO[diseno.fondo];
-  const posicion = POSICION[diseno.portada];
-  // Fondo de color: el texto va en blanco solo si el color elegido es oscuro.
-  const claro = diseno.fondo === "color" ? textoSobre(diseno.acento) === "#ffffff" : fondo.claro;
-  const items = [
-    datos.experiencia_anos ? { icono: Clock, texto: `${datos.experiencia_anos} ${datos.experiencia_anos === 1 ? "año" : "años"} de experiencia` } : null,
-    datos.modalidad ? { icono: MonitorSmartphone, texto: ETIQUETA_MODALIDAD[datos.modalidad] } : null,
-    datos.ubicacion ? { icono: MapPin, texto: datos.ubicacion } : null,
-  ].filter((d) => d !== null);
-
+/** Una franja de la página a todo el ancho; las pares van un paso más claras para marcar el ritmo. */
+function Franja({ par, pegada = false, children }: { par: boolean; pegada?: boolean; children: React.ReactNode }) {
+  // `pegada`: el formulario solo; en el celular va de borde a borde, sin margen arriba ni abajo.
   return (
-    <Aparece
-      className={`relative isolate flex overflow-hidden rounded-[var(--radius-elevada)] p-6 sm:p-10 ${posicion.caja} ${
-        foto ? "bg-[#12121b]" : fondo.solido
-      } ${claro ? "text-white" : ""}`}
-    >
-      {/* La foto siempre detrás del texto, con un velo del color del fondo para que se lea. */}
-      {foto && (
-        <>
-          <Image src={foto} alt="" fill priority sizes="(min-width: 1024px) 64rem, 100vw" className="-z-20 object-cover" />
-          <div aria-hidden className={`absolute inset-0 -z-10 ${fondo.velo[diseno.portada]}`} />
-        </>
-      )}
-      <div className={`w-full space-y-4 ${posicion.texto}`}>
-        <p className={`etiqueta ${claro ? "text-white/70" : ""}`}>Entrenamiento personalizado</p>
-        <h1 className="titulo-display text-[2.1rem] leading-[1.06] sm:text-[2.8rem]">{datos.titular || `Entrena con ${nombre.split(" ")[0]}`}</h1>
-        {items.length > 0 && (
-          <ul className={`flex flex-wrap gap-x-5 gap-y-2 text-sm ${posicion.centrado ? "justify-center" : ""} ${claro ? "text-white/85" : "text-grafito"}`}>
-            {items.map(({ icono: Icono, texto }) => (
-              <li key={texto} className="inline-flex items-center gap-1.5">
-                <Icono aria-hidden className={`size-4 ${claro ? "text-white/65" : "text-acento"}`} /> {texto}
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className={`flex flex-wrap gap-2 pt-1 ${posicion.centrado ? "justify-center" : ""}`}>
-          <a
-            href="#empezar"
-            className={`inline-flex h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors ${
-              claro ? "bg-white text-[#12121b] hover:bg-white/90" : "bg-acento text-sobre-acento hover:bg-acento-hover"
-            }`}
-          >
-            {diseno.boton} <ArrowRight aria-hidden className="size-4" />
-          </a>
-          {datos.whatsapp && (
-            <a
-              href={enlaceWhatsapp(datos.whatsapp)}
-              target="_blank"
-              rel="noreferrer"
-              className={`inline-flex h-11 items-center gap-2 rounded-full border px-5 text-sm font-semibold transition-colors ${
-                claro ? "border-white/40 bg-black/25 backdrop-blur-md hover:bg-black/40" : "border-linea-fuerte bg-superficie/70 backdrop-blur-md hover:bg-hueso"
-              }`}
-            >
-              <MessageCircle aria-hidden className="size-4" /> WhatsApp
-            </a>
-          )}
-          {datos.instagram && (
-            <a
-              href={`https://instagram.com/${datos.instagram}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Instagram: ${datos.instagram}`}
-              className={`inline-flex h-11 items-center gap-2 rounded-full border px-5 text-sm font-semibold transition-colors ${
-                claro ? "border-white/40 bg-black/25 backdrop-blur-md hover:bg-black/40" : "border-linea-fuerte bg-superficie/70 backdrop-blur-md hover:bg-hueso"
-              }`}
-            >
-              <AtSign aria-hidden className="size-4" /> {datos.instagram}
-            </a>
-          )}
-        </div>
-      </div>
-    </Aparece>
-  );
-}
-
-/* ---------- Secciones (se adaptan a su ancho con container queries) ---------- */
-
-function Encabezado({ id, antetitulo, titulo }: { id: string; antetitulo: string; titulo: string }) {
-  return (
-    <div>
-      <p className="etiqueta mb-1.5 text-acento">{antetitulo}</p>
-      <h2 id={id} className="titulo-display text-3xl">{titulo}</h2>
+    <div className={par ? "bg-superficie" : "bg-fondo"}>
+      <div className={`mx-auto w-full max-w-6xl px-5 @3xl/pagina:px-10 @3xl/pagina:py-24 ${pegada ? "py-0 @xl/pagina:py-16" : "py-16"}`}>{children}</div>
     </div>
   );
 }
 
-function SobreMi({ datos }: { datos: PaginaPublica }) {
-  const certificaciones = listaCertificaciones(datos.certificaciones);
-  if (!datos.presentacion && !certificaciones.length) return null;
+/** Franja de color con el botón otra vez: la oferta (o una invitación) y cuándo responde. */
+function Llamada({ boton, oferta, horas, quien }: { boton: string; oferta: string | null; horas: number | null; quien: string }) {
   return (
-    <section aria-labelledby="titulo-sobre" className="grid gap-5 @3xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] @3xl:gap-10">
-      <Encabezado id="titulo-sobre" antetitulo="Quién soy" titulo="Sobre mí" />
-      <div>
-        {datos.presentacion && <p className="whitespace-pre-line text-lg leading-relaxed text-grafito">{datos.presentacion}</p>}
-        {certificaciones.length > 0 && (
-          <ul className="mt-5 flex flex-wrap gap-2" aria-label="Certificaciones">
-            {certificaciones.map((c) => (
-              <li key={c} className="inline-flex items-center gap-1.5 rounded-full border border-linea bg-superficie px-3 py-1.5 text-sm">
-                <Award aria-hidden className="size-4 text-acento" /> {c}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function Metodos({ datos }: { datos: PaginaPublica }) {
-  const metodos = datos.metodos.filter((m) => m.titulo.trim());
-  if (!metodos.length) return null;
-  return (
-    <section aria-labelledby="titulo-metodos">
-      <Encabezado id="titulo-metodos" antetitulo="Mi método" titulo="Cómo trabajo" />
-      <ol className={`mt-6 grid gap-3 @lg:grid-cols-2 ${metodos.length % 3 === 0 ? "@4xl:grid-cols-3" : ""}`}>
-        {metodos.map((m, i) => (
-          <li key={i} className="flex flex-col rounded-[var(--radius-tarjeta)] border border-linea bg-superficie p-5">
-            <span className="titulo-display text-2xl leading-none tabular-nums text-acento">{String(i + 1).padStart(2, "0")}</span>
-            <h3 className="mt-4 font-semibold">{m.titulo}</h3>
-            {m.descripcion && <p className="mt-1.5 text-sm leading-relaxed text-tenue">{m.descripcion}</p>}
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-function Contacto({ datos, quien, formulario }: { datos: PaginaPublica; quien: string; formulario: React.ReactNode }) {
-  return (
-    <section id="empezar" aria-labelledby="titulo-empezar" className="scroll-mt-6">
-      <div className="grid gap-8 rounded-[var(--radius-elevada)] border border-linea bg-superficie p-6 sm:p-8 @3xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] @3xl:gap-10">
-        <div>
-          <Encabezado id="titulo-empezar" antetitulo="Empecemos" titulo="Da el primer paso" />
-          <p className="mt-3 text-tenue">Deja tus datos y {quien} se pondrá en contacto contigo. También puedes escribir solo para preguntar.</p>
-          {(datos.instagram || datos.whatsapp) && (
-            <ul className="mt-5 space-y-2.5 text-sm">
-              {datos.whatsapp && (
-                <li>
-                  <a href={enlaceWhatsapp(datos.whatsapp)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-medium hover:underline">
-                    <MessageCircle aria-hidden className="size-4 text-acento" /> Escribir por WhatsApp
-                  </a>
-                </li>
-              )}
-              {datos.instagram && (
-                <li>
-                  <a href={`https://instagram.com/${datos.instagram}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-medium hover:underline">
-                    <AtSign aria-hidden className="size-4 text-acento" /> {datos.instagram} en Instagram
-                  </a>
-                </li>
-              )}
-            </ul>
-          )}
+    <div id="llamada" className="bg-acento text-sobre-acento">
+      <AlVerse className="mx-auto flex w-full max-w-6xl flex-col items-start gap-5 px-5 py-12 @3xl/pagina:flex-row @3xl/pagina:items-center @3xl/pagina:justify-between @3xl/pagina:px-10">
+        <div className="min-w-0">
+          <p className="titulo-display text-2xl leading-tight @xl/pagina:text-3xl">{oferta || `¿Empezamos? ${quien} te espera.`}</p>
+          <p className="mt-2 text-lg">
+            {horas ? `Escribe hoy y te responde en menos de ${horas} horas.` : "Escribe hoy, sin compromiso."}
+          </p>
         </div>
-        <div>{formulario}</div>
-      </div>
-    </section>
+        <a
+          href="#empezar"
+          className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-sobre-acento px-6 text-[0.95rem] font-semibold text-[var(--contra-acento)] transition-opacity hover:opacity-90"
+        >
+          {boton} <ArrowDown aria-hidden className="size-4" />
+        </a>
+      </AlVerse>
+    </div>
   );
 }

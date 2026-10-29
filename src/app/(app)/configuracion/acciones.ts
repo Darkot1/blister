@@ -78,6 +78,9 @@ export async function eliminarPagina(): Promise<EstadoPagina> {
       certificaciones: null,
       instagram: null,
       whatsapp: null,
+      testimonios: [],
+      respuesta_horas: null,
+      oferta_inicial: null,
       diseno: {},
     })
     .eq("id", organizacionId)

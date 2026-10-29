@@ -5,7 +5,7 @@ import { SelectorTema } from "@/components/app/selector-tema";
 import { AvisoCookies } from "@/components/app/aviso-cookies";
 import { VistaPaginaPublica } from "@/components/pagina-publica/vista";
 import { Esqueleto } from "@/components/ui/esqueleto";
-import { listaCertificaciones, urlFoto } from "@/lib/pagina-publica/contenido";
+import { listaCertificaciones, nombrePublico, urlFoto } from "@/lib/pagina-publica/contenido";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 import type { PaginaPublica as DatosPagina } from "@/lib/supabase/tipos-bd";
 import { URL_SITIO } from "@/lib/sitio";
@@ -21,10 +21,8 @@ const leerPagina = cache(async (slug: string) => {
   return data ?? null;
 });
 
-const nombreCompleto = (p: DatosPagina) => {
-  const e = p.entrenadores[0];
-  return e ? `${e.nombres} ${e.apellidos}`.trim() : p.nombre;
-};
+// Siempre el nombre del entrenador: el del espacio suele ser el automático ("Espacio de…").
+const nombreCompleto = (p: DatosPagina) => nombrePublico(p.entrenadores);
 
 /** Texto plano corto para buscadores y vistas previas al compartir. */
 const resumen = (p: DatosPagina) => {
@@ -39,7 +37,7 @@ export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Prom
   if (!pagina) return { title: "Página no disponible", robots: { index: false, follow: false } };
 
   const quien = nombreCompleto(pagina);
-  const titulo = pagina.nombre && pagina.nombre !== quien ? `${quien} · ${pagina.nombre}` : `${quien} · Entrenador personal`;
+  const titulo = `${quien} · Entrenamiento personal${pagina.ubicacion ? ` en ${pagina.ubicacion}` : ""}`;
   const descripcion = resumen(pagina);
   const foto = urlFoto(pagina.foto_ruta) ?? pagina.entrenadores[0]?.avatar_url ?? undefined;
   return {
@@ -65,12 +63,21 @@ export default function PaginaPublica({ params }: PageProps<"/e/[slug]">) {
       {/* Misma forma y ancho que la página: al llegar el contenido no se mueve nada. */}
       <Suspense
         fallback={
-          <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-            <div className="flex items-center justify-between py-4 sm:py-6">
-              <Esqueleto className="h-6 w-40" />
-              <Esqueleto className="h-9 w-36 rounded-full" />
+          <div>
+            <div className="border-b border-linea">
+              <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:px-10">
+                <Esqueleto className="h-6 w-40" />
+                <Esqueleto className="hidden h-10 w-44 rounded-full sm:block" />
+              </div>
             </div>
-            <Esqueleto className="h-[21rem] rounded-[var(--radius-elevada)]" />
+            <div className="bg-superficie">
+              <div className="mx-auto max-w-6xl space-y-5 px-5 pt-12 pb-10 md:px-10 md:py-20">
+                <Esqueleto className="h-4 w-48" />
+                <Esqueleto className="h-24 w-full max-w-xl md:h-36" />
+                <Esqueleto className="h-6 w-full max-w-md" />
+                <Esqueleto className="h-12 w-56 rounded-full" />
+              </div>
+            </div>
           </div>
         }
       >
@@ -89,7 +96,7 @@ async function Contenido({ params }: { params: PageProps<"/e/[slug]">["params"] 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(pagina, slug) }} />
-      <VistaPaginaPublica datos={pagina} extremo={<SelectorTema />} formulario={<FormularioSolicitud slug={slug} entrenador={quien} />} />
+      <VistaPaginaPublica datos={pagina} barraMovil extremo={<SelectorTema />} formulario={<FormularioSolicitud slug={slug} entrenador={quien} />} />
     </>
   );
 }
@@ -109,7 +116,6 @@ function jsonLd(p: DatosPagina, slug: string) {
       jobTitle: "Entrenador personal",
       description: resumen(p),
       ...(foto && { image: foto }),
-      ...(p.nombre && { worksFor: { "@type": "Organization", name: p.nombre } }),
       ...(p.ubicacion && { address: { "@type": "PostalAddress", addressLocality: p.ubicacion, addressCountry: "CO" } }),
       ...(p.instagram && { sameAs: [`https://instagram.com/${p.instagram}`] }),
       ...(listaCertificaciones(p.certificaciones).length && { hasCredential: listaCertificaciones(p.certificaciones).map((c) => ({ "@type": "EducationalOccupationalCredential", name: c })) }),

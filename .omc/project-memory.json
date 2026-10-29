@@ -141,15 +141,51 @@
   },
   "hotPaths": [
     {
+      "path": "src/lib/agentes/catalogo.ts",
+      "accessCount": 8,
+      "lastAccessed": 1793294263320,
+      "type": "file"
+    },
+    {
+      "path": "src/components/pagina-publica/vista.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1793290847646,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/editor.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1793294862488,
+      "type": "file"
+    },
+    {
+      "path": "src/components/pagina-publica/portada.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1793301026566,
+      "type": "file"
+    },
+    {
       "path": "supabase/migrations/20261028001500_pagina_publica.sql",
       "accessCount": 4,
       "lastAccessed": 1793204000023,
       "type": "file"
     },
     {
-      "path": "src/components/pagina-publica/vista.tsx",
+      "path": "src/app/(app)/configuracion/page.tsx",
       "accessCount": 4,
-      "lastAccessed": 1793207683395,
+      "lastAccessed": 1793290988730,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/agentes/consulta.ts",
+      "accessCount": 4,
+      "lastAccessed": 1793294156628,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/agentes/expediente.ts",
+      "accessCount": 4,
+      "lastAccessed": 1793300885739,
       "type": "file"
     },
     {
@@ -159,21 +195,21 @@
       "type": "file"
     },
     {
-      "path": "src/app/(app)/configuracion/pagina/editor.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1793208033285,
-      "type": "file"
-    },
-    {
       "path": "src/lib/agentes/openrouter.ts",
       "accessCount": 3,
       "lastAccessed": 1793220094330,
       "type": "file"
     },
     {
-      "path": "src/lib/agentes/consulta.ts",
+      "path": "src/app/e/[slug]/page.tsx",
       "accessCount": 3,
-      "lastAccessed": 1793221950812,
+      "lastAccessed": 1793290471858,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/diseno.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1793300918972,
       "type": "file"
     },
     {
@@ -195,33 +231,33 @@
       "type": "file"
     },
     {
-      "path": "src/app/e/[slug]/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1793204930434,
-      "type": "file"
-    },
-    {
       "path": "src/app/(app)/configuracion/pagina-publica.tsx",
       "accessCount": 2,
       "lastAccessed": 1793205093571,
       "type": "file"
     },
     {
-      "path": "src/app/(app)/configuracion/pagina/diseno.tsx",
+      "path": "src/app/e/[slug]/formulario.tsx",
       "accessCount": 2,
-      "lastAccessed": 1793207349107,
+      "lastAccessed": 1793290472259,
+      "type": "file"
+    },
+    {
+      "path": "src/app/auth/vista-previa/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1793294997958,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/pagina-publica/contenido.ts",
+      "accessCount": 2,
+      "lastAccessed": 1793301025799,
       "type": "file"
     },
     {
       "path": "src/components/app/selector-tema.tsx",
       "accessCount": 1,
       "lastAccessed": 1793199520101,
-      "type": "file"
-    },
-    {
-      "path": "src/app/(app)/configuracion/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1793199520562,
       "type": "file"
     },
     {
@@ -261,12 +297,6 @@
       "type": "file"
     },
     {
-      "path": "src/app/e/[slug]/formulario.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1793203498002,
-      "type": "file"
-    },
-    {
       "path": "src/app/(app)/alumnos/solicitudes/page.tsx",
       "accessCount": 1,
       "lastAccessed": 1793203655165,
@@ -303,12 +333,6 @@
       "type": "file"
     },
     {
-      "path": "src/lib/agentes/expediente.ts",
-      "accessCount": 1,
-      "lastAccessed": 1793218441976,
-      "type": "file"
-    },
-    {
       "path": "src/app/(app)/oficina/acciones.ts",
       "accessCount": 1,
       "lastAccessed": 1793218475703,
@@ -324,6 +348,48 @@
       "path": "supabase/migrations/20261028001800_juntas.sql",
       "accessCount": 1,
       "lastAccessed": 1793223351884,
+      "type": "file"
+    },
+    {
+      "path": "src/components/pagina-publica/secciones.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793290813518,
+      "type": "file"
+    },
+    {
+      "path": "src/components/pagina-publica/barra-movil.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793290824310,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/ayudas.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793294645792,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/compartir.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793294666544,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/modelo.ts",
+      "accessCount": 1,
+      "lastAccessed": 1793294702588,
+      "type": "file"
+    },
+    {
+      "path": "src/app/(app)/configuracion/pagina/pasos.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1793294793078,
+      "type": "file"
+    },
+    {
+      "path": "supabase/migrations/20261029170000_quitar_enviar_solicitud_sin_autorizacion.sql",
+      "accessCount": 1,
+      "lastAccessed": 1793301684489,
       "type": "file"
     }
   ],

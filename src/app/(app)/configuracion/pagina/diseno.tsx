@@ -20,10 +20,15 @@ import { anunciosDnd, instruccionesDnd } from "@/lib/dnd-accesible";
 
 type SeccionDiseno = Diseno["secciones"][number];
 
-const PORTADAS: { valor: Diseno["portada"]; nombre: string }[] = [
-  { valor: "izquierda", nombre: "Texto a la izquierda" },
-  { valor: "centrada", nombre: "Texto centrado" },
-  { valor: "abajo", nombre: "Texto abajo" },
+const PORTADAS: { valor: Diseno["portada"]; nombre: string; cuando: string }[] = [
+  { valor: "izquierda", nombre: "Foto al lado", cuando: "La más equilibrada: sirve casi siempre." },
+  { valor: "retrato", nombre: "Retrato", cuando: "Una foto vertical tuya, enmarcada." },
+  { valor: "revista", nombre: "Revista", cuando: "Tu nombre gigante, como una portada." },
+  { valor: "centrada", nombre: "Foto de fondo", cuando: "Una foto de ambiente, con el texto al centro." },
+  { valor: "abajo", nombre: "Foto de fondo, abajo", cuando: "Deja ver la foto: el texto va abajo." },
+  { valor: "tarjeta", nombre: "Tarjeta", cuando: "Una foto amplia y el texto en una tarjeta encima." },
+  { valor: "testimonio", nombre: "Testimonio", cuando: "Si ya tienes un resultado que contar." },
+  { valor: "minimal", nombre: "Solo texto", cuando: "Sin foto, o con la foto en pequeño." },
 ];
 
 const FONDOS: { valor: Diseno["fondo"]; nombre: string }[] = [
@@ -167,10 +172,10 @@ export function PanelDiseno({
         <section aria-labelledby="dis-portada">
           <CabeceraTarjeta id="dis-portada" titulo="Portada" />
           <div className="space-y-5 p-4">
-            <p className="text-sm text-tenue">Tu foto de portada va siempre detrás del texto.</p>
+            <p className="text-sm text-tenue">Cómo se ve en computador. En el celular todo se apila: la foto arriba y tu nombre debajo.</p>
             <fieldset>
-              <legend className="mb-2 text-sm font-medium">Posición del texto</legend>
-              <div className="grid grid-cols-3 gap-2">
+              <legend className="mb-2 text-sm font-medium">Composición</legend>
+              <div className="grid grid-cols-2 gap-2">
                 {PORTADAS.map((p) => (
                   <label
                     key={p.valor}
@@ -179,6 +184,7 @@ export function PanelDiseno({
                     <input type="radio" name="portada" value={p.valor} checked={diseno.portada === p.valor} onChange={() => cambiar("portada", p.valor)} className="sr-only" />
                     <MiniPortada estilo={p.valor} fondo={diseno.fondo} />
                     <span className="mt-2 block text-xs font-medium leading-snug">{p.nombre}</span>
+                    <span className="mt-0.5 block text-xs leading-snug text-tenue">{p.cuando}</span>
                   </label>
                 ))}
               </div>
@@ -186,7 +192,7 @@ export function PanelDiseno({
 
             <fieldset>
               <legend className="mb-1 text-sm font-medium">Fondo</legend>
-              <p className="mb-2 text-xs text-tenue">Sin foto, es el color de la portada; con foto, el tono que la cubre para que el texto se lea.</p>
+              <p className="mb-2 text-xs text-tenue">El color de la portada; con la foto de fondo, también el tono que la cubre para que el texto se lea.</p>
               <div className="flex flex-wrap gap-2">
                 {FONDOS.map((f) => (
                   <label
@@ -211,7 +217,7 @@ export function PanelDiseno({
               value={diseno.boton}
               maxLength={30}
               onChange={(e) => cambiar("boton", e.target.value)}
-              placeholder="Quiero entrenar"
+              placeholder="Quiero entrenar contigo"
               errores={errores["diseno.boton"]}
               ayuda="Ej.: Reserva tu evaluación, Empieza hoy."
             />
@@ -311,24 +317,91 @@ function BloqueSeccion({
   );
 }
 
-/** Dibujo de cada posición del texto, con una "foto" de fondo y el tono elegido encima. */
+/** Esquema de cada composición, con una "foto" gris y el tono elegido: cómo se reparte la portada en ancho. */
 function MiniPortada({ estilo, fondo }: { estilo: Diseno["portada"]; fondo: Diseno["fondo"] }) {
   const claras = fondo !== "suave";
+  const franja = fondo === "suave" ? "bg-superficie" : fondo === "oscuro" ? "bg-[#12121b]" : "bg-acento";
   const velo = fondo === "suave" ? "bg-superficie/75" : fondo === "oscuro" ? "bg-black/55" : "bg-acento/70";
-  return (
-    <span aria-hidden className="relative block aspect-[4/3] overflow-hidden rounded-lg border border-linea bg-[linear-gradient(135deg,#8a8f98,#4b5058)]">
-      <span className={`absolute inset-0 ${velo}`} />
-      <span
-        className={`relative flex h-full p-2 ${
-          estilo === "izquierda" ? "items-center" : estilo === "centrada" ? "items-center justify-center" : "items-end"
-        }`}
-      >
-        <span className={`flex flex-col gap-1 ${estilo === "centrada" ? "items-center" : ""}`}>
-          <span className={`h-1.5 w-10 rounded-full ${claras ? "bg-white/90" : "bg-tinta/70"}`} />
-          <span className={`h-1.5 w-7 rounded-full ${claras ? "bg-white/60" : "bg-tinta/40"}`} />
-          <span className={`mt-0.5 h-2 w-6 rounded-full ${claras ? "bg-white" : "bg-acento"}`} />
-        </span>
-      </span>
+  const foto = "bg-[linear-gradient(135deg,#8a8f98,#4b5058)]";
+  const linea = claras ? "bg-white/90" : "bg-tinta/70";
+  const tenue = claras ? "bg-white/50" : "bg-tinta/35";
+  const boton = claras ? "bg-white" : "bg-acento";
+  const texto = (centro = false, ancho = "w-9") => (
+    <span className={`flex flex-col gap-1 ${centro ? "items-center" : ""}`}>
+      <span className={`h-2 ${ancho} rounded-full ${linea}`} />
+      <span className={`h-1.5 w-7 rounded-full ${tenue}`} />
+      <span className={`mt-0.5 h-2 w-6 rounded-full ${boton}`} />
     </span>
   );
+  const marco = "relative block aspect-[4/3] overflow-hidden rounded-lg border border-linea";
+
+  switch (estilo) {
+    case "izquierda":
+      return (
+        <span aria-hidden className={`${marco} grid grid-cols-2 ${franja}`}>
+          <span className="flex items-center p-2">{texto()}</span>
+          <span className={foto} />
+        </span>
+      );
+    case "retrato":
+      return (
+        <span aria-hidden className={`${marco} flex items-center gap-2 p-2 ${franja}`}>
+          <span className="flex-1">{texto()}</span>
+          <span className="relative h-[85%] w-[38%]">
+            <span className={`absolute inset-0 translate-x-0.5 translate-y-0.5 rounded-md ${claras ? "bg-white/25" : "bg-acento/30"}`} />
+            <span className={`absolute inset-0 rounded-md ${foto}`} />
+          </span>
+        </span>
+      );
+    case "revista":
+      return (
+        <span aria-hidden className={`${marco} flex flex-col gap-1.5 p-2 ${franja}`}>
+          <span className={`h-3.5 w-full rounded-sm ${linea}`} />
+          <span className={`h-px w-full ${tenue}`} />
+          <span className="grid flex-1 grid-cols-[3fr_2fr] gap-1.5">
+            <span className={`rounded-sm ${foto}`} />
+            <span className="flex flex-col justify-end gap-1">
+              <span className={`h-1.5 w-full rounded-full ${tenue}`} />
+              <span className={`h-2 w-5 rounded-full ${boton}`} />
+            </span>
+          </span>
+        </span>
+      );
+    case "tarjeta":
+      return (
+        <span aria-hidden className={`${marco} ${foto}`}>
+          <span className={`absolute bottom-2 left-2 rounded-md p-1.5 ${franja}`}>{texto(false, "w-8")}</span>
+        </span>
+      );
+    case "testimonio":
+      return (
+        <span aria-hidden className={`${marco} grid grid-cols-2 items-center gap-1.5 p-2 ${franja}`}>
+          <span className="flex flex-col gap-1">
+            <span className={`size-3 rounded-full ${foto}`} />
+            {texto(false, "w-8")}
+          </span>
+          <span className={`flex h-[80%] flex-col justify-center gap-1 rounded-md p-1.5 ${claras ? "bg-white/15" : "bg-hueso"}`}>
+            <span className={`h-2 w-full rounded-full ${linea}`} />
+            <span className={`h-1 w-4/5 rounded-full ${tenue}`} />
+            <span className={`h-1 w-3/5 rounded-full ${tenue}`} />
+          </span>
+        </span>
+      );
+    case "minimal":
+      return (
+        <span aria-hidden className={`${marco} flex flex-col justify-center gap-1 p-2.5 ${franja}`}>
+          <span className={`h-3 w-4/5 rounded-sm ${linea}`} />
+          <span className={`h-3 w-3/5 rounded-sm ${linea}`} />
+          <span className={`mt-0.5 h-2 w-7 rounded-full ${boton}`} />
+        </span>
+      );
+    default:
+      // Foto de fondo: el texto encima, centrado o abajo.
+      return (
+        <span aria-hidden className={`${marco} ${foto}`}>
+          <span className={`absolute inset-0 ${velo}`} />
+          <span className={`relative flex h-full p-2 ${estilo === "centrada" ? "items-center justify-center" : "items-end"}`}>{texto(estilo === "centrada")}</span>
+        </span>
+      );
+  }
 }

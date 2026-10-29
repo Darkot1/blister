@@ -9,23 +9,20 @@ export const metadata: Metadata = { title: "Página pública" };
 
 export default function PaginaEditor() {
   return (
-    <>
-      <Encabezado
-        titulo="Página pública"
-        volver={{ href: "/configuracion", texto: "Ajustes" }}
-        descripcion="Lo que ve quien abre tu enlace: tu foto, cómo trabajas y un formulario para pedir entrenar contigo. La vista previa se actualiza mientras escribes."
-      />
-      <Suspense
-        fallback={
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Esqueleto className="h-[40rem]" />
-            <Esqueleto className="h-[40rem]" />
+    <Suspense
+      fallback={
+        <>
+          <Encabezado titulo="Página pública" volver={{ href: "/configuracion", texto: "Ajustes" }} />
+          <Esqueleto className="mb-5 h-10 rounded-full" />
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
+            <Esqueleto className="h-[36rem]" />
+            <Esqueleto className="hidden h-[36rem] lg:block" />
           </div>
-        }
-      >
-        <Editor />
-      </Suspense>
-    </>
+        </>
+      }
+    >
+      <Editor />
+    </Suspense>
   );
 }
 
@@ -34,7 +31,7 @@ async function Editor() {
   const [{ data: espacio }, { data: miembros }] = await Promise.all([
     supabase
       .from("organizaciones")
-      .select("nombre, slug, pagina_publica, titular, presentacion, foto_ruta, metodos, modalidad, ubicacion, experiencia_anos, certificaciones, instagram, whatsapp, diseno")
+      .select("slug, pagina_publica, titular, presentacion, foto_ruta, metodos, modalidad, ubicacion, experiencia_anos, certificaciones, instagram, whatsapp, diseno, testimonios, respuesta_horas, oferta_inicial")
       .eq("id", organizacionId)
       .single(),
     supabase.from("miembros_organizacion").select("usuario_id, rol").eq("organizacion_id", organizacionId).eq("estado", "activo"),
@@ -53,10 +50,21 @@ async function Editor() {
 
   const rol = (miembros ?? []).find((m) => m.usuario_id === usuarioId)?.rol;
   return (
-    <EditorPagina
-      inicial={espacio}
-      entrenadores={entrenadores}
-      editable={rol === "propietario" || rol === "admin"}
-    />
+    <>
+      {espacio.pagina_publica ? (
+        <Encabezado
+          titulo="Tu página pública"
+          volver={{ href: "/configuracion", texto: "Ajustes" }}
+          descripcion="Lo que ve quien abre tu enlace. Cambia lo que quieras: la vista previa se actualiza mientras escribes."
+        />
+      ) : (
+        <Encabezado
+          titulo="Crea tu página para conseguir alumnos"
+          volver={{ href: "/configuracion", texto: "Ajustes" }}
+          descripcion="Seis pasos cortos, con ejemplos para escribir cada parte. Se guarda mientras avanzas y la publicas al final."
+        />
+      )}
+      <EditorPagina inicial={espacio} entrenadores={entrenadores} editable={rol === "propietario" || rol === "admin"} />
+    </>
   );
 }

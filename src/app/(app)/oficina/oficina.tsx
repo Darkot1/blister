@@ -169,9 +169,15 @@ export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; histor
   }
 
   return (
-    <div className="grid gap-4">
-    <Convocar alumnos={alumnos} haySentados={sentados.length > 0} enCurso={Boolean(junta)} alConvocar={convocar} />
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-start">
+    // Columnas en minmax(0,…): con columnas implícitas (auto), un hijo ancho estiraba la rejilla y la página se desplazaba de lado en el celular.
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
+    <Convocar
+      alumnos={alumnos}
+      asistentes={sentados.map((id) => agentePorId(id)!)}
+      enCurso={Boolean(junta)}
+      alConvocar={convocar}
+    />
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-start">
       <Tarjeta className="overflow-hidden">
         <CabeceraTarjeta
           titulo={junta ? "Junta en curso" : "Tu oficina"}
@@ -203,7 +209,7 @@ export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; histor
         </p>
       </Tarjeta>
 
-      <div className="grid gap-4 lg:sticky lg:top-8">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 lg:sticky lg:top-8">
         {junta ? (
           <PanelJunta
             junta={junta}
@@ -288,15 +294,28 @@ function IconoAgente({ agente, grande = false }: { agente: Agente; grande?: bool
   );
 }
 
+/**
+ * Atajos del pedido: escriben un caso de partida que el entrenador puede ajustar. Le dicen al líder qué se
+ * espera (rutina, cargas, diagnóstico, agenda o mensaje) sin que haya que redactarlo desde cero.
+ */
+const ATAJOS = [
+  { texto: "Diseñar una rutina", caso: "Diséñale una rutina nueva según su objetivo, su nivel y sus molestias." },
+  { texto: "Ajustar cargas", caso: "¿Qué pesos le pongo esta semana en sus ejercicios principales y cómo progreso?" },
+  { texto: "Revisar su progreso", caso: "¿Cómo va? Busca qué está funcionando, qué se estancó y por qué." },
+  { texto: "Mejorar su constancia", caso: "Está faltando: ¿qué horario y qué seguimiento le propongo para que no lo deje?" },
+  { texto: "Qué decirle", caso: "Prepárame un mensaje corto para contarle cómo va y motivarlo a seguir." },
+];
+
 /** Franja superior: elegir un caso y convocar. Queda arriba para que el panel lateral sea del equipo y de la propuesta. */
 function Convocar({
   alumnos,
-  haySentados,
+  asistentes,
   enCurso,
   alConvocar,
 }: {
   alumnos: AlumnoJunta[];
-  haySentados: boolean;
+  /** Los agentes sentados: son los que van a la junta. */
+  asistentes: Agente[];
   enCurso: boolean;
   alConvocar: (pedido: { alumnoId: string | null; situacion: string }) => void;
 }) {
@@ -304,52 +323,93 @@ function Convocar({
   const [situacion, setSituacion] = useState("");
   // Con alumno basta (revisión general); sin alumno, hay que contar el caso.
   const hayCaso = Boolean(alumnoId) || situacion.trim().length >= 10;
+  const haySentados = asistentes.length > 0;
   const listo = haySentados && !enCurso && hayCaso;
+  const falta = !haySentados ? "Sienta al menos a un agente en la oficina." : !hayCaso ? "Elige un alumno o cuenta el caso." : null;
+  // Un atajo reemplaza el texto solo si está vacío o si era otro atajo: nunca borra lo que escribió el entrenador.
+  const esAtajo = !situacion.trim() || ATAJOS.some((a) => a.caso === situacion);
+
   return (
-    <Tarjeta className="grid gap-4 p-4 sm:p-5 xl:grid-cols-[13rem_minmax(0,1fr)_auto] xl:items-start">
-      <div>
-        <h2 className="titulo-display text-lg leading-tight">Convocar una junta</h2>
-        <p className="mt-1 text-sm text-tenue">Elige un alumno o cuenta un caso: el líder lo reparte y cada agente lo revisa con IA.</p>
-      </div>
-      <fieldset disabled={enCurso} className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
-        <legend className="sr-only">Caso de la junta</legend>
-        <div>
-          <BuscadorOpciones
-            etiqueta="Alumno"
-            nombre="alumno"
-            valor={alumnoId}
-            alCambiar={setAlumnoId}
-            marcador="Busca por nombre"
-            vacio={alumnos.length ? "Ningún alumno activo con ese nombre." : "Aún no tienes alumnos activos."}
-            opciones={alumnos.map((a) => ({ valor: a.id, texto: a.nombre, detalle: a.detalle }))}
-          />
-          <p className="mt-1.5 text-xs text-tenue">Opcional. Los agentes leen sus datos de la app.</p>
+    <Tarjeta className="overflow-hidden">
+      <section aria-labelledby="titulo-convocar">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-linea px-5 py-4">
+          <div className="min-w-0">
+            <h2 id="titulo-convocar" className="titulo-display text-lg leading-tight">Convocar una junta</h2>
+            <p className="mt-1 text-sm text-tenue">Elige un alumno o cuenta un caso: el líder lo reparte y cada agente lo revisa con IA.</p>
+          </div>
+          {haySentados && (
+            <div className="flex items-center gap-2.5">
+              <ul aria-label="Agentes que asisten" className="flex -space-x-2">
+                {[LIDER, ...asistentes].map((a) => (
+                  <li key={a.id} title={a.nombre} className="rounded-full ring-2 ring-superficie">
+                    <IconoAgente agente={a} />
+                  </li>
+                ))}
+              </ul>
+              <p className="etiqueta cifra">{asistentes.length === 1 ? "1 agente" : `${asistentes.length} agentes`} y el líder</p>
+            </div>
+          )}
         </div>
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-grafito">{alumnoId ? "Qué quieres revisar (opcional)" : "El caso"}</span>
-          <textarea
-            value={situacion}
-            onChange={(e) => setSituacion(e.target.value)}
-            maxLength={600}
-            rows={2}
-            placeholder={alumnoId ? "Ej.: No sube de peso en sentadilla y le molesta la rodilla. Vacío = revisión general." : "Ej.: Un alumno lleva 3 semanas sin subir de peso en sentadilla y le duele la rodilla al bajar."}
-            className={claseAreaTexto}
-          />
-          <span className="mt-1.5 block text-xs text-tenue">
-            {alumnoId
-              ? "A los agentes les llegan sus datos sin nombre ni contacto. Las notas van tal cual: evita nombres en ellas."
-              : "Sin alumno, los agentes solo saben lo que escribas aquí."}{" "}
-            {situacion.length}/600
-          </span>
-        </label>
-      </fieldset>
-      <div className="xl:w-44">
-        <Boton className="w-full" disabled={!listo} onClick={() => alConvocar({ alumnoId: alumnoId || null, situacion })}>
-          {enCurso ? "Junta en curso" : "Convocar junta"}
-        </Boton>
-        {!haySentados && <p className="etiqueta mt-2">Sienta al menos a un agente.</p>}
-        {haySentados && !hayCaso && <p className="etiqueta mt-2">Elige un alumno o cuenta el caso.</p>}
-      </div>
+
+        <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_12rem] xl:items-center">
+          <fieldset disabled={enCurso} className="contents">
+            <legend className="sr-only">Caso de la junta</legend>
+            <div className="min-w-0 xl:self-start">
+              <BuscadorOpciones
+                etiqueta="Alumno"
+                nombre="alumno"
+                valor={alumnoId}
+                alCambiar={setAlumnoId}
+                marcador="Busca por nombre"
+                vacio={alumnos.length ? "Ningún alumno activo con ese nombre." : "Aún no tienes alumnos activos."}
+                opciones={alumnos.map((a) => ({ valor: a.id, texto: a.nombre, detalle: a.detalle }))}
+              />
+              <p className="mt-1.5 text-xs text-tenue">
+                Opcional. Los agentes leen sus datos de la app sin nombre ni contacto.
+              </p>
+            </div>
+            <div className="min-w-0 xl:self-start">
+              <label htmlFor="caso-junta" className="mb-1.5 block text-sm font-medium text-grafito">
+                {alumnoId ? "Qué quieres revisar (opcional)" : "El caso"}
+              </label>
+              <textarea
+                id="caso-junta"
+                value={situacion}
+                onChange={(e) => setSituacion(e.target.value)}
+                maxLength={600}
+                rows={2}
+                placeholder={alumnoId ? "Vacío = revisión general. Ej.: no sube de peso en sentadilla y le molesta la rodilla." : "Ej.: Un alumno lleva 3 semanas sin subir de peso en sentadilla y le duele la rodilla al bajar."}
+                className={claseAreaTexto}
+              />
+              <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-label="Atajos para el caso">
+                {ATAJOS.map((a) => (
+                  <button
+                    key={a.texto}
+                    type="button"
+                    aria-pressed={situacion === a.caso}
+                    disabled={!esAtajo}
+                    onClick={() => setSituacion(situacion === a.caso ? "" : a.caso)}
+                    className={`tactil rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                      situacion === a.caso ? "bg-tinta text-sobre-tinta" : "bg-hueso text-grafito hover:text-tinta"
+                    }`}
+                  >
+                    {a.texto}
+                  </button>
+                ))}
+                <span className="etiqueta cifra ml-auto">{situacion.length}/600</span>
+              </div>
+              {!alumnoId && <p className="mt-1.5 text-xs text-tenue">Sin alumno, los agentes solo saben lo que escribas aquí.</p>}
+            </div>
+          </fieldset>
+
+          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center xl:flex-col xl:items-stretch">
+            <Boton className="w-full sm:w-auto xl:w-full" disabled={!listo} onClick={() => alConvocar({ alumnoId: alumnoId || null, situacion })}>
+              <Sparkles aria-hidden className="size-4" /> {enCurso ? "Junta en curso" : "Convocar junta"}
+            </Boton>
+            {!enCurso && falta && <p className="etiqueta text-center sm:text-left xl:text-center">{falta}</p>}
+          </div>
+        </div>
+      </section>
     </Tarjeta>
   );
 }
@@ -436,6 +496,22 @@ function Detalle({
             </li>
           ))}
         </ul>
+
+        {/* Plegado: es largo y sirve para confiar en sus respuestas, no para usarlo a diario. */}
+        <details className="group mt-5 rounded-[var(--radius-tarjeta)] bg-hueso/50">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-2.5 text-sm font-medium text-grafito [&::-webkit-details-marker]:hidden">
+            Cómo decide
+            <span aria-hidden className="text-tenue transition-transform group-open:rotate-45">+</span>
+          </summary>
+          <ul className="space-y-2 px-4 pb-3 text-sm text-grafito">
+            {agente.criterio.map((c) => (
+              <li key={c} className="flex gap-2">
+                <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-tenue" />
+                {c}
+              </li>
+            ))}
+          </ul>
+        </details>
 
         <Pregunta key={agente.id} agente={agente} alumnos={alumnos} />
 

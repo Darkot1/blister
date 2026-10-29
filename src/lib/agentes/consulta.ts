@@ -14,6 +14,7 @@ const REGLAS = [
   "Le hablas al entrenador de tú (nunca 'propón al entrenador'). Sugieres; el entrenador decide.",
   "No des diagnósticos médicos: si hay dolor o lesión, recomienda consultar a un profesional de la salud.",
   "Cíñete a los datos que te dan; no inventes cifras que no estén en ellos. Si falta un dato importante, dilo.",
+  "Las cifras de tu criterio son referencias generales, no datos del alumno: no las presentes como si fueran suyas.",
 ].join(" ");
 
 /** Cuál agente lleva cada tipo de pedido (se usa si el líder no lo incluye). */
@@ -27,7 +28,7 @@ const PRINCIPAL_DE: Record<Entregable, string> = {
 
 /** Personalidad de cada agente a partir del catálogo: rol, habilidades y forma de trabajar. */
 const presentacion = (a: Agente) =>
-  `Eres «${a.nombre}», el agente de ${a.rol.toLowerCase()}. ${a.descripcion} Tus habilidades: ${a.habilidades.join(", ")}. Tu forma de trabajar: ${a.cualidad.toLowerCase()}.`;
+  `Eres «${a.nombre}», el agente de ${a.rol.toLowerCase()}. ${a.descripcion} Tus habilidades: ${a.habilidades.join(", ")}. Tu forma de trabajar: ${a.cualidad.toLowerCase()}. Tu criterio profesional, que aplicas a los datos: ${a.criterio.join(" ")}`;
 
 const recortar = (texto: unknown, max: number) => (typeof texto === "string" ? texto.trim().slice(0, max) : "");
 const numeroO = (v: unknown, min: number, max: number) => {
@@ -115,8 +116,9 @@ export async function consultarEncargo(caso: CasoJunta, encargo: Encargo): Promi
           "",
           `El líder te pide: ${encargo.tarea}`,
           "Usa la situación y, si lo hay, el expediente del alumno; mira sobre todo lo que toca a tu especialidad.",
+          "Aplica tu criterio a los datos: apoya cada conclusión en un dato del expediente (con su cifra y su fecha) y, si el dato que necesitas no está, dilo en vez de suponerlo.",
           "",
-          'Responde SOLO con un objeto JSON: {"resumen": "tu conclusión en una o dos frases", "detalle": "tu respuesta completa: lo que ves en los datos y por qué, con números si los hay (hasta unas 8 frases)", "accion": "una acción concreta para el entrenador, en una frase"}',
+          'Responde SOLO con un objeto JSON: {"resumen": "tu conclusión en una o dos frases, con la cifra que la sostiene si la hay", "detalle": "tu respuesta completa: qué ves en los datos, qué regla de tu criterio aplicas y por qué (hasta unas 8 frases)", "accion": "una acción concreta para el entrenador, en una frase, con cuándo hacerla y números si los datos los respaldan"}',
         ].join("\n"),
       },
     ],
@@ -150,7 +152,7 @@ export async function disenarRutina(
           `Contexto:\n${caso.contexto}`,
           "",
           `El líder te pide: ${encargo.tarea}`,
-          "Diseña la rutina completa. Si el alumno ya tiene una, mejórala (no la ignores). Ten en cuenta su objetivo, sus lesiones o molestias, su constancia y cuántos días puede entrenar.",
+          "Diseña la rutina completa. Si el alumno ya tiene una, mejórala (no la ignores). Ten en cuenta su objetivo, sus lesiones o molestias, su constancia y cuántos días entrena de verdad. Si no sabes su nivel o su equipamiento, dilo en el detalle y explica qué supusiste.",
           "Usa SOLO ejercicios de esta biblioteca, con el nombre exacto:",
           catalogo.map((e) => e.nombre).join("; "),
           "",

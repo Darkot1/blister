@@ -1,0 +1,127 @@
+{
+  "updatedAt": "2026-10-29T19:21:51.756Z",
+  "missions": [
+    {
+      "id": "session:8211fdda-4e99-4bc6-9198-235bc6b123de:none",
+      "source": "session",
+      "name": "none",
+      "objective": "Session mission",
+      "createdAt": "2026-10-29T16:14:15.178Z",
+      "updatedAt": "2026-10-29T19:21:51.756Z",
+      "status": "done",
+      "workerCount": 2,
+      "taskCounts": {
+        "total": 2,
+        "pending": 0,
+        "blocked": 0,
+        "inProgress": 0,
+        "completed": 2,
+        "failed": 0
+      },
+      "agents": [
+        {
+          "name": "disenador-ux:a8c467b",
+          "role": "disenador-ux",
+          "ownership": "a8c467b7c1202699c",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-10-29T19:21:51.756Z"
+        },
+        {
+          "name": "experto-entrenamiento:a188e88",
+          "role": "experto-entrenamiento",
+          "ownership": "a188e8846f40ed81e",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-10-29T17:19:19.965Z"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "session-start:a188e8846f40ed81e:2026-10-29T17:15:54.036Z",
+          "at": "2026-10-29T17:15:54.036Z",
+          "kind": "update",
+          "agent": "experto-entrenamiento:a188e88",
+          "detail": "started experto-entrenamiento:a188e88",
+          "sourceKey": "session-start:a188e8846f40ed81e"
+        },
+        {
+          "id": "session-stop:a188e8846f40ed81e:2026-10-29T17:19:19.965Z",
+          "at": "2026-10-29T17:19:19.965Z",
+          "kind": "completion",
+          "agent": "experto-entrenamiento:a188e88",
+          "detail": "completed",
+          "sourceKey": "session-stop:a188e8846f40ed81e"
+        },
+        {
+          "id": "session-start:a8c467b7c1202699c:2026-10-29T17:20:01.666Z",
+          "at": "2026-10-29T17:20:01.666Z",
+          "kind": "update",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "started disenador-ux:a8c467b",
+          "sourceKey": "session-start:a8c467b7c1202699c"
+        },
+        {
+          "id": "session-stop:ae55385c960071949:2026-10-29T17:20:19.757Z",
+          "at": "2026-10-29T17:20:19.757Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:ae55385c960071949"
+        },
+        {
+          "id": "session-stop:a5b57d88f3af20e02:2026-10-29T18:15:32.297Z",
+          "at": "2026-10-29T18:15:32.297Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:a5b57d88f3af20e02"
+        },
+        {
+          "id": "session-stop:a8c467b7c1202699c:2026-10-29T18:41:27.368Z",
+          "at": "2026-10-29T18:41:27.368Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:a8c467b7c1202699c"
+        },
+        {
+          "id": "session-stop:a9b4f0ad4060e0300:2026-10-29T18:50:55.493Z",
+          "at": "2026-10-29T18:50:55.493Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:a9b4f0ad4060e0300"
+        },
+        {
+          "id": "session-stop:a9c992563f8a6ca5f:2026-10-29T18:53:21.025Z",
+          "at": "2026-10-29T18:53:21.025Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:a9c992563f8a6ca5f"
+        },
+        {
+          "id": "session-stop:a81c7929101155593:2026-10-29T18:59:41.073Z",
+          "at": "2026-10-29T18:59:41.073Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:a81c7929101155593"
+        },
+        {
+          "id": "session-stop:a4aaf98e2dfa71723:2026-10-29T19:21:51.756Z",
+          "at": "2026-10-29T19:21:51.756Z",
+          "kind": "completion",
+          "agent": "disenador-ux:a8c467b",
+          "detail": "completed",
+          "sourceKey": "session-stop:a4aaf98e2dfa71723"
+        }
+      ]
+    }
+  ]
+}

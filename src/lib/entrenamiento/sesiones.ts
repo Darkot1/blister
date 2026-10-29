@@ -130,8 +130,16 @@ export type SesionHecha = {
   fecha: string;
   dia: string | null;
   rpe: number | null;
-  /** Por ejercicio: mejor serie, 1RM estimado y volumen (kg × reps de las series completadas). */
-  ejercicios: { ejercicioId: string; series: number; mejorPesoKg: number | null; mejorReps: number | null; unoRM: number | null; volumenKg: number }[];
+  /** Por ejercicio: mejor serie, 1RM estimado, volumen (kg × reps de las series completadas) y cada serie hecha, en orden. */
+  ejercicios: {
+    ejercicioId: string;
+    series: number;
+    mejorPesoKg: number | null;
+    mejorReps: number | null;
+    unoRM: number | null;
+    volumenKg: number;
+    hechas: { pesoKg: number | null; reps: number | null; rpe: number | null }[];
+  }[];
 };
 
 /** Sesiones completadas de un alumno (las más recientes primero), con lo hecho en cada ejercicio. */
@@ -193,7 +201,10 @@ export async function historialSesiones(supabase: Supabase, alumnoId: string, li
         const rm = kg !== null && serie.repeticiones ? unoRM(kg, serie.repeticiones) : null;
         if (rm !== null && (mejor1RM === null || rm > mejor1RM)) mejor1RM = rm;
       }
-      return [{ ejercicioId: e.ejercicio_id, series: hechas.length, mejorPesoKg, mejorReps, unoRM: mejor1RM, volumenKg }];
+      const detalle = hechas
+        .toSorted((a, b) => a.numero_serie - b.numero_serie)
+        .map((x) => ({ pesoKg: x.peso !== null ? aKg(x.peso, x.unidad_peso) : null, reps: x.repeticiones, rpe: x.rpe }));
+      return [{ ejercicioId: e.ejercicio_id, series: hechas.length, mejorPesoKg, mejorReps, unoRM: mejor1RM, volumenKg, hechas: detalle }];
     }),
   }));
 

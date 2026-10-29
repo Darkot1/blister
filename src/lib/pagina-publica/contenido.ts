@@ -12,21 +12,32 @@ export const ETIQUETA_MODALIDAD: Record<string, string> = {
 };
 
 export const MAX_METODOS = 6;
+export const MAX_TESTIMONIOS = 6;
+/** Opciones de "te respondo en menos de…" (horas). */
+export const HORAS_RESPUESTA = [2, 12, 24, 48] as const;
 
 /* ---------- Diseño (lo que se personaliza en el editor) ---------- */
 
 /** Secciones que se pueden ordenar y ocultar. La portada va siempre primero. */
-export const SECCIONES = ["sobre", "metodos", "contacto"] as const;
+export const SECCIONES = ["sobre", "metodos", "testimonios", "equipo", "contacto"] as const;
 export type Seccion = (typeof SECCIONES)[number];
+
+/**
+ * Orden de una página nueva, pensado para convertir: primero la prueba (lo que dicen sus alumnos),
+ * luego cómo trabaja y quién es, y al final el formulario.
+ */
+export const ORDEN_RECOMENDADO: readonly Seccion[] = ["testimonios", "metodos", "sobre", "equipo", "contacto"];
 
 export const ETIQUETA_SECCION: Record<Seccion, string> = {
   sobre: "Sobre mí",
   metodos: "Cómo trabajo",
+  testimonios: "Testimonios",
+  equipo: "El equipo",
   contacto: "Formulario de contacto",
 };
 
-/** Dónde va el texto de la portada; la foto (si hay) va siempre detrás. */
-export const ESTILOS_PORTADA = ["izquierda", "centrada", "abajo"] as const;
+/** Composición de la portada: dónde van la foto, el nombre y la prueba (ver `Portada`). */
+export const ESTILOS_PORTADA = ["izquierda", "retrato", "revista", "centrada", "abajo", "tarjeta", "testimonio", "minimal"] as const;
 /** Nombres de una versión anterior → los actuales. */
 const ESTILO_ANTERIOR: Record<string, (typeof ESTILOS_PORTADA)[number]> = { dividida: "izquierda", fondo: "abajo" };
 /** Sin foto, el fondo de la portada; con foto, el velo que la tiñe para que se lea el texto. */
@@ -56,18 +67,18 @@ export type Diseno = {
 };
 
 export const DISENO_INICIAL: Diseno = {
-  secciones: SECCIONES.map((id) => ({ id, visible: true, ancho: "completo" })),
+  secciones: ORDEN_RECOMENDADO.map((id) => ({ id, visible: true, ancho: "completo" })),
   acento: COLORES[0].valor,
   portada: "izquierda",
   fondo: "suave",
-  boton: "Quiero entrenar",
+  boton: "Quiero entrenar contigo",
 };
 
 const esHex = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v);
 
 /**
  * Lo guardado en la base (jsonb libre) → un diseño completo y válido. Tolera datos viejos o a medias:
- * lo que falte o no se entienda toma el valor inicial, y las secciones nuevas se añaden al final.
+ * lo que falte o no se entienda toma el valor inicial, y las secciones nuevas se añaden antes del formulario.
  */
 export function normalizarDiseno(guardado: unknown): Diseno {
   const d = (guardado && typeof guardado === "object" ? guardado : {}) as Record<string, unknown>;
@@ -81,7 +92,12 @@ export function normalizarDiseno(guardado: unknown): Diseno {
     const ancho = (item as { ancho?: unknown }).ancho === "mitad" ? "mitad" : "completo";
     secciones.push({ id: id as Seccion, visible: (item as { visible?: unknown }).visible !== false, ancho });
   }
-  for (const id of SECCIONES) if (!vistas.has(id)) secciones.push({ id, visible: true, ancho: "completo" });
+  // Las que falten (secciones nuevas en páginas ya guardadas) entran antes del formulario, que es el cierre.
+  for (const id of ORDEN_RECOMENDADO) {
+    if (vistas.has(id)) continue;
+    const formulario = secciones.findIndex((s) => s.id === "contacto");
+    secciones.splice(id === "contacto" || formulario < 0 ? secciones.length : formulario, 0, { id, visible: true, ancho: "completo" });
+  }
   const portada = ESTILO_ANTERIOR[d.portada as string] ?? d.portada;
   return {
     secciones,
@@ -128,4 +144,13 @@ export const listaCertificaciones = (texto: string | null) =>
 export const enlaceWhatsapp = (telefono: string) => {
   const digitos = telefono.replace(/\D/g, "");
   return `https://wa.me/${digitos.length === 10 && digitos.startsWith("3") ? `57${digitos}` : digitos}`;
+};
+
+/**
+ * Con qué nombre se presenta la página: el del entrenador principal. El nombre del espacio no se usa
+ * nunca en público porque casi siempre es el automático ("Espacio de…", "Mi espacio").
+ */
+export const nombrePublico = (entrenadores: { nombres: string; apellidos: string }[]) => {
+  const [principal] = entrenadores;
+  return (principal ? `${principal.nombres} ${principal.apellidos}`.trim() : "") || "Entrenamiento personal";
 };

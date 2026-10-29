@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ANCHOS, ESTILOS_PORTADA, FONDOS_PORTADA, MAX_METODOS, SECCIONES } from "./contenido";
+import { ANCHOS, ESTILOS_PORTADA, FONDOS_PORTADA, HORAS_RESPUESTA, MAX_METODOS, MAX_TESTIMONIOS, SECCIONES } from "./contenido";
 
 /*
   Validación del editor de la página pública. Va aparte de contenido.ts para que zod no viaje al
@@ -57,6 +57,21 @@ export const esquemaContenido = z.object({
     .transform((v) => v.replace(/[\s()-]/g, ""))
     .refine((v) => v === "" || /^\+?[0-9]{7,15}$/.test(v), "Número con indicativo, p. ej. +57 300 123 4567.")
     .transform((v) => v || null),
+  testimonios: z
+    .array(
+      z.object({
+        nombre: z.string().trim().min(1, "Escribe quién lo dice.").max(40, "Máximo 40 caracteres."),
+        texto: z.string().trim().min(1, "Escribe el testimonio.").max(300, "Máximo 300 caracteres."),
+        resultado: z.string().trim().max(60, "Máximo 60 caracteres."),
+      }),
+    )
+    .max(MAX_TESTIMONIOS, `Máximo ${MAX_TESTIMONIOS} testimonios.`),
+  respuesta_horas: z
+    .number()
+    .int()
+    .refine((h) => (HORAS_RESPUESTA as readonly number[]).includes(h), "Elige una de las opciones.")
+    .nullable(),
+  oferta_inicial: textoOpcional(80),
   diseno: esquemaDiseno,
 });
 

@@ -59,3 +59,21 @@ export function Aparece({
     </Elemento>
   );
 }
+
+/**
+ * Como {@link Aparece}, pero entra cuando llega a la pantalla (una sola vez): para bloques largos que
+ * quedan por debajo del primer pantallazo (páginas públicas). Con movimiento reducido solo aparece.
+ */
+export function AlVerse({ retraso = 0, className, children }: { retraso?: number; className?: string; children: React.ReactNode }) {
+  return (
+    <m.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.6, ease: "easeOut", delay: retraso }}
+      className={className}
+    >
+      {children}
+    </m.div>
+  );
+}

@@ -22,15 +22,18 @@ function alternar() {
   }
 }
 
-/** Un solo botón: muestra el sol en oscuro (pasar a claro) y la luna en claro (pasar a oscuro). */
-export function SelectorTema() {
+/**
+ * Un solo botón: muestra el sol en oscuro (pasar a claro) y la luna en claro (pasar a oscuro).
+ * `className`: tamaño y fondo al pasar el ratón (dentro de una cápsula hueso, el hover va en superficie).
+ */
+export function SelectorTema({ className = "size-8 hover:bg-hueso" }: { className?: string }) {
   return (
     <button
       type="button"
       onClick={alternar}
       aria-label="Cambiar entre tema claro y oscuro"
       title="Cambiar tema"
-      className="grid size-8 shrink-0 place-items-center rounded-full text-tenue transition-colors hover:bg-hueso hover:text-tinta"
+      className={`grid shrink-0 place-items-center rounded-full text-tenue transition-colors hover:text-tinta ${className}`}
     >
       {/* Los dos iconos van en el HTML y el atributo decide cuál se ve: así coincide desde el primer pintado. */}
       <Sun

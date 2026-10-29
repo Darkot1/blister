@@ -4,8 +4,9 @@ import { obtenerPerfil } from "@/lib/sesion";
 import { salir } from "@/app/(auth)/acciones";
 import { Pulso } from "@/components/ui/movimiento";
 import { FotoPerfil } from "./foto-perfil";
+import { SelectorTema } from "./selector-tema";
 
-/** Cuenta al pie del menú: foto (o iniciales), nombre con enlace a Ajustes y salida. */
+/** Cuenta al pie del menú: foto (o iniciales), nombre con enlace a Ajustes y, en una cápsula, tema y salida. */
 export async function UsuarioActual() {
   const perfil = await obtenerPerfil();
   const nombre = perfil ? `${perfil.nombres} ${perfil.apellidos}`.trim() : "";
@@ -18,16 +19,20 @@ export async function UsuarioActual() {
           <p className="etiqueta text-[0.6rem]">Mi perfil</p>
         </div>
       </Link>
-      <form action={salir}>
-        <button
-          type="submit"
-          className="grid size-8 place-items-center rounded-full text-tenue hover:bg-peligro/[0.08] hover:text-peligro"
-          aria-label="Cerrar sesión"
-          title="Cerrar sesión"
-        >
-          <LogOut aria-hidden className="size-4" />
-        </button>
-      </form>
+      {/* Menú plegado: la cápsula se pone en vertical bajo la foto. */}
+      <div className="flex shrink-0 items-center gap-0.5 rounded-full bg-hueso/70 p-0.5 in-data-[menu=plegado]:flex-col">
+        <SelectorTema className="size-7 hover:bg-superficie [&_svg]:size-4" />
+        <form action={salir} className="contents">
+          <button
+            type="submit"
+            className="grid size-7 place-items-center rounded-full text-tenue transition-colors hover:bg-peligro/[0.12] hover:text-peligro"
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
+            <LogOut aria-hidden className="size-4" />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

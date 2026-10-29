@@ -9,7 +9,6 @@ import { Dialogo } from "@/components/ui/dialogo";
 import { PULSO, RITMO_PULSO, useBucle } from "@/components/ui/movimiento";
 import { Marca } from "./marca";
 import { BotonPlegarMenu } from "./menu-plegable";
-import { SelectorTema } from "./selector-tema";
 import { ADMIN, AJUSTES, GRUPOS, PRINCIPALES, SECCIONES, esActiva, type Seccion } from "./secciones";
 
 /** La ruta actual solo se conoce en tiempo de ejecución: mientras llega, nada se muestra resaltado. */
@@ -103,20 +102,23 @@ export function Navegacion({ cuenta, admin }: { cuenta: React.ReactNode; admin: 
 
   return (
     <>
-      {/* Escritorio: barra lateral fija; se desplaza sola si la pantalla es baja. Plegada, queda en iconos. */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r border-linea bg-fondo px-3 py-5 transition-[width] duration-200 lg:flex in-data-[menu=plegado]:w-[4.25rem] in-data-[menu=plegado]:px-2">
+      {/*
+        Escritorio: barra lateral fija. Si la pantalla es baja, solo las secciones se desplazan: la marca arriba y
+        la cuenta (perfil y cerrar sesión) abajo quedan siempre a la vista. Plegada, queda en iconos.
+      */}
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-hidden border-r border-linea bg-fondo px-3 py-5 transition-[width] duration-200 lg:flex in-data-[menu=plegado]:w-[4.25rem] in-data-[menu=plegado]:px-2">
         <div className="mb-7 flex items-center justify-between gap-2 in-data-[menu=plegado]:flex-col">
           <Link href="/inicio" className="min-w-0 rounded-lg px-1.5 in-data-[menu=plegado]:px-0 in-data-[menu=plegado]:[&_.titulo-display]:hidden" aria-label="Blister Fitness, inicio">
             <Marca />
           </Link>
           <BotonPlegarMenu />
         </div>
-        <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} plegable />}</ConRuta>
-        <div className="mt-3 space-y-3 border-t border-linea pt-3">
-          <div className={PLEGADO.oculto}>
-            <SelectorTema />
-          </div>
-          {/* Plegada: solo la foto y el botón de salir, uno sobre otro. */}
+        {/* Margen negativo + relleno: la barra de desplazamiento va al borde y no recorta el anillo de foco. */}
+        <div className="-mx-3 flex min-h-0 flex-1 flex-col overflow-y-auto px-3 in-data-[menu=plegado]:-mx-2 in-data-[menu=plegado]:px-2">
+          <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} plegable />}</ConRuta>
+        </div>
+        <div className="mt-3 shrink-0 border-t border-linea pt-3">
+          {/* Plegada: la foto y, debajo, la cápsula de tema y salida. */}
           <div className="in-data-[menu=plegado]:[&>div]:flex-col in-data-[menu=plegado]:[&>div]:px-0 in-data-[menu=plegado]:[&_.leading-tight]:hidden">
             {cuenta}
           </div>
@@ -180,8 +182,8 @@ export function Navegacion({ cuenta, admin }: { cuenta: React.ReactNode; admin: 
           onClick={(e) => (e.target as HTMLElement).closest("a") && setAbierto(false)}
         >
           <ConRuta>{(ruta) => <MenuSecciones ruta={ruta} admin={admin} />}</ConRuta>
-          <div className="mt-3 space-y-3 border-t border-linea pt-3">
-            <SelectorTema />
+          {/* Pegada abajo: la cuenta se ve aunque la lista de secciones se desplace. */}
+          <div className="sticky bottom-0 -mx-3 -mb-4 mt-3 border-t border-linea bg-fondo px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
             {cuenta}
           </div>
         </div>

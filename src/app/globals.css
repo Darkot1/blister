@@ -162,13 +162,19 @@ body {
   background: color-mix(in oklab, var(--acento) 45%, transparent);
 }
 
-h1,
-h2,
-h3 {
-  text-wrap: balance;
-}
-p {
-  text-wrap: pretty;
+/*
+  En @layer base: text-wrap también fija el modo de corte y, fuera de una capa, ganaba a las utilidades como
+  `truncate` (white-space: nowrap), así que los textos recortados se partían en varias líneas.
+*/
+@layer base {
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
 }
 
 /*

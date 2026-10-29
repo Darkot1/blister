@@ -27,10 +27,18 @@ export default function PaginaAjustes({ searchParams }: PageProps<"/configuracio
     <>
       <Encabezado titulo="Ajustes" miga="Cuenta" />
       {/* Columnas en minmax(0,…): sin eso, un correo largo ensancha la tarjeta y la página se desplaza de lado en el celular. */}
-      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="min-w-0 space-y-4">
+          <Suspense fallback={<Esqueleto className="h-48" />}>
+            <PaginaPublica />
+          </Suspense>
           <Suspense fallback={<Esqueleto className="h-80" />}>
             <MiPerfil />
+          </Suspense>
+        </div>
+        <div className="min-w-0 space-y-4">
+          <Suspense fallback={<Esqueleto className="h-48" />}>
+            <Google searchParams={searchParams} />
           </Suspense>
           <Tarjeta className="overflow-hidden">
             <section aria-labelledby="titulo-apariencia">
@@ -41,14 +49,6 @@ export default function PaginaAjustes({ searchParams }: PageProps<"/configuracio
               </div>
             </section>
           </Tarjeta>
-        </div>
-        <div className="min-w-0 space-y-4">
-          <Suspense fallback={<Esqueleto className="h-48" />}>
-            <PaginaPublica />
-          </Suspense>
-          <Suspense fallback={<Esqueleto className="h-48" />}>
-            <Google searchParams={searchParams} />
-          </Suspense>
         </div>
       </div>
     </>

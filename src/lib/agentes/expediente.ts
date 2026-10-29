@@ -136,20 +136,23 @@ export async function expedienteAlumno(supabase: Supabase, alumnoId: string): Pr
     );
   }
 
-  // Cargas recientes: la mejor serie de cada ejercicio en sus últimas 3 sesiones (de la más reciente atrás).
+  // Cargas recientes: cada serie hecha de cada ejercicio en sus últimas 3 sesiones (de la más reciente
+  // atrás), con su RPE si lo anotó: así Cargas ve si la última serie ya iba al límite o sobraba margen.
   const nombreEjercicio = new Map(datos.ejercicios.map((e) => [e.ejercicioId, e.nombre]));
   const porEjercicio = new Map<string, string[]>();
+  const serie = (x: { pesoKg: number | null; reps: number | null; rpe: number | null }) =>
+    `${x.pesoKg !== null ? numero(x.pesoKg) : "—"}×${x.reps ?? "—"}${x.rpe !== null ? ` @${numero(x.rpe)}` : ""}`;
   for (const s of datos.sesiones.slice(0, 3)) {
     for (const e of s.ejercicios) {
       if (e.mejorPesoKg === null) continue;
       const lista = porEjercicio.get(e.ejercicioId) ?? [];
-      lista.push(`${fechaSinAnio(s.fecha)} ${numero(e.mejorPesoKg)} kg × ${e.mejorReps ?? "—"} (${e.series} series)`);
+      lista.push(`${fechaSinAnio(s.fecha)} ${e.hechas.slice(0, 8).map(serie).join(", ")}`);
       porEjercicio.set(e.ejercicioId, lista);
     }
   }
   if (porEjercicio.size) {
     lineas.push(
-      `- Cargas recientes (mejor serie por sesión): ${[...porEjercicio]
+      `- Cargas recientes (series hechas, kg×repeticiones, «@» es el RPE de la serie: RIR ≈ 10 − RPE): ${[...porEjercicio]
         .slice(0, 8)
         .map(([id, sesiones]) => `${nombreEjercicio.get(id) ?? "Ejercicio"}: ${sesiones.join(", ")}`)
         .join("; ")}.`,

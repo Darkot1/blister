@@ -159,6 +159,12 @@ export type OrganizacionFila = {
   whatsapp: string | null;
   /** Diseño de la página (orden de secciones, color, portada…). Se lee con normalizarDiseno(). */
   diseno: Json;
+  /** Testimonios de alumnos publicados con su permiso (máximo 6). */
+  testimonios: Testimonio[];
+  /** En cuántas horas responde las solicitudes (1 a 72). */
+  respuesta_horas: number | null;
+  /** Oferta para empezar, en la portada ("Primera sesión gratis"). */
+  oferta_inicial: string | null;
   creado_en: string;
   actualizado_en: string;
 };
@@ -185,10 +191,13 @@ export type SolicitudFila = {
 /** Un método de trabajo de la página pública ("Cómo trabajo"). */
 export type MetodoTrabajo = { titulo: string; descripcion: string };
 
+/** Un testimonio de la página pública: quién (como el alumno lo autorizó), qué dice y, opcional, su resultado. */
+export type Testimonio = { nombre: string; texto: string; resultado: string };
+
 /** Respuesta de la RPC pagina_publica. */
 export type PaginaPublica = Pick<
   OrganizacionFila,
-  "nombre" | "titular" | "presentacion" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno"
+  "nombre" | "titular" | "presentacion" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "testimonios" | "respuesta_horas" | "oferta_inicial"
 > & {
   entrenadores: { nombres: string; apellidos: string; avatar_url: string | null }[];
 };
@@ -389,7 +398,7 @@ export type Database = {
         Opcional<ObjetivoFila, "id" | "descripcion" | "valor_meta" | "unidad" | "es_principal" | "fecha_inicio" | "fecha_meta" | "estado" | "creado_en" | "actualizado_en">
       >;
       perfiles: Tabla<PerfilFila, Opcional<PerfilFila, "nombres" | "apellidos" | "avatar_url" | "telefono" | "creado_en" | "actualizado_en">>;
-      organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "pagina_publica" | "presentacion" | "titular" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "creado_en" | "actualizado_en">>;
+      organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "pagina_publica" | "presentacion" | "titular" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "testimonios" | "respuesta_horas" | "oferta_inicial" | "creado_en" | "actualizado_en">>;
       solicitudes: Tabla<
         SolicitudFila,
         Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "estado" | "alumno_id" | "autoriza_datos_en" | "creado_en" | "actualizado_en">
