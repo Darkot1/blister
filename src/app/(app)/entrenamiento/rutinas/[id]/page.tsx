@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Archive, ArchiveRestore, Copy } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
-import { Boton } from "@/components/ui/boton";
 import { Esqueleto } from "@/components/ui/esqueleto";
 import { hoyLocal } from "@/lib/calendario";
 import { cargarCatalogo, cargarPlantilla } from "@/lib/entrenamiento/cargar";
@@ -14,6 +13,7 @@ import { CargandoConstructor } from "../../constructor/cargando";
 import { EliminarRutina } from "./eliminar-rutina";
 import { ConstructorRutina } from "../../constructor/constructor";
 import { estadoInicial } from "../../constructor/estado";
+import { BotonAccion } from "@/components/ui/boton-accion";
 
 export const metadata: Metadata = { title: "Rutina" };
 
@@ -60,22 +60,18 @@ async function Rutina({ params }: { params: PageProps<"/entrenamiento/rutinas/[i
           </>
         }
         acciones={
-          <form action={duplicarRutina.bind(null, id)}>
-            <Boton type="submit" variante="secundario">
-              <Copy aria-hidden className="size-4" /> Duplicar
-            </Boton>
-          </form>
+          <BotonAccion accion={duplicarRutina.bind(null, id)} textoPendiente="Duplicando…">
+            <Copy aria-hidden className="size-4" /> Duplicar
+          </BotonAccion>
         }
       />
 
       {archivada && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-tarjeta)] border border-aviso/30 bg-aviso/[0.06] px-4 py-3 text-sm">
           <p>Esta rutina está archivada: no aparece en la lista de rutinas activas.</p>
-          <form action={cambiarEstadoRutina.bind(null, id, "activo")}>
-            <Boton type="submit" variante="secundario">
-              <ArchiveRestore aria-hidden className="size-4" /> Restaurar
-            </Boton>
-          </form>
+          <BotonAccion accion={cambiarEstadoRutina.bind(null, id, "activo")} textoPendiente="Restaurando…">
+            <ArchiveRestore aria-hidden className="size-4" /> Restaurar
+          </BotonAccion>
         </div>
       )}
 
@@ -106,11 +102,9 @@ async function Rutina({ params }: { params: PageProps<"/entrenamiento/rutinas/[i
             </p>
             <div className="flex flex-wrap gap-2">
               {!archivada && (
-                <form action={cambiarEstadoRutina.bind(null, id, "archivado")}>
-                  <Boton type="submit" variante="secundario">
-                    <Archive aria-hidden className="size-4" /> Archivar
-                  </Boton>
-                </form>
+                <BotonAccion accion={cambiarEstadoRutina.bind(null, id, "archivado")} textoPendiente="Archivando…">
+                  <Archive aria-hidden className="size-4" /> Archivar
+                </BotonAccion>
               )}
               <EliminarRutina id={id} nombre={rutina.nombre} />
             </div>

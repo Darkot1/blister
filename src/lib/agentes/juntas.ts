@@ -111,6 +111,9 @@ export type Junta = {
 /** Una junta del historial, ya terminada. */
 export type JuntaGuardada = { id: string; alumnoId: string | null; creadoEn: string; modelos: string[]; caso: CasoJunta };
 
+/** Lo que lista el historial: lo justo para encontrarla. El caso completo se pide al abrirla (ver `leerJunta`). */
+export type ResumenJunta = { id: string; alumnoId: string | null; creadoEn: string; titulo: string; alumno: string; contexto: string };
+
 /** Pasos de la junta, en orden. La vista avanza uno a uno. */
 export type Paso =
   | { tipo: "convoca" }

@@ -7,6 +7,7 @@ import {
   enlaceWhatsapp,
   listaCertificaciones,
   normalizarDiseno,
+  textoSobre,
   urlFoto,
   type Diseno,
   type Seccion,
@@ -77,7 +78,9 @@ export function VistaPaginaPublica({
   // El color elegido reemplaza al cobalto en toda la página (botones, números, detalles).
   const estilo = {
     "--acento": diseno.acento,
-    "--acento-hover": `color-mix(in oklab, ${diseno.acento} 85%, white)`,
+    // Con un color claro el texto encima va oscuro, y el hover oscurece en vez de aclarar.
+    "--sobre-acento": textoSobre(diseno.acento),
+    "--acento-hover": `color-mix(in oklab, ${diseno.acento} 85%, ${textoSobre(diseno.acento) === "#ffffff" ? "white" : "black"})`,
   } as React.CSSProperties;
 
   const contenido: Record<Seccion, React.ReactNode> = {
@@ -131,7 +134,8 @@ function Portada({ datos, diseno, nombre }: { datos: PaginaPublica; diseno: Dise
   const foto = urlFoto(datos.foto_ruta);
   const fondo = FONDO[diseno.fondo];
   const posicion = POSICION[diseno.portada];
-  const claro = fondo.claro;
+  // Fondo de color: el texto va en blanco solo si el color elegido es oscuro.
+  const claro = diseno.fondo === "color" ? textoSobre(diseno.acento) === "#ffffff" : fondo.claro;
   const items = [
     datos.experiencia_anos ? { icono: Clock, texto: `${datos.experiencia_anos} ${datos.experiencia_anos === 1 ? "año" : "años"} de experiencia` } : null,
     datos.modalidad ? { icono: MonitorSmartphone, texto: ETIQUETA_MODALIDAD[datos.modalidad] } : null,

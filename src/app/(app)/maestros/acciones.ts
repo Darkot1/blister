@@ -12,25 +12,14 @@ const ERROR_GENERICO = "No se pudo guardar. Revisa tu conexión e inténtalo de 
 type Contexto = Awaited<ReturnType<typeof obtenerContexto>>;
 type DatosEjercicio = NonNullable<ReturnType<typeof leerEjercicio>["data"]>;
 
-/** Reemplaza los músculos y el equipamiento de un ejercicio propio. */
+/** Reemplaza los músculos y el equipamiento de un ejercicio propio, en una sola transacción (o nada cambia). */
 async function guardarRelaciones(supabase: Contexto["supabase"], ejercicioId: string, datos: DatosEjercicio) {
-  const borrados = await Promise.all([
-    supabase.from("ejercicios_musculos").delete().eq("ejercicio_id", ejercicioId),
-    supabase.from("ejercicios_equipamiento").delete().eq("ejercicio_id", ejercicioId),
-  ]);
-  if (borrados.some((r) => r.error)) return false;
-
-  const [musculos, equipos] = await Promise.all([
-    supabase
-      .from("ejercicios_musculos")
-      .insert(datos.musculos.map((m) => ({ ejercicio_id: ejercicioId, musculo_id: m.id, rol: m.rol }))),
-    datos.equipos.length
-      ? supabase
-          .from("ejercicios_equipamiento")
-          .insert(datos.equipos.map((id) => ({ ejercicio_id: ejercicioId, equipamiento_id: id })))
-      : Promise.resolve({ error: null }),
-  ]);
-  return !musculos.error && !equipos.error;
+  const { error } = await supabase.rpc("reemplazar_relaciones_ejercicio", {
+    p_ejercicio_id: ejercicioId,
+    p_musculos: datos.musculos.map((m) => ({ id: m.id, rol: m.rol })),
+    p_equipos: datos.equipos,
+  });
+  return !error;
 }
 
 const filaEjercicio = (d: DatosEjercicio) => ({
@@ -101,11 +90,11 @@ export async function actualizarEjercicio(
   redirect("/maestros/ejercicios?origen=propios");
 }
 
-export async function cambiarEstadoEjercicio(ejercicioId: string, estado: "activo" | "archivado") {
-  if (!/^[0-9a-f-]{36}$/i.test(ejercicioId) || (estado !== "activo" && estado !== "archivado")) throw new Error("Cambio de estado no válido.");
+export async function cambiarEstadoEjercicio(ejercicioId: string, estado: "activo" | "archivado"): Promise<{ error?: string }> {
+  if (!/^[0-9a-f-]{36}$/i.test(ejercicioId) || (estado !== "activo" && estado !== "archivado")) return { error: "Cambio de estado no válido." };
   const { supabase } = await obtenerContexto();
   const { data, error } = await supabase.from("ejercicios").update({ estado }).eq("id", ejercicioId).eq("es_global", false).select("id");
-  if (error || !data?.length) throw new Error("No se pudo cambiar el estado del ejercicio.");
+  if (error || !data?.length) return { error: "No se pudo cambiar el estado del ejercicio. Inténtalo de nuevo." };
   redirect(estado === "archivado" ? "/maestros/ejercicios?origen=archivados" : "/maestros/ejercicios?origen=propios");
 }
 

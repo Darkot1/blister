@@ -4,7 +4,7 @@ import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Menu } from "lucide-react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { Dialogo } from "@/components/ui/dialogo";
 import { PULSO, RITMO_PULSO, useBucle } from "@/components/ui/movimiento";
 import { Marca } from "./marca";
@@ -35,7 +35,7 @@ function PuntoPendiente({ className }: { className: string }) {
   const { pending } = useLinkStatus();
   const bucle = useBucle();
   return (
-    <motion.span
+    <m.span
       aria-hidden
       initial={false}
       animate={pending ? (bucle ? PULSO : { opacity: 1 }) : { opacity: 0 }}
@@ -147,20 +147,29 @@ export function Navegacion({ cuenta, admin }: { cuenta: React.ReactNode; admin: 
               })
             }
           </ConRuta>
-          <li>
-            <button
-              type="button"
-              onClick={() => setAbierto(true)}
-              aria-expanded={abierto}
-              aria-haspopup="dialog"
-              className="flex h-full w-full flex-col items-center justify-center gap-1 text-[0.7rem] font-medium text-tenue"
-            >
-              <span className="grid h-7 w-12 place-items-center rounded-full">
-                <Menu aria-hidden className="size-5" />
-              </span>
-              Más
-            </button>
-          </li>
+          <ConRuta>
+            {(ruta) => {
+              // Estás en una sección que vive en "Más" (Rutinas, Ejercicios, Oficina…): se marca para saber dónde estás.
+              const enMas = ruta !== "" && !PRINCIPALES.some((href) => esActiva(ruta, href));
+              return (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setAbierto(true)}
+                    aria-expanded={abierto}
+                    aria-haspopup="dialog"
+                    aria-label={enMas ? "Más secciones (estás en una de ellas)" : "Más secciones"}
+                    className={`flex h-full w-full flex-col items-center justify-center gap-1 text-[0.7rem] font-medium ${enMas ? "text-tinta" : "text-tenue"}`}
+                  >
+                    <span className={`grid h-7 w-12 place-items-center rounded-full transition-colors ${enMas ? "bg-hueso" : ""}`}>
+                      <Menu aria-hidden className={`size-5 ${enMas ? "text-acento" : ""}`} />
+                    </span>
+                    Más
+                  </button>
+                </li>
+              );
+            }}
+          </ConRuta>
         </ul>
       </nav>
 

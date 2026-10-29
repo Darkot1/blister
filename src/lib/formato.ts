@@ -40,16 +40,16 @@ export function hora(valor: string) {
   );
 }
 
+/** Fecha de hoy en Colombia ("AAAA-MM-DD"): el servidor corre en UTC y de noche ya sería mañana. */
+const hoyEnColombia = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota", year: "numeric", month: "2-digit", day: "2-digit" });
+
 export function edad(fechaNacimiento: string | null) {
   if (!fechaNacimiento) return null;
-  const nacimiento = new Date(`${fechaNacimiento}T12:00:00`);
-  const hoy = new Date();
-  let anios = hoy.getFullYear() - nacimiento.getFullYear();
-  const aunNoCumple =
-    hoy.getMonth() < nacimiento.getMonth() ||
-    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() < nacimiento.getDate());
-  if (aunNoCumple) anios -= 1;
-  return anios;
+  const [anioN, mesN, diaN] = fechaNacimiento.slice(0, 10).split("-").map(Number);
+  const [anioH, mesH, diaH] = hoyEnColombia.format(new Date()).split("-").map(Number);
+  if (!anioN || !anioH) return null;
+  const aunNoCumple = mesH < mesN || (mesH === mesN && diaH < diaN);
+  return anioH - anioN - (aunNoCumple ? 1 : 0);
 }
 
 export function numero(valor: number | null | undefined, decimales = 1) {

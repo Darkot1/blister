@@ -14,6 +14,7 @@ import { rankearEjercicios, type Rol } from "@/lib/ejercicios/ranking";
 import { ETIQUETA_DIFICULTAD, ETIQUETA_TIPO } from "@/lib/ejercicios/etiquetas";
 import { NivelDificultad } from "@/components/ui/nivel-dificultad";
 import { ExploradorEjercicios } from "./selector-musculos";
+import { todasLasFilas } from "@/lib/supabase/paginar";
 
 export const metadata: Metadata = { title: "Ejercicios" };
 
@@ -64,7 +65,9 @@ async function Biblioteca({ searchParams }: { searchParams: Busqueda }) {
   const { supabase } = await obtenerContexto();
   const [{ data: ejercicios, error }, { data: relaciones }, { data: musculos }] = await Promise.all([
     supabase.from("ejercicios").select("id, nombre, tipo, dificultad, es_global").eq("estado", "activo").order("nombre"),
-    supabase.from("ejercicios_musculos").select("ejercicio_id, musculo_id, rol"),
+    todasLasFilas((desde, hasta) =>
+      supabase.from("ejercicios_musculos").select("ejercicio_id, musculo_id, rol").order("ejercicio_id").order("musculo_id").range(desde, hasta),
+    ),
     supabase.from("musculos").select("id, slug, nombre").order("orden"),
   ]);
 

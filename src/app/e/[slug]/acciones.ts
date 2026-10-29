@@ -25,6 +25,8 @@ const esquema = z
       .refine((t) => t === "" || /^[0-9+()\s-]{7,30}$/.test(t), "Revisa tu teléfono."),
     objetivo: z.union([z.literal(""), z.enum(OBJETIVOS)]),
     mensaje: z.string().trim().max(1000, "Máximo 1000 caracteres."),
+    // Autorización de tratamiento de datos (Ley 1581 de 2012): el mensaje puede traer datos de salud.
+    autoriza: z.literal("si", "Necesitamos tu autorización para tratar tus datos."),
   })
   .refine((d) => d.correo !== "" || d.telefono !== "", { message: "Deja un correo o un teléfono.", path: ["correo"] });
 
@@ -50,6 +52,7 @@ export async function enviarSolicitud(slug: string, _: EstadoSolicitud, formData
     p_telefono: datos.data.telefono,
     p_objetivo: datos.data.objetivo,
     p_mensaje: datos.data.mensaje,
+    p_autoriza: true,
   });
   if (error) {
     return { error: CODIGOS_CON_MENSAJE.has(error.code) ? error.message : "No se pudo enviar. Inténtalo de nuevo en un momento.", valores };

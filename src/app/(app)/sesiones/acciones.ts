@@ -28,16 +28,43 @@ async function empezarSiHaceFalta(supabase: Supabase, sesionId: string) {
     .eq("estado", "programada");
 }
 
+export type CambioSerie = { serieId: string; datos: DatosSerie };
+
+/**
+ * Guarda varias series de una vez (marcar todo un ejercicio, o reintentar las que fallaron). Una
+ * sola llamada: con mala cobertura cada viaje cuenta. Solo toca series de esta sesión.
+ * Devuelve los ids que no se guardaron.
+ */
+export async function guardarSeries(sesionId: string, cambios: CambioSerie[]): Promise<{ error?: string; fallidas?: string[] }> {
+  if (!esId(sesionId) || !cambios.length || cambios.length > 60 || cambios.some((c) => !esId(c.serieId))) return { error: "Serie no encontrada." };
+  const validos = cambios.map((c) => ({ id: c.serieId, datos: esquemaSerie.safeParse(c.datos) }));
+  if (validos.some((v) => !v.datos.success)) return { error: "Revisa el peso y las repeticiones.", fallidas: cambios.map((c) => c.serieId) };
+
+  const { supabase } = await obtenerContexto();
+  // Las series deben ser de esta sesión (y RLS, de tu espacio).
+  const [{ data: series }, { data: ejercicios }] = await Promise.all([
+    supabase.from("sesion_series").select("id, sesion_ejercicio_id").in("id", cambios.map((c) => c.serieId)),
+    supabase.from("sesion_ejercicios").select("id").eq("sesion_id", sesionId),
+  ]);
+  const ejerciciosSesion = new Set((ejercicios ?? []).map((e) => e.id));
+  const deLaSesion = new Set((series ?? []).filter((f) => ejerciciosSesion.has(f.sesion_ejercicio_id)).map((f) => f.id));
+
+  const resultados = await Promise.all(
+    validos.map(async ({ id, datos }) => {
+      if (!deLaSesion.has(id) || !datos.success) return id;
+      const { data, error } = await supabase.from("sesion_series").update(datos.data).eq("id", id).select("id");
+      return error || !data?.length ? id : null;
+    }),
+  );
+  const fallidas = resultados.filter((id): id is string => id !== null);
+  if (validos.some((v, i) => resultados[i] === null && v.datos.success && v.datos.data.completada)) await empezarSiHaceFalta(supabase, sesionId);
+  return fallidas.length ? { error: ERROR, fallidas } : {};
+}
+
 /** Guarda una serie (peso, repeticiones, RPE, hecha o no). Se llama al tocar cada serie: nada se pierde si se cierra la pantalla. */
 export async function guardarSerie(sesionId: string, serieId: string, datos: DatosSerie): Promise<{ error?: string }> {
-  if (!esId(sesionId) || !esId(serieId)) return { error: "Serie no encontrada." };
-  const valido = esquemaSerie.safeParse(datos);
-  if (!valido.success) return { error: "Revisa el peso y las repeticiones." };
-  const { supabase } = await obtenerContexto();
-  const { data, error } = await supabase.from("sesion_series").update(valido.data).eq("id", serieId).select("id");
-  if (error || !data?.length) return { error: ERROR };
-  if (valido.data.completada) await empezarSiHaceFalta(supabase, sesionId);
-  return {};
+  const { error } = await guardarSeries(sesionId, [{ serieId, datos }]);
+  return error ? { error } : {};
 }
 
 /** Añade una serie al final, con el mismo peso que la anterior. */
@@ -112,12 +139,27 @@ export async function terminarSesion(sesionId: string, formData: FormData): Prom
   return {};
 }
 
-/** Volver a abrir una sesión cerrada por error. */
+/** Volver a abrir una sesión cerrada por error. Su cita vuelve a programada (y a Google). */
 export async function reabrirSesion(sesionId: string): Promise<{ error?: string }> {
   if (!esId(sesionId)) return { error: "Sesión no encontrada." };
-  const { supabase } = await obtenerContexto();
-  const { error } = await supabase.from("sesiones").update({ estado: "en_curso", completada_en: null }).eq("id", sesionId);
+  const { supabase, usuarioId } = await obtenerContexto();
+  // Solo una completada: una cancelada o "no asistió" se gestiona desde el calendario.
+  const { data, error } = await supabase
+    .from("sesiones")
+    .update({ estado: "en_curso", completada_en: null })
+    .eq("id", sesionId)
+    .eq("estado", "completada")
+    .select("id");
   if (error) return { error: ERROR };
+  if (!data?.length) return { error: "Solo se puede reabrir una sesión completada." };
+
+  const { data: citas } = await supabase
+    .from("citas")
+    .update({ estado: "programada" })
+    .eq("sesion_id", sesionId)
+    .eq("estado", "completada")
+    .select("id");
+  for (const c of citas ?? []) await sincronizarCita(supabase, usuarioId, c.id, false);
   refresh();
   return {};
 }
@@ -136,6 +178,7 @@ export async function empezarSesion(planDiaId: string): Promise<{ error?: string
   const ahora = new Date().toISOString();
   const { data: sesionId, error } = await supabase.rpc("iniciar_sesion_desde_plan", { p_plan_dia_id: planDiaId, p_programada_para: ahora });
   if (error || !sesionId) return { error: "No se pudo preparar la sesión. Inténtalo de nuevo." };
+  // Si esto falla, la sesión queda "programada" y empieza al marcar la primera serie: se puede seguir.
   await supabase.from("sesiones").update({ estado: "en_curso", iniciada_en: ahora }).eq("id", sesionId);
   redirect(`/sesiones/${sesionId}`);
 }

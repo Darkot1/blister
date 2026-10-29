@@ -29,6 +29,9 @@ const AJENA = "Esta cita es de otro entrenador: solo él puede cambiarla.";
 
 const DIA_AJENO = "Ese día no es del plan de este alumno. Elige uno de su plan activo.";
 
+/** La cita se guardó pero su sesión no: se avisa en vez de dejar el calendario y la sesión desfasados. */
+const SESION_DESFASADA = "La cita se actualizó, pero su sesión no. Vuelve a intentarlo.";
+
 /** Crea la sesión prescrita de un día del plan (ejercicios y series listos para registrar). */
 async function crearSesion(supabase: Supabase, planDiaId: string, programadaPara: string) {
   const { data, error } = await supabase.rpc("iniciar_sesion_desde_plan", {
@@ -113,10 +116,14 @@ export async function cambiarEstadoCita(citaId: string, estado: EstadoCita): Pro
     };
   }
   if (cita?.sesion_id) {
-    await supabase
+    const { error: errorSesion } = await supabase
       .from("sesiones")
       .update({ estado: ESTADO_SESION[estado], completada_en: estado === "completada" ? new Date().toISOString() : null })
       .eq("id", cita.sesion_id);
+    if (errorSesion) {
+      refresh();
+      return { error: SESION_DESFASADA };
+    }
   }
   // Cancelar borra el evento y Google avisa al alumno; marcar asistencia no le manda nada.
   await sincronizarCita(supabase, usuarioId, citaId, estado === "cancelada");
@@ -132,6 +139,13 @@ export async function elegirDiaCita(citaId: string, planDiaId: string): Promise<
   if (!cita || cita.tipo !== "entrenamiento") return { error: "Esta cita no es de entrenamiento." };
   if (cita.entrenador_id !== usuarioId) return { error: AJENA };
   if (!(await esDiaDelAlumno(supabase, planDiaId, cita.alumno_id))) return { error: DIA_AJENO };
+  // Si ya se empezó a registrar, cambiar el día borraría ese registro del plan: no se permite.
+  if (cita.sesion_id) {
+    const { data: anterior } = await supabase.from("sesiones").select("estado").eq("id", cita.sesion_id).maybeSingle();
+    if (anterior && (anterior.estado === "en_curso" || anterior.estado === "completada")) {
+      return { error: "Esta cita ya tiene una sesión registrada: no se le puede cambiar el día." };
+    }
+  }
 
   const sesionId = await crearSesion(supabase, planDiaId, cita.inicia_en);
   if (!sesionId) return { error: "No se pudo preparar la sesión de ese día del plan." };
@@ -141,7 +155,13 @@ export async function elegirDiaCita(citaId: string, planDiaId: string): Promise<
     return { error: ERROR_GENERICO };
   }
   // La sesión anterior (si la había) deja de contar como agendada.
-  if (cita.sesion_id) await supabase.from("sesiones").update({ estado: "cancelada" }).eq("id", cita.sesion_id);
+  if (cita.sesion_id) {
+    const { error: errorAnterior } = await supabase.from("sesiones").update({ estado: "cancelada" }).eq("id", cita.sesion_id);
+    if (errorAnterior) {
+      refresh();
+      return { error: SESION_DESFASADA };
+    }
+  }
   await sincronizarCita(supabase, usuarioId, citaId, false); // El título del evento dice qué se entrena.
   refresh();
   return {};
@@ -170,7 +190,11 @@ export async function reprogramarCita(citaId: string, _: EstadoFormulario, formD
   }
   if (!cita) return { error: "Solo puedes mover tus citas pendientes.", valores: valoresDe(formData) };
   if (cita.sesion_id) {
-    await supabase.from("sesiones").update({ programada_para: inicio.toISOString() }).eq("id", cita.sesion_id);
+    const { error: errorSesion } = await supabase.from("sesiones").update({ programada_para: inicio.toISOString() }).eq("id", cita.sesion_id);
+    if (errorSesion) {
+      refresh();
+      return { error: SESION_DESFASADA, valores: valoresDe(formData) };
+    }
   }
   await sincronizarCita(supabase, usuarioId, citaId, true); // Google le avisa al alumno del nuevo horario.
   refresh();

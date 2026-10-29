@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { Check, CheckCheck, Minus, Plus, RotateCcw } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { Aviso } from "@/components/ui/aviso";
 import { Boton } from "@/components/ui/boton";
 import { BotonEnvio } from "@/components/ui/boton-envio";
@@ -11,9 +11,12 @@ import { APARECE } from "@/components/ui/movimiento";
 import { Tarjeta } from "@/components/ui/tarjeta";
 import { numero } from "@/lib/formato";
 import type { EjercicioDeSesion, Serie } from "@/lib/entrenamiento/sesiones";
-import { agregarSerie, guardarSerie, quitarSerie, reabrirSesion, terminarSesion } from "../acciones";
+import { agregarSerie, guardarSeries, quitarSerie, reabrirSesion, terminarSesion } from "../acciones";
 
 type Edicion = { peso: string; repeticiones: string; completada: boolean };
+
+/** Si la acción ni siquiera llega al servidor (sin señal en el gimnasio). */
+const SIN_RED = "Sin conexión: no se pudo guardar. Revisa la señal y toca Reintentar.";
 
 /** Con coma decimal, como se escribe en Colombia ("52,5"); al guardar se aceptan coma o punto. */
 const texto = (v: number | null) => (v === null ? "" : String(v).replace(".", ","));
@@ -34,9 +37,9 @@ const SUAVE = [0.22, 1, 0.36, 1] as const;
  * Botón "hecha" al estilo de una lista de tareas: al marcarla da un pequeño salto y el ✓ se dibuja;
  * sin marcar, el ✓ queda tenue como pista de para qué sirve.
  */
-function MarcaHecha({ hecha, quieto, ...props }: { hecha: boolean; quieto: boolean } & React.ComponentProps<typeof motion.button>) {
+function MarcaHecha({ hecha, quieto, fallida, ...props }: { hecha: boolean; quieto: boolean; fallida: boolean } & React.ComponentProps<typeof m.button>) {
   return (
-    <motion.button
+    <m.button
       type="button"
       aria-pressed={hecha}
       initial={false}
@@ -45,19 +48,19 @@ function MarcaHecha({ hecha, quieto, ...props }: { hecha: boolean; quieto: boole
       transition={{ duration: 0.3 }}
       className={`grid size-11 place-items-center justify-self-center rounded-full border transition-colors ${
         hecha ? "border-exito bg-exito text-superficie" : "border-linea-fuerte/70 text-tenue hover:border-tinta hover:text-tinta"
-      }`}
+      } ${fallida ? "ring-2 ring-peligro ring-offset-2 ring-offset-superficie" : ""}`}
       {...props}
     >
       <svg aria-hidden viewBox="0 0 24 24" className="size-5 fill-none stroke-current [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:2.5]">
         {!hecha && <path d="M20 6 9 17l-5-5" className="opacity-60" />}
-        <motion.path
+        <m.path
           d="M20 6 9 17l-5-5"
           initial={false}
           animate={{ pathLength: hecha ? 1 : 0, opacity: hecha ? 1 : 0 }}
           transition={quieto ? { duration: 0 } : { pathLength: { duration: 0.3, ease: "easeOut", delay: 0.05 }, opacity: { duration: 0.05 } }}
         />
       </svg>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -73,12 +76,15 @@ function resumenSeries(series: Serie[]) {
 export function RegistroSesion({
   sesionId,
   completada,
+  cerrada,
   rpe,
   notas,
   ejercicios,
 }: {
   sesionId: string;
   completada: boolean;
+  /** Cancelada o "no asistió": se ve pero no se registra. */
+  cerrada: string | null;
   rpe: number | null;
   notas: string | null;
   ejercicios: EjercicioDeSesion[];
@@ -86,6 +92,8 @@ export function RegistroSesion({
   // Lo que el entrenador cambió y aún puede no estar en las props (se guarda serie a serie).
   const [ediciones, setEdiciones] = useState<Record<string, Edicion>>({});
   const [guardando, setGuardando] = useState<Set<string>>(new Set());
+  // Series cuyo último cambio no llegó a la base: se muestran y se pueden reintentar.
+  const [fallidas, setFallidas] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [pendiente, iniciar] = useTransition();
   const quieto = Boolean(useReducedMotion());
@@ -95,38 +103,66 @@ export function RegistroSesion({
   const guardados = useRef(new Map<string, Edicion>());
   const guardado = (s: Serie) => guardados.current.get(s.id) ?? { peso: texto(s.peso), repeticiones: texto(s.repeticiones), completada: s.completada };
 
-  const guardar = async (s: Serie, cambio: Partial<Edicion>) => {
-    const nuevo = { ...valor(s), ...cambio };
-    setEdiciones((e) => ({ ...e, [s.id]: nuevo }));
-    setGuardando((g) => new Set(g).add(s.id));
-    const resultado = await guardarSerie(sesionId, s.id, {
-      peso: aNumero(nuevo.peso),
-      repeticiones: aNumero(nuevo.repeticiones) === null ? null : Math.round(aNumero(nuevo.repeticiones)!),
-      rpe: s.rpe,
-      completada: nuevo.completada,
-    });
-    setGuardando((g) => {
-      const copia = new Set(g);
-      copia.delete(s.id);
-      return copia;
-    });
-    if (!resultado.error) guardados.current.set(s.id, nuevo);
+  /** Guarda en una sola llamada; lo que falle queda marcado para reintentar (nada se pierde en silencio). */
+  const guardarLote = async (items: { s: Serie; nuevo: Edicion }[]) => {
+    if (!items.length) return;
+    const ids = items.map((i) => i.s.id);
+    setEdiciones((e) => ({ ...e, ...Object.fromEntries(items.map((i) => [i.s.id, i.nuevo])) }));
+    setGuardando((g) => new Set([...g, ...ids]));
+    let resultado: { error?: string; fallidas?: string[] };
+    try {
+      resultado = await guardarSeries(
+        sesionId,
+        items.map(({ s, nuevo }) => ({
+          serieId: s.id,
+          datos: {
+            peso: aNumero(nuevo.peso),
+            repeticiones: aNumero(nuevo.repeticiones) === null ? null : Math.round(aNumero(nuevo.repeticiones)!),
+            rpe: s.rpe,
+            completada: nuevo.completada,
+          },
+        })),
+      );
+    } catch {
+      resultado = { error: SIN_RED, fallidas: ids };
+    } finally {
+      setGuardando((g) => new Set([...g].filter((id) => !ids.includes(id))));
+    }
+    const noGuardadas = new Set(resultado.fallidas ?? (resultado.error ? ids : []));
+    for (const { s, nuevo } of items) if (!noGuardadas.has(s.id)) guardados.current.set(s.id, nuevo);
+    setFallidas((f) => new Set([...[...f].filter((id) => !ids.includes(id)), ...noGuardadas]));
     setError(resultado.error ?? null);
   };
 
-  /** Marca o desmarca una serie. Marcarla sin anotar nada = hizo lo que pedía el plan. */
-  const marcar = (s: Serie, p: EjercicioDeSesion["prescripcion"], hecha: boolean) => {
+  const guardar = (s: Serie, cambio: Partial<Edicion>) => guardarLote([{ s, nuevo: { ...valor(s), ...cambio } }]);
+
+  /** Marcar o desmarcar una serie. Marcarla sin anotar nada = hizo lo que pedía el plan. */
+  const conMarca = (s: Serie, p: EjercicioDeSesion["prescripcion"], hecha: boolean): { s: Serie; nuevo: Edicion } => {
     const v = valor(s);
-    const reps = hecha && v.repeticiones.trim() === "" ? texto(repsObjetivo(p?.repeticiones)) : v.repeticiones;
+    const repeticiones = hecha && v.repeticiones.trim() === "" ? texto(repsObjetivo(p?.repeticiones)) : v.repeticiones;
     const peso = hecha && v.peso.trim() === "" && p?.peso !== null && p?.peso !== undefined ? String(p.peso) : v.peso;
-    return guardar(s, { completada: hecha, repeticiones: reps, peso });
+    return { s, nuevo: { ...v, completada: hecha, repeticiones, peso } };
+  };
+  const marcar = (s: Serie, p: EjercicioDeSesion["prescripcion"], hecha: boolean) => guardarLote([conMarca(s, p, hecha)]);
+
+  /** Todo el ejercicio de una vez, en una sola llamada. */
+  const marcarEjercicio = (e: EjercicioDeSesion, hecha: boolean) =>
+    guardarLote(e.series.filter((s) => valor(s).completada !== hecha).map((s) => conMarca(s, e.prescripcion, hecha)));
+
+  const reintentar = () => {
+    const series = ejercicios.flatMap((e) => e.series).filter((s) => fallidas.has(s.id));
+    void guardarLote(series.map((s) => ({ s, nuevo: valor(s) })));
   };
 
-  /** Todo el ejercicio de una vez: las series se marcan en cascada, como tachar una lista. */
-  const marcarEjercicio = (e: EjercicioDeSesion, hecha: boolean) =>
-    e.series
-      .filter((s) => valor(s).completada !== hecha)
-      .forEach((s, k) => setTimeout(() => void marcar(s, e.prescripcion, hecha), quieto ? 0 : k * 90));
+  /** Agregar, quitar o reabrir: si no hay red, se avisa en vez de quedarse esperando. */
+  const accion = (llamar: () => Promise<{ error?: string }>) =>
+    iniciar(async () => {
+      try {
+        setError((await llamar()).error ?? null);
+      } catch {
+        setError(SIN_RED);
+      }
+    });
 
   const total = ejercicios.reduce((t, e) => t + e.series.length, 0);
   const hechas = ejercicios.reduce((t, e) => t + e.series.filter((s) => valor(s).completada).length, 0);
@@ -137,17 +173,44 @@ export function RegistroSesion({
         <span className="tabular-nums">
           {hechas} de {total} series hechas
         </span>
-        <span>{guardando.size ? "Guardando…" : error ? "" : "Todo guardado"}</span>
+        <span className={!guardando.size && fallidas.size ? "font-medium text-peligro" : ""}>
+          {guardando.size
+            ? "Guardando…"
+            : fallidas.size
+              ? `${fallidas.size} ${fallidas.size === 1 ? "serie" : "series"} sin guardar`
+              : cerrada
+                ? ""
+                : "Todo guardado"}
+        </span>
       </p>
       <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-hueso">
-        <motion.div
+        <m.div
           className="h-full rounded-full bg-tinta"
           initial={false}
           animate={{ width: `${total ? (hechas / total) * 100 : 0}%` }}
           transition={quieto ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30 }}
         />
       </div>
-      {error && <Aviso>{error}</Aviso>}
+      {cerrada && (
+        <p className="rounded-[var(--radius-tarjeta)] border border-linea bg-hueso px-4 py-3 text-sm text-grafito">
+          Esta sesión está marcada como «{cerrada}», así que no se registra. Si sí entrenó, cambia la cita en el calendario.
+        </p>
+      )}
+      {error && (
+        <Aviso>
+          <span className="flex flex-wrap items-center justify-between gap-2">
+            {error}
+            {fallidas.size > 0 && !guardando.size && (
+              <Boton type="button" variante="secundario" className="h-9" onClick={reintentar}>
+                <RotateCcw aria-hidden className="size-4" /> Reintentar
+              </Boton>
+            )}
+          </span>
+        </Aviso>
+      )}
+
+      {/* Una sesión cancelada se ve pero no se edita: el fieldset desactiva todos sus controles. */}
+      <fieldset disabled={Boolean(cerrada)} className="contents">
 
       {ejercicios.length === 0 && (
         <p className="rounded-[var(--radius-tarjeta)] border border-dashed border-linea-fuerte/60 px-4 py-6 text-sm text-tenue">
@@ -171,7 +234,7 @@ export function RegistroSesion({
         const ultima = e.series.at(-1);
         const completo = e.series.length > 0 && e.series.every((s) => valor(s).completada);
         return (
-          <motion.div key={e.id} {...APARECE} transition={{ ...APARECE.transition, delay: Math.min(i, 8) * 0.05 }}>
+          <m.div key={e.id} {...APARECE} transition={{ ...APARECE.transition, delay: Math.min(i, 8) * 0.05 }}>
           <Tarjeta className="overflow-hidden">
             <section aria-labelledby={`ej-${e.id}`}>
               <div className="border-b border-linea px-4 py-3 sm:px-5">
@@ -181,7 +244,7 @@ export function RegistroSesion({
                   {/* Todas sus series hechas: el ejercicio se tacha de la lista. */}
                   <AnimatePresence>
                     {completo && (
-                      <motion.span
+                      <m.span
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
@@ -190,7 +253,7 @@ export function RegistroSesion({
                       >
                         <Check aria-hidden className="size-3.5" strokeWidth={3} />
                         <span className="sr-only">(todas las series hechas)</span>
-                      </motion.span>
+                      </m.span>
                     )}
                   </AnimatePresence>
                 </h2>
@@ -216,7 +279,7 @@ export function RegistroSesion({
                     const v = valor(s);
                     const id = (campo: string) => `${s.id}-${campo}`;
                     return (
-                      <motion.li
+                      <m.li
                         key={s.id}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
@@ -259,11 +322,12 @@ export function RegistroSesion({
                         <MarcaHecha
                           hecha={v.completada}
                           quieto={quieto}
-                          aria-label={`Serie ${s.numero_serie} hecha`}
+                          aria-label={`Serie ${s.numero_serie} hecha${fallidas.has(s.id) ? " (sin guardar)" : ""}`}
+                          fallida={fallidas.has(s.id)}
                           onClick={() => void marcar(s, p, !v.completada)}
                         />
                       </div>
-                      </motion.li>
+                      </m.li>
                     );
                   })}
                   </AnimatePresence>
@@ -273,8 +337,8 @@ export function RegistroSesion({
                     <Boton
                       type="button"
                       variante="fantasma"
-                      className={`h-8 px-2.5 ${completo ? "text-tenue" : ""}`}
-                      onClick={() => marcarEjercicio(e, !completo)}
+                      className={`h-10 px-3 ${completo ? "text-tenue" : ""}`}
+                      onClick={() => void marcarEjercicio(e, !completo)}
                     >
                       <CheckCheck aria-hidden className="size-4" /> {completo ? "Desmarcar todas" : "Marcar todas"}
                     </Boton>
@@ -282,9 +346,9 @@ export function RegistroSesion({
                   <Boton
                     type="button"
                     variante="fantasma"
-                    className="h-8 px-2.5"
+                    className="h-10 px-3"
                     disabled={pendiente}
-                    onClick={() => iniciar(async () => setError((await agregarSerie(sesionId, e.id)).error ?? null))}
+                    onClick={() => accion(() => agregarSerie(sesionId, e.id))}
                   >
                     <Plus aria-hidden className="size-4" /> Serie
                   </Boton>
@@ -292,9 +356,9 @@ export function RegistroSesion({
                     <Boton
                       type="button"
                       variante="fantasma"
-                      className="h-8 px-2.5 text-tenue"
+                      className="h-10 px-3 text-tenue"
                       disabled={pendiente}
-                      onClick={() => iniciar(async () => setError((await quitarSerie(ultima.id)).error ?? null))}
+                      onClick={() => accion(() => quitarSerie(ultima.id))}
                     >
                       <Minus aria-hidden className="size-4" /> Quitar la última
                     </Boton>
@@ -303,13 +367,16 @@ export function RegistroSesion({
               </div>
             </section>
           </Tarjeta>
-          </motion.div>
+          </m.div>
         );
       })}
 
+      </fieldset>
+
+      {!cerrada && (
       <AnimatePresence mode="wait" initial={false}>
       {completada ? (
-        <motion.div key="completada" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+        <m.div key="completada" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <Tarjeta className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
           <p className="text-sm">
             <span className="font-semibold">Sesión completada.</span>{" "}
@@ -322,19 +389,22 @@ export function RegistroSesion({
             type="button"
             variante="secundario"
             disabled={pendiente}
-            onClick={() => iniciar(async () => setError((await reabrirSesion(sesionId)).error ?? null))}
+            onClick={() => accion(() => reabrirSesion(sesionId))}
           >
             <RotateCcw aria-hidden className="size-4" /> Reabrir
           </Boton>
         </Tarjeta>
-        </motion.div>
+        </m.div>
       ) : (
-        <motion.div key="abierta" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+        <m.div key="abierta" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <Tarjeta className="p-4 sm:p-5">
           <form
             action={async (datos) => {
-              const resultado = await terminarSesion(sesionId, datos);
-              setError(resultado.error ?? null);
+              try {
+                setError((await terminarSesion(sesionId, datos)).error ?? null);
+              } catch {
+                setError(SIN_RED);
+              }
             }}
             className="space-y-4"
           >
@@ -355,9 +425,10 @@ export function RegistroSesion({
             {hechas < total && <p className="text-xs text-tenue">Quedan {total - hechas} series sin marcar; se guardan como no hechas.</p>}
           </form>
         </Tarjeta>
-        </motion.div>
+        </m.div>
       )}
       </AnimatePresence>
+      )}
     </div>
   );
 }

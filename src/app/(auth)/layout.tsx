@@ -1,6 +1,8 @@
 import { CalendarDays, Dumbbell, LineChart, Users } from "lucide-react";
 import { Marca } from "@/components/app/marca";
 import { SelectorTema } from "@/components/app/selector-tema";
+import { AvisoCookies } from "@/components/app/aviso-cookies";
+import { EnlacesLegales } from "@/components/app/enlaces-legales";
 
 /** Lo que hace la app, como una rejilla bento (decorativa). */
 const FUNCIONES = [
@@ -53,8 +55,10 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
             <SelectorTema />
           </div>
           {children}
+          <EnlacesLegales className="mt-10 justify-center text-xs text-tenue" />
         </div>
       </main>
+      <AvisoCookies />
     </div>
   );
 }

@@ -40,6 +40,8 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
   const lunes = inicioSemana(fechaOHoy(parametros.semana));
   const dias = diasDeSemana(lunes);
   const alumnoInicial = typeof parametros.alumno === "string" ? parametros.alumno : undefined;
+  // ?nueva=1 (desde el panel): abre el formulario de cita vacío.
+  const abrirNueva = parametros.nueva === "1";
 
   const [{ data: citas, error }, { data: activosBd }, { data: conexion }] = await Promise.all([
     supabase
@@ -125,6 +127,7 @@ async function Agenda({ searchParams }: { searchParams: PageProps<"/calendario">
       citas={vista}
       alumnos={activos}
       alumnoInicial={alumnoInicial}
+      abrirNueva={abrirNueva}
       googleConectado={google}
     />
   );

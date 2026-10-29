@@ -118,13 +118,14 @@ export async function actualizarAlumno(
 
 const ESTADOS_ALUMNO = ["activo", "inactivo", "archivado"] as const;
 
-export async function cambiarEstadoAlumno(alumnoId: string, estado: (typeof ESTADOS_ALUMNO)[number]) {
-  if (!esId(alumnoId) || !ESTADOS_ALUMNO.includes(estado)) throw new Error("Cambio de estado no válido.");
+export async function cambiarEstadoAlumno(alumnoId: string, estado: (typeof ESTADOS_ALUMNO)[number]): Promise<{ error?: string }> {
+  if (!esId(alumnoId) || !ESTADOS_ALUMNO.includes(estado)) return { error: "Cambio de estado no válido." };
   const { supabase } = await obtenerContexto();
   const { data, error } = await supabase.from("alumnos").update({ estado }).eq("id", alumnoId).select("id");
   // Sin filas: no existe o no hay permiso. Se avisa en lugar de fingir que se guardó.
-  if (error || !data?.length) throw new Error("No se pudo cambiar el estado del alumno.");
+  if (error || !data?.length) return { error: "No se pudo cambiar el estado del alumno. Inténtalo de nuevo." };
   refresh();
+  return {};
 }
 
 export async function agregarNota(alumnoId: string, _: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {

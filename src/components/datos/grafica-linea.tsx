@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import { fechaCorta, fechaSinAnio, numero } from "@/lib/formato";
 
 export type Punto = { fecha: string; valor: number; nota?: string };
@@ -111,7 +111,7 @@ export function GraficaLinea({
             </text>
           ))}
 
-          <motion.path
+          <m.path
             d={ruta}
             fill="none"
             className="stroke-tinta"
@@ -123,11 +123,11 @@ export function GraficaLinea({
             transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
           />
           {/* Puntos pequeños solo si son pocos; el último siempre, en cobalto con anillo del fondo. */}
-          <motion.g initial={quieto ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.3 }}>
+          <m.g initial={quieto ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.3 }}>
             {datos.length <= 24 &&
               datos.slice(0, -1).map((p, i) => <circle key={p.fecha + i} cx={xs[i]} cy={y(p.valor)} r="3" className="fill-tinta" />)}
-          </motion.g>
-          <motion.circle
+          </m.g>
+          <m.circle
             cx={xs[ultimo]}
             cy={y(datos[ultimo].valor)}
             r="5"

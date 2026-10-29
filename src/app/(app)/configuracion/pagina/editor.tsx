@@ -2,7 +2,7 @@
 
 import { useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { ArrowDown, ArrowUp, Check, Copy, Crop, ExternalLink, ImagePlus, Plus, Trash2 } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, LazyMotion, domMax, m, useReducedMotion } from "motion/react";
 import { VistaPaginaPublica } from "@/components/pagina-publica/vista";
 import { Aviso } from "@/components/ui/aviso";
 import { Boton } from "@/components/ui/boton";
@@ -10,16 +10,14 @@ import { AreaTexto, Campo, Selector, claseAreaTexto, claseControl } from "@/comp
 import { DialogoConfirmar } from "@/components/ui/dialogo-confirmar";
 import { CabeceraTarjeta, Tarjeta, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
 import {
-  BUCKET_PAGINAS,
   ETIQUETA_MODALIDAD,
   MAX_METODOS,
   normalizarDiseno,
   urlFoto,
   type Diseno,
 } from "@/lib/pagina-publica/contenido";
-import { crearClienteNavegador } from "@/lib/supabase/navegador";
 import type { MetodoTrabajo, OrganizacionFila, PaginaPublica } from "@/lib/supabase/tipos-bd";
-import { eliminarPagina, guardarPagina, type EstadoPagina } from "../acciones";
+import { eliminarPagina, enlaceSubidaPortada, guardarPagina, type EstadoPagina } from "../acciones";
 import { AjustarFoto } from "./ajustar-foto";
 import { PanelDiseno } from "./diseno";
 
@@ -87,12 +85,10 @@ const METODOS_SUGERIDOS: MetodoTrabajo[] = [
 const sinSuscripcion = () => () => {};
 
 export function EditorPagina({
-  organizacionId,
   inicial,
   entrenadores,
   editable,
 }: {
-  organizacionId: string;
   inicial: Inicial;
   entrenadores: PaginaPublica["entrenadores"];
   /** Solo propietario o admin pueden cambiarla. */
@@ -133,10 +129,16 @@ export function EditorPagina({
     setSubiendo(true);
     setEstado({});
     try {
-      const ruta = `${organizacionId}/portada-${clave()}.webp`;
-      const { error } = await crearClienteNavegador().storage.from(BUCKET_PAGINAS).upload(ruta, recorte, { contentType: "image/webp" });
-      if (error) throw error;
-      cambiar("foto_ruta", ruta);
+      // El servidor da un enlace firmado y la foto va directo a Storage (sin el cliente de Supabase aquí).
+      const enlace = await enlaceSubidaPortada();
+      if ("error" in enlace) throw new Error(enlace.error);
+      const respuesta = await fetch(enlace.url, {
+        method: "PUT",
+        body: recorte,
+        headers: { "content-type": "image/webp", "cache-control": "max-age=3600", "x-upsert": "false" },
+      });
+      if (!respuesta.ok) throw new Error(String(respuesta.status));
+      cambiar("foto_ruta", enlace.ruta);
     } catch {
       setEstado({ error: "No se pudo subir la foto. Prueba con otra imagen (JPG, PNG o WebP)." });
     } finally {
@@ -237,7 +239,7 @@ export function EditorPagina({
                 <label className="flex cursor-pointer items-center justify-between gap-3">
                   <span>
                     <span className="block text-sm font-medium">Mostrar mi página</span>
-                    <span className="block text-xs text-tenue">Apagada, el enlace muestra «no encontrada».</span>
+                    <span className="block text-xs text-tenue">Encendida, aparece en Google. Apagada, el enlace muestra «no encontrada».</span>
                   </span>
                   <input
                     type="checkbox"
@@ -247,7 +249,7 @@ export function EditorPagina({
                     className="peer sr-only"
                   />
                   <span aria-hidden className="relative h-6 w-10 shrink-0 rounded-full bg-linea-fuerte transition-colors peer-checked:bg-acento peer-focus-visible:ring-2 peer-focus-visible:ring-acento peer-focus-visible:ring-offset-2">
-                    <motion.span
+                    <m.span
                       className="absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow-sm"
                       animate={{ x: b.pagina_publica ? 16 : 0 }}
                       transition={{ type: "spring", stiffness: 600, damping: 32 }}
@@ -302,13 +304,13 @@ export function EditorPagina({
                       {/* eslint-disable-next-line @next/next/no-img-element -- miniatura del editor, ya reducida al subirla */}
                       <img src={urlFoto(b.foto_ruta)!} alt="Foto de portada" className="aspect-[16/9] w-full object-cover" />
                       <div className="absolute right-2 bottom-2 flex gap-1.5">
-                        <Boton type="button" variante="secundario" className="h-8 bg-superficie/90 px-3 backdrop-blur" disabled={subiendo} onClick={reajustar}>
+                        <Boton type="button" variante="secundario" className="tactil h-8 bg-superficie/90 px-3 backdrop-blur" disabled={subiendo} onClick={reajustar}>
                           <Crop aria-hidden className="size-4" /> Ajustar
                         </Boton>
-                        <Boton type="button" variante="secundario" className="h-8 bg-superficie/90 px-3 backdrop-blur" disabled={subiendo} onClick={() => archivo.current?.click()}>
+                        <Boton type="button" variante="secundario" className="tactil h-8 bg-superficie/90 px-3 backdrop-blur" disabled={subiendo} onClick={() => archivo.current?.click()}>
                           <ImagePlus aria-hidden className="size-4" /> Cambiar
                         </Boton>
-                        <Boton type="button" variante="peligro" className="h-8 bg-superficie/90 px-3 backdrop-blur" disabled={subiendo} onClick={() => cambiar("foto_ruta", null)}>
+                        <Boton type="button" variante="peligro" className="tactil h-8 bg-superficie/90 px-3 backdrop-blur" disabled={subiendo} onClick={() => cambiar("foto_ruta", null)}>
                           <Trash2 aria-hidden className="size-4" /> Quitar
                         </Boton>
                       </div>
@@ -408,11 +410,13 @@ export function EditorPagina({
               <div className="space-y-3 p-4">
                 <p className="text-sm text-tenue">Tus métodos o pasos: cómo es empezar contigo y qué te diferencia.</p>
                 {errores.metodos && <p className="text-sm text-peligro">{errores.metodos[0]}</p>}
+                {/* Reordenar métodos anima con `layout`, que no viene en el paquete ligero de toda la app. */}
+                <LazyMotion features={domMax}>
                 <ol className="space-y-3">
                   <AnimatePresence initial={false}>
-                    {b.metodos.map((m, i) => (
-                      <motion.li
-                        key={m.clave}
+                    {b.metodos.map((metodo, i) => (
+                      <m.li
+                        key={metodo.clave}
                         layout={!quieto}
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
@@ -423,10 +427,10 @@ export function EditorPagina({
                         <div className="space-y-2 rounded-2xl border border-linea p-3">
                           <div className="flex items-center gap-2">
                             <span className="grid size-7 shrink-0 place-items-center rounded-full bg-acento/10 text-xs font-semibold tabular-nums text-acento">{i + 1}</span>
-                            <label className="sr-only" htmlFor={`metodo-${m.clave}`}>Título del método {i + 1}</label>
+                            <label className="sr-only" htmlFor={`metodo-${metodo.clave}`}>Título del método {i + 1}</label>
                             <input
-                              id={`metodo-${m.clave}`}
-                              value={m.titulo}
+                              id={`metodo-${metodo.clave}`}
+                              value={metodo.titulo}
                               onChange={(e) => cambiarMetodo(i, "titulo", e.target.value)}
                               maxLength={60}
                               placeholder="Título"
@@ -442,10 +446,10 @@ export function EditorPagina({
                               <Trash2 aria-hidden className="size-4" />
                             </button>
                           </div>
-                          <label className="sr-only" htmlFor={`metodo-desc-${m.clave}`}>Descripción del método {i + 1}</label>
+                          <label className="sr-only" htmlFor={`metodo-desc-${metodo.clave}`}>Descripción del método {i + 1}</label>
                           <textarea
-                            id={`metodo-desc-${m.clave}`}
-                            value={m.descripcion}
+                            id={`metodo-desc-${metodo.clave}`}
+                            value={metodo.descripcion}
                             onChange={(e) => cambiarMetodo(i, "descripcion", e.target.value)}
                             maxLength={300}
                             rows={2}
@@ -453,10 +457,11 @@ export function EditorPagina({
                             className={claseAreaTexto}
                           />
                         </div>
-                      </motion.li>
+                      </m.li>
                     ))}
                   </AnimatePresence>
                 </ol>
+                </LazyMotion>
                 <div className="flex flex-wrap gap-2">
                   <Boton
                     type="button"
@@ -549,7 +554,7 @@ export function EditorPagina({
       {/* Barra de guardado: siempre a mano mientras haya cambios. */}
       <AnimatePresence>
         {(sinGuardar || estado.ok) && (
-          <motion.div
+          <m.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
@@ -564,7 +569,7 @@ export function EditorPagina({
                 {guardando ? "Guardando…" : "Guardar cambios"}
               </Boton>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

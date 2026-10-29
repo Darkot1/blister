@@ -5,17 +5,40 @@ import { Marca } from "@/components/app/marca";
 import { MapaCorporal } from "@/components/anatomia/mapa-corporal";
 import { GraficaLinea } from "@/components/datos/grafica-linea";
 import { EnlaceBoton } from "@/components/ui/boton";
+import { AvisoCookies } from "@/components/app/aviso-cookies";
+import { EnlacesLegales } from "@/components/app/enlaces-legales";
+import { DESCRIPCION_SITIO, NOMBRE_SITIO, URL_SITIO } from "@/lib/sitio";
 
 export const metadata: Metadata = {
-  title: { absolute: "Blister Fitness · Tu día de entrenador, en una sola página" },
-  description:
-    "Agenda, fichas de alumnos, rutinas por músculo, registro de sesiones y progreso para entrenadores personales. Con tus citas en Google Calendar.",
+  title: { absolute: "Blister Fitness · Software para entrenadores personales" },
+  description: DESCRIPCION_SITIO,
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Blister Fitness",
+    title: "Blister Fitness · Tu día de entrenador, en una sola página",
     description: "Agenda, alumnos, rutinas y progreso para entrenadores personales.",
+    url: "/",
+    siteName: NOMBRE_SITIO,
     type: "website",
     locale: "es_CO",
   },
+};
+
+/** Datos estructurados para Google (schema.org). */
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", "@id": `${URL_SITIO}/#sitio`, url: URL_SITIO, name: NOMBRE_SITIO, inLanguage: "es-CO" },
+    {
+      "@type": "SoftwareApplication",
+      name: NOMBRE_SITIO,
+      url: URL_SITIO,
+      description: DESCRIPCION_SITIO,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web, Android, iOS",
+      inLanguage: "es",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "COP" },
+    },
+  ],
 };
 
 // Datos de ejemplo para la vista del panel (no son de nadie).
@@ -61,6 +84,7 @@ function Crestas() {
 export default function Portada() {
   return (
     <div className="min-h-dvh bg-fondo">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c") }} />
       <main id="contenido">
         {/* Hero a ancho completo: siempre oscuro, con la navegación encima. */}
         <section aria-labelledby="titulo-portada" className="tema-oscuro relative isolate overflow-hidden bg-[#12121b]">
@@ -286,10 +310,12 @@ export default function Portada() {
             <Link href="/registro" className="hover:text-tinta">Crear cuenta</Link>
           </nav>
         </div>
-        <p className="mx-auto max-w-[75rem] border-t border-white/[0.06] px-4 py-5 text-xs tracking-[0.01em] text-tenue sm:px-6">
-          © 2026 Blister Fitness · Los nombres y cifras de las vistas de ejemplo son ficticios.
-        </p>
+        <div className="mx-auto flex max-w-[75rem] flex-col gap-3 border-t border-white/[0.06] px-4 py-5 text-xs tracking-[0.01em] text-tenue sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <p>© 2026 Blister Fitness · Los nombres y cifras de las vistas de ejemplo son ficticios.</p>
+          <EnlacesLegales />
+        </div>
       </footer>
+      <AvisoCookies />
     </div>
   );
 }

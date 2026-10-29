@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import Link from "next/link";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { Aviso } from "@/components/ui/aviso";
 import { BotonEnvio } from "@/components/ui/boton-envio";
 import { AreaTexto, Campo, Selector } from "@/components/ui/campo";
@@ -30,7 +31,7 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
   return (
     <AnimatePresence mode="wait" initial={false}>
       {estado.enviada ? (
-        <motion.div
+        <m.div
           key="enviada"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,7 +40,7 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
         >
           <svg aria-hidden viewBox="0 0 48 48" className="mx-auto size-14">
             <circle cx="24" cy="24" r="22" className="fill-exito/15" />
-            <motion.path
+            <m.path
               d="M15 24.5 21.5 31 33 18"
               className="fill-none stroke-exito [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:3.5]"
               initial={{ pathLength: quieto ? 1 : 0 }}
@@ -53,9 +54,9 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
               ? `${entrenador} revisará tu solicitud y te contactará para empezar.`
               : `${entrenador} leerá tu mensaje y te responderá pronto.`}
           </p>
-        </motion.div>
+        </m.div>
       ) : (
-        <motion.form key="formulario" action={enviar} exit={{ opacity: 0, y: -8 }} className="space-y-4" noValidate>
+        <m.form key="formulario" action={enviar} exit={{ opacity: 0, y: -8 }} className="space-y-4" noValidate>
           {estado.error && <Aviso>{estado.error}</Aviso>}
 
           <fieldset>
@@ -80,7 +81,7 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
 
           <AnimatePresence initial={false}>
             {tipo === "registro" && (
-              <motion.div
+              <m.div
                 key="objetivo"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -95,7 +96,7 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
                   errores={e.objetivo}
                   opciones={[{ valor: "", texto: "Elige uno (opcional)" }, ...Object.entries(ETIQUETA_TIPO_OBJETIVO).map(([valor, texto]) => ({ valor, texto }))]}
                 />
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
@@ -117,11 +118,40 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
             </label>
           </div>
 
+          {/* Autorización expresa (Ley 1581 de 2012): el mensaje puede traer lesiones u otros datos de salud. */}
+          <div>
+            <label className="flex items-start gap-2.5 text-sm text-grafito">
+              <input
+                type="checkbox"
+                name="autoriza"
+                value="si"
+                required
+                defaultChecked={v("autoriza") === "si"}
+                aria-invalid={Boolean(e.autoriza?.length)}
+                aria-describedby={e.autoriza?.length ? "autoriza-error" : undefined}
+                className="mt-0.5 size-4 shrink-0 accent-acento"
+              />
+              <span>
+                Autorizo a {entrenador} y a Blister Fitness a tratar mis datos, incluidos los de salud que comparta, para contactarme y
+                planear mi entrenamiento, según la{" "}
+                <Link href="/privacidad" target="_blank" className="font-medium text-tinta underline underline-offset-2 hover:no-underline">
+                  política de privacidad
+                </Link>
+                .
+              </span>
+            </label>
+            {e.autoriza?.length ? (
+              <p id="autoriza-error" className="mt-1.5 text-sm text-peligro">
+                {e.autoriza[0]}
+              </p>
+            ) : null}
+          </div>
+
           <BotonEnvio textoPendiente="Enviando…" className="w-full">
             {tipo === "registro" ? "Enviar solicitud" : "Enviar mensaje"}
           </BotonEnvio>
           <p className="text-center text-xs text-tenue">Tus datos solo los verá {entrenador}.</p>
-        </motion.form>
+        </m.form>
       )}
     </AnimatePresence>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, CalendarPlus, Dumbbell, Inbox, UserPlus, Users } from "lucide-react";
+import { ArrowRight, CalendarClock, CalendarPlus, ClipboardList, Dumbbell, Inbox, UserPlus, Users } from "lucide-react";
+import { EnlaceBoton } from "@/components/ui/boton";
 import { Encabezado } from "@/components/app/encabezado";
 import { Onda } from "@/components/ui/movimiento";
 import { BarrasSemana } from "@/components/datos/barras-semana";
@@ -113,7 +114,20 @@ export function VistaPanel({
   const sinMarcar = momentos.filter((m) => m === "sin_marcar").length;
   return (
     <>
-      <Encabezado miga={etiquetaDiaLarga(hoy)} titulo={titulo} />
+      <Encabezado
+        miga={etiquetaDiaLarga(hoy)}
+        titulo={titulo}
+        acciones={
+          <>
+            <EnlaceBoton href="/sesiones" variante="secundario">
+              <ClipboardList aria-hidden className="size-4" /> Registrar sesión
+            </EnlaceBoton>
+            <EnlaceBoton href="/calendario?nueva=1">
+              <CalendarPlus aria-hidden className="size-4" /> Nueva cita
+            </EnlaceBoton>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {/* Hoy: la celda protagonista, oscura. */}

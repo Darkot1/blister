@@ -67,8 +67,11 @@ export const ADMIN: Seccion = {
   icono: ShieldCheck,
 };
 
-/** Barra inferior del móvil: lo que el entrenador abre entre sesión y sesión. El resto va en "Más". */
-export const PRINCIPALES = ["/inicio", "/alumnos", "/calendario", "/entrenamiento"];
+/**
+ * Barra inferior del móvil: lo que el entrenador abre en el gimnasio, entre sesión y sesión (registrar la
+ * sesión va antes que armar rutinas, que se hace más en el escritorio). El resto va en "Más".
+ */
+export const PRINCIPALES = ["/inicio", "/alumnos", "/calendario", "/sesiones"];
 
 export const SECCIONES = [...GRUPOS.flatMap((g) => g.secciones), AJUSTES];
 

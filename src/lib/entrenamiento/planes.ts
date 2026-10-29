@@ -1,5 +1,6 @@
 import "server-only";
 import type { Contexto } from "@/lib/sesion";
+import { todasLasFilas } from "@/lib/supabase/paginar";
 
 type Supabase = Contexto["supabase"];
 
@@ -29,14 +30,20 @@ export async function planesActivos(supabase: Supabase, alumnoIds?: string[]) {
   const planIds = planes.map((p) => p.id);
   const [{ data: dias }, { data: sesiones }] = await Promise.all([
     supabase.from("plan_dias").select("id, plan_id, nombre, orden").in("plan_id", planIds).order("orden"),
-    supabase
-      .from("sesiones")
-      .select("plan_id, plan_dia_id, programada_para")
-      .in("plan_id", planIds)
-      .in("estado", ESTADOS_QUE_CUENTAN)
-      .not("plan_dia_id", "is", null)
-      .order("programada_para", { ascending: false })
-      .limit(1000),
+    // Solo hace falta la última de cada plan: se pagina hasta tenerlas todas (antes, 1000 filas cortaban los planes viejos).
+    todasLasFilas(
+      (desde, hasta) =>
+        supabase
+          .from("sesiones")
+          .select("id, plan_id, plan_dia_id, programada_para")
+          .in("plan_id", planIds)
+          .in("estado", ESTADOS_QUE_CUENTAN)
+          .not("plan_dia_id", "is", null)
+          .order("programada_para", { ascending: false })
+          .order("id")
+          .range(desde, hasta),
+      (filas) => new Set(filas.map((f) => f.plan_id)).size >= planIds.length,
+    ),
   ]);
 
   const diasDe = Map.groupBy(dias ?? [], (d) => d.plan_id);

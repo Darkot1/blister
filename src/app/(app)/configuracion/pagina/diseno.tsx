@@ -12,10 +12,11 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Check, Columns2, Eye, EyeOff, GripVertical, Lock, Pipette, RectangleHorizontal } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Columns2, Eye, EyeOff, GripVertical, Lock, Pipette, RectangleHorizontal } from "lucide-react";
 import { Campo } from "@/components/ui/campo";
 import { CabeceraTarjeta, Tarjeta } from "@/components/ui/tarjeta";
-import { COLORES, ETIQUETA_SECCION, type Diseno } from "@/lib/pagina-publica/contenido";
+import { COLORES, ETIQUETA_SECCION, contrasteBajo, textoSobre, type Diseno, type Seccion } from "@/lib/pagina-publica/contenido";
+import { anunciosDnd, instruccionesDnd } from "@/lib/dnd-accesible";
 
 type SeccionDiseno = Diseno["secciones"][number];
 
@@ -65,6 +66,14 @@ export function PanelDiseno({
     });
   };
 
+  /** Alternativa al arrastre (táctil, teclado o sin precisión): subir o bajar un puesto. */
+  const mover = (id: Seccion, paso: -1 | 1) =>
+    cambiar("secciones", (secciones) => {
+      const desde = secciones.findIndex((s) => s.id === id);
+      const hasta = desde + paso;
+      return desde < 0 || hasta < 0 || hasta >= secciones.length ? secciones : arrayMove(secciones, desde, hasta);
+    });
+
   const propio = !COLORES.some((c) => c.valor === diseno.acento);
 
   return (
@@ -74,18 +83,26 @@ export function PanelDiseno({
           <CabeceraTarjeta id="dis-secciones" titulo="Orden de la página" />
           <div className="space-y-2 p-4">
             <p className="text-sm text-tenue">
-              Arrastra los bloques para ordenarlos. Cada uno ocupa toda la fila o media: dos mitades seguidas quedan lado a lado.
+              Arrastra los bloques o usa las flechas para ordenarlos. Cada uno ocupa toda la fila o media: dos mitades seguidas quedan lado a lado.
             </p>
             <div className="flex items-center gap-2 rounded-2xl bg-hueso/60 px-3 py-2.5 text-sm text-tenue">
               <Lock aria-hidden className="size-4" /> Portada <span className="ml-auto text-xs">siempre arriba</span>
             </div>
-            <DndContext id={idDnd} sensors={sensores} collisionDetection={closestCenter} onDragEnd={alSoltar}>
+            <DndContext
+              id={idDnd}
+              sensors={sensores}
+              collisionDetection={closestCenter}
+              onDragEnd={alSoltar}
+              accessibility={{ announcements: anunciosDnd((id) => ETIQUETA_SECCION[id as Seccion] ?? String(id)), screenReaderInstructions: instruccionesDnd }}
+            >
               <SortableContext items={diseno.secciones.map((s) => s.id)} strategy={rectSortingStrategy}>
                 <ul className="grid grid-cols-2 gap-2">
-                  {diseno.secciones.map((s) => (
+                  {diseno.secciones.map((s, i) => (
                     <BloqueSeccion
                       key={s.id}
                       seccion={s}
+                      alSubir={i > 0 ? () => mover(s.id, -1) : undefined}
+                      alBajar={i < diseno.secciones.length - 1 ? () => mover(s.id, 1) : undefined}
                       alAlternar={() => cambiarSeccion(s.id, { visible: !s.visible })}
                       alCambiarAncho={() => cambiarSeccion(s.id, { ancho: s.ancho === "completo" ? "mitad" : "completo" })}
                     />
@@ -126,7 +143,7 @@ export function PanelDiseno({
                   propio ? "border-transparent ring-2 ring-tinta" : ""
                 }`}
               >
-                <Pipette aria-hidden className={`size-4 ${propio ? "text-white" : "text-tenue"}`} />
+                <Pipette aria-hidden className={`size-4 ${propio ? "" : "text-tenue"}`} style={{ color: propio ? textoSobre(diseno.acento) : undefined }} />
                 <input
                   type="color"
                   value={diseno.acento}
@@ -136,6 +153,11 @@ export function PanelDiseno({
                 />
               </label>
             </div>
+            {contrasteBajo(diseno.acento) && (
+              <p role="status" className="mt-2 text-sm text-aviso">
+                Poco contraste: con este color los números y detalles se leerán mal. Los botones ajustan su texto solos.
+              </p>
+            )}
             {errores["diseno.acento"] && <p className="mt-2 text-sm text-peligro">{errores["diseno.acento"][0]}</p>}
           </div>
         </section>
@@ -201,7 +223,20 @@ export function PanelDiseno({
 }
 
 /** Un bloque de la rejilla: ocupa una o dos columnas, como en la página. */
-function BloqueSeccion({ seccion, alAlternar, alCambiarAncho }: { seccion: SeccionDiseno; alAlternar: () => void; alCambiarAncho: () => void }) {
+function BloqueSeccion({
+  seccion,
+  alAlternar,
+  alCambiarAncho,
+  alSubir,
+  alBajar,
+}: {
+  seccion: SeccionDiseno;
+  alAlternar: () => void;
+  alCambiarAncho: () => void;
+  /** Sin función: ya está en el extremo. */
+  alSubir?: () => void;
+  alBajar?: () => void;
+}) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: seccion.id });
   // El formulario no se oculta: es adonde lleva el botón principal.
   const fija = seccion.id === "contacto";
@@ -223,19 +258,37 @@ function BloqueSeccion({ seccion, alAlternar, alCambiarAncho }: { seccion: Secci
           {...attributes}
           {...listeners}
           aria-label={`Mover ${nombre}`}
-          className="grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-full text-tenue hover:bg-hueso hover:text-tinta active:cursor-grabbing"
+          className="grid size-10 shrink-0 cursor-grab touch-none place-items-center rounded-full text-tenue hover:bg-hueso hover:text-tinta active:cursor-grabbing"
         >
           <GripVertical aria-hidden className="size-4" />
         </button>
-        <span className={`min-w-0 flex-1 pt-1.5 leading-snug ${visible ? "font-medium" : "line-through"}`}>{nombre}</span>
+        <span className={`min-w-0 flex-1 pt-2.5 leading-snug ${visible ? "font-medium" : "line-through"}`}>{nombre}</span>
       </div>
-      <div className="flex items-center justify-end gap-1">
+      <div className="flex flex-wrap items-center justify-end gap-1">
+        <button
+          type="button"
+          onClick={alSubir}
+          disabled={!alSubir}
+          aria-label={`Subir ${nombre}`}
+          className="grid size-10 shrink-0 place-items-center rounded-full text-tenue hover:bg-hueso hover:text-tinta disabled:opacity-30"
+        >
+          <ArrowUp aria-hidden className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={alBajar}
+          disabled={!alBajar}
+          aria-label={`Bajar ${nombre}`}
+          className="grid size-10 shrink-0 place-items-center rounded-full text-tenue hover:bg-hueso hover:text-tinta disabled:opacity-30"
+        >
+          <ArrowDown aria-hidden className="size-4" />
+        </button>
         <button
           type="button"
           onClick={alCambiarAncho}
           aria-label={`${nombre}: ${completo ? "ancho completo" : "media columna"}. Cambiar a ${completo ? "media columna" : "ancho completo"}`}
           title={completo ? "Ancho completo (clic para media columna)" : "Media columna (clic para ancho completo)"}
-          className="inline-flex h-7 items-center gap-1.5 rounded-full px-2 text-xs text-tenue hover:bg-hueso hover:text-tinta"
+          className="inline-flex h-10 items-center gap-1.5 rounded-full px-2.5 text-xs text-tenue hover:bg-hueso hover:text-tinta"
         >
           {completo ? <RectangleHorizontal aria-hidden className="size-3.5" /> : <Columns2 aria-hidden className="size-3.5" />}
           {completo ? "Completo" : "Mitad"}
@@ -248,7 +301,7 @@ function BloqueSeccion({ seccion, alAlternar, alCambiarAncho }: { seccion: Secci
             onClick={alAlternar}
             aria-pressed={!seccion.visible}
             aria-label={`${seccion.visible ? "Ocultar" : "Mostrar"} ${nombre}`}
-            className="grid size-7 shrink-0 place-items-center rounded-full text-tenue hover:bg-hueso hover:text-tinta"
+            className="grid size-10 shrink-0 place-items-center rounded-full text-tenue hover:bg-hueso hover:text-tinta"
           >
             {seccion.visible ? <Eye aria-hidden className="size-3.5" /> : <EyeOff aria-hidden className="size-3.5" />}
           </button>

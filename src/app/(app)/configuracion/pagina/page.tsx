@@ -54,7 +54,6 @@ async function Editor() {
   const rol = (miembros ?? []).find((m) => m.usuario_id === usuarioId)?.rol;
   return (
     <EditorPagina
-      organizacionId={organizacionId}
       inicial={espacio}
       entrenadores={entrenadores}
       editable={rol === "propietario" || rol === "admin"}

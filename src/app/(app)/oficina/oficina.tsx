@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, CalendarPlus, Check, ClipboardCopy, Database, History, NotebookPen, PlugZap, Send, Sparkles, Trash2, TriangleAlert } from "lucide-react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { AGENTES, LIDER, agentePorId, type Agente } from "@/lib/agentes/catalogo";
-import { DURACION, guionDe, textoDeJunta, type CasoJunta, type Junta, type JuntaGuardada, type Paso, type RutinaPropuesta } from "@/lib/agentes/juntas";
+import { DURACION, guionDe, textoDeJunta, type CasoJunta, type Junta, type JuntaGuardada, type Paso, type ResumenJunta, type RutinaPropuesta } from "@/lib/agentes/juntas";
 import { Boton, clasesBoton } from "@/components/ui/boton";
 import { BuscadorOpciones } from "@/components/ui/buscador-opciones";
 import { claseAreaTexto } from "@/components/ui/campo";
@@ -16,7 +16,7 @@ import { APARECE, PULSO, RITMO_PULSO, useBucle } from "@/components/ui/movimient
 import { CabeceraTarjeta, Lista, Tarjeta } from "@/components/ui/tarjeta";
 import { PUESTOS, useOficinaViva } from "./movimiento";
 import { Plano } from "./plano";
-import { borrarJunta, consultarJunta, crearBorradorRutina, guardarNotaJunta, preguntarAgente } from "./acciones";
+import { borrarJunta, consultarJunta, crearBorradorRutina, guardarNotaJunta, leerJunta, preguntarAgente } from "./acciones";
 import { fechaCorta, hora } from "@/lib/formato";
 import { partesLocales } from "@/lib/calendario";
 
@@ -95,7 +95,7 @@ function useMinuto() {
 /** Un alumno para el buscador de la junta. */
 export type AlumnoJunta = { id: string; nombre: string; detalle?: string };
 
-export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; historial: JuntaGuardada[] }) {
+export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; historial: ResumenJunta[] }) {
   const puestos = usePuestos();
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [eligiendoPara, setEligiendoPara] = useState<string | null>(null);
@@ -503,17 +503,17 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
         {terminada && <h3 className="etiqueta mt-5">Cómo se llegó</h3>}
         <ol aria-live="polite" className={`space-y-3 border-l border-linea pl-4 ${terminada ? "mt-2 max-h-72 overflow-y-auto pr-1" : "mt-4"}`}>
           {vistos.map((p, i) => (
-            <motion.li key={i} {...APARECE}>
+            <m.li key={i} {...APARECE}>
               <Evento paso={p} alumno={junta.caso.alumno} />
-            </motion.li>
+            </m.li>
           ))}
           {junta.consulta === "pendiente" && (vistos.at(-1)?.tipo === "trabajan" || vistos.at(-1)?.tipo === "convoca") && (
-            <motion.li {...APARECE} className="flex items-center gap-2 text-sm text-tenue">
-              <motion.span aria-hidden animate={bucle ? PULSO : undefined} transition={RITMO_PULSO} className="shrink-0 text-acento">
+            <m.li {...APARECE} className="flex items-center gap-2 text-sm text-tenue">
+              <m.span aria-hidden animate={bucle ? PULSO : undefined} transition={RITMO_PULSO} className="shrink-0 text-acento">
                 <Sparkles className="size-4" />
-              </motion.span>
+              </m.span>
               {vistos.at(-1)?.tipo === "convoca" && !junta.caso.encargos.length ? "El líder está leyendo el caso y repartiéndolo…" : "Los agentes están pensando con IA…"}
-            </motion.li>
+            </m.li>
           )}
         </ol>
       </div>
@@ -654,21 +654,21 @@ function Pregunta({ agente, alumnos }: { agente: Agente; alumnos: AlumnoJunta[] 
       <div aria-live="polite">
         {pensando && (
           <p className="mt-3 flex items-center gap-2 text-sm text-tenue">
-            <motion.span aria-hidden animate={bucle ? PULSO : undefined} transition={RITMO_PULSO} className="text-acento">
+            <m.span aria-hidden animate={bucle ? PULSO : undefined} transition={RITMO_PULSO} className="text-acento">
               <Sparkles className="size-4" />
-            </motion.span>
+            </m.span>
             {agente.nombre} está pensando…
           </p>
         )}
         {respuesta && (
-          <motion.div {...APARECE} className={`mt-3 rounded-2xl px-4 py-3 text-sm ${respuesta.error ? "bg-aviso/10 text-aviso" : "bg-hueso text-grafito"}`}>
+          <m.div {...APARECE} className={`mt-3 rounded-2xl px-4 py-3 text-sm ${respuesta.error ? "bg-aviso/10 text-aviso" : "bg-hueso text-grafito"}`}>
             <p className="whitespace-pre-line">{respuesta.texto}</p>
             {respuesta.modelo && (
               <p className="mt-2 text-xs text-tenue">
                 Con IA ({respuesta.modelo}){alumno ? `, con los datos de ${alumno.nombre.split(" ")[0]}` : ""}: es una sugerencia, tú decides.
               </p>
             )}
-          </motion.div>
+          </m.div>
         )}
       </div>
       {!respuesta && !pensando && (
@@ -721,7 +721,7 @@ function PropuestaRutina({ rutina, alumno }: { rutina: RutinaPropuesta; alumno: 
   const [creando, iniciar] = useTransition();
   const [error, setError] = useState<string | null>(null);
   return (
-    <motion.section {...APARECE} aria-labelledby="rutina-propuesta" className="mt-4 rounded-[var(--radius-tarjeta)] border border-linea">
+    <m.section {...APARECE} aria-labelledby="rutina-propuesta" className="mt-4 rounded-[var(--radius-tarjeta)] border border-linea">
       <div className="border-b border-linea px-4 py-3">
         <p className="etiqueta text-acento">Rutina propuesta</p>
         <h3 id="rutina-propuesta" className="titulo-display mt-0.5 text-lg leading-snug">
@@ -769,14 +769,14 @@ function PropuestaRutina({ rutina, alumno }: { rutina: RutinaPropuesta; alumno: 
         </Boton>
         <p className="text-center text-xs text-tenue">Se abre en el constructor para que la ajustes. No se asigna a nadie hasta que tú lo hagas.</p>
       </div>
-    </motion.section>
+    </m.section>
   );
 }
 
 /** La propuesta del líder: decisión, plan en el tiempo y preguntas. La usan la junta en curso y el historial. */
 function DecisionLider({ caso, modelos, acciones = [], sinCubrir = 0 }: { caso: CasoJunta; modelos?: string[]; acciones?: string[]; sinCubrir?: number }) {
   return (
-    <motion.section {...APARECE} aria-labelledby="decision-junta" className="mt-5 rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white">
+    <m.section {...APARECE} aria-labelledby="decision-junta" className="mt-5 rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white">
       <p className="text-xs text-white/60">Propuesta del líder</p>
       <h3 id="decision-junta" className="titulo-display mt-1 text-lg leading-snug">
         {caso.decision.titulo}
@@ -818,7 +818,7 @@ function DecisionLider({ caso, modelos, acciones = [], sinCubrir = 0 }: { caso: 
         {modelos?.length ? `Generado con IA (${modelos.join(", ")}): puede equivocarse. ` : ""}
         Nada cambia en el plan del alumno hasta que tú lo apruebes.
       </p>
-    </motion.section>
+    </m.section>
   );
 }
 
@@ -869,14 +869,36 @@ function AccionesJunta({ caso, alumnoId, juntaId, fecha }: { caso: CasoJunta; al
 }
 
 /** Las juntas anteriores: para releer el resultado completo y aplicar sus propuestas cuando quieras. */
-function HistorialJuntas({ juntas, alumnos }: { juntas: JuntaGuardada[]; alumnos: AlumnoJunta[] }) {
+function HistorialJuntas({ juntas, alumnos }: { juntas: ResumenJunta[]; alumnos: AlumnoJunta[] }) {
   const [filtro, setFiltro] = useState("");
+  // La lista solo trae el resumen; el caso completo se pide al abrirla.
+  const [elegida, setElegida] = useState<ResumenJunta | null>(null);
   const [abierta, setAbierta] = useState<JuntaGuardada | null>(null);
+  const [errorAbrir, setErrorAbrir] = useState<string | null>(null);
+  const [abriendo, iniciarAbrir] = useTransition();
+  const abrir = (j: ResumenJunta) => {
+    setElegida(j);
+    setAbierta(null);
+    setErrorAbrir(null);
+    iniciarAbrir(async () => {
+      try {
+        const r = await leerJunta(j.id);
+        if ("error" in r) setErrorAbrir(r.error);
+        else setAbierta(r.junta);
+      } catch {
+        setErrorAbrir("No se pudo abrir la junta: revisa tu conexión.");
+      }
+    });
+  };
+  const cerrar = () => {
+    setElegida(null);
+    setAbierta(null);
+  };
   const [borrando, setBorrando] = useState(false);
   const [pendiente, iniciar] = useTransition();
   const normalizar = (t: string) => t.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-  const visibles = juntas.filter((j) => !filtro.trim() || normalizar(`${j.caso.alumno} ${j.caso.contexto} ${j.caso.decision.titulo}`).includes(normalizar(filtro.trim())));
-  const nombreDe = (j: JuntaGuardada) => alumnos.find((a) => a.id === j.alumnoId)?.nombre ?? j.caso.alumno;
+  const visibles = juntas.filter((j) => !filtro.trim() || normalizar(`${j.alumno} ${j.contexto} ${j.titulo}`).includes(normalizar(filtro.trim())));
+  const nombreDe = (j: { alumnoId: string | null }, porDefecto: string) => alumnos.find((a) => a.id === j.alumnoId)?.nombre ?? porDefecto;
 
   return (
     <Tarjeta className="overflow-hidden">
@@ -901,11 +923,11 @@ function HistorialJuntas({ juntas, alumnos }: { juntas: JuntaGuardada[]; alumnos
             <ul className="max-h-96 divide-y divide-linea overflow-y-auto">
               {visibles.map((j) => (
                 <li key={j.id}>
-                  <button type="button" onClick={() => setAbierta(j)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 px-4 py-3 text-left transition-colors hover:bg-hueso/40">
+                  <button type="button" onClick={() => abrir(j)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 px-4 py-3 text-left transition-colors hover:bg-hueso/40">
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">{j.caso.decision.titulo || j.caso.titulo}</span>
+                      <span className="block truncate text-sm font-medium">{j.titulo}</span>
                       <span className="block truncate text-xs text-tenue">
-                        {nombreDe(j)} · {j.caso.contexto}
+                        {nombreDe(j, j.alumno)} · {j.contexto}
                       </span>
                     </span>
                     <span className="shrink-0 text-xs tabular-nums text-tenue">{fechaCorta(j.creadoEn)}</span>
@@ -920,13 +942,19 @@ function HistorialJuntas({ juntas, alumnos }: { juntas: JuntaGuardada[]; alumnos
         )}
       </section>
 
-      <Dialogo abierto={abierta !== null} alCerrar={() => setAbierta(null)} titulo={abierta ? `Junta · ${nombreDe(abierta)}` : "Junta"} amplio>
-        {abierta && (
+      <Dialogo abierto={elegida !== null} alCerrar={cerrar} titulo={elegida ? `Junta · ${nombreDe(elegida, elegida.alumno)}` : "Junta"} amplio>
+        {abriendo && <p className="text-sm text-tenue" role="status">Abriendo la junta…</p>}
+        {errorAbrir && (
+          <p role="alert" className="text-sm text-peligro">
+            {errorAbrir}
+          </p>
+        )}
+        {abierta && !abriendo && (
           <div>
             <p className="text-xs text-tenue">{fechaCorta(abierta.creadoEn)}</p>
             <p className="mt-0.5 text-grafito">{abierta.caso.contexto}</p>
             <DecisionLider caso={abierta.caso} modelos={abierta.modelos} />
-            {abierta.caso.rutina && <PropuestaRutina rutina={abierta.caso.rutina} alumno={nombreDe(abierta)} />}
+            {abierta.caso.rutina && <PropuestaRutina rutina={abierta.caso.rutina} alumno={nombreDe(abierta, abierta.caso.alumno)} />}
             <AccionesJunta caso={abierta.caso} alumnoId={abierta.alumnoId} juntaId={abierta.id} fecha={fechaCorta(abierta.creadoEn)} />
             <h3 className="etiqueta mt-5">Lo que respondió cada agente</h3>
             <ul className="mt-2 space-y-3 border-l border-linea pl-4">
@@ -954,7 +982,7 @@ function HistorialJuntas({ juntas, alumnos }: { juntas: JuntaGuardada[]; alumnos
           iniciar(async () => {
             if (abierta) await borrarJunta(abierta.id);
             setBorrando(false);
-            setAbierta(null);
+            cerrar();
           })
         }
       >

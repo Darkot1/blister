@@ -4,10 +4,16 @@ import "@fontsource-variable/archivo/wdth.css";
 import "./globals.css";
 import { SCRIPT_INICIAL } from "@/components/app/scripts-iniciales";
 import { ProveedorMovimiento } from "@/components/app/proveedor-movimiento";
+import { DESCRIPCION_SITIO, NOMBRE_SITIO, URL_SITIO } from "@/lib/sitio";
 
 export const metadata: Metadata = {
-  title: { default: "Blister Fitness", template: "%s | Blister Fitness" },
-  description: "Gestión de alumnos y entrenamiento personalizado.",
+  metadataBase: new URL(URL_SITIO),
+  title: { default: NOMBRE_SITIO, template: `%s | ${NOMBRE_SITIO}` },
+  description: DESCRIPCION_SITIO,
+  applicationName: NOMBRE_SITIO,
+  openGraph: { siteName: NOMBRE_SITIO, locale: "es_CO", type: "website" },
+  twitter: { card: "summary_large_image" },
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
 export const viewport: Viewport = {

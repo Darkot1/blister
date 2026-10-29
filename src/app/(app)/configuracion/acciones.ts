@@ -3,7 +3,8 @@
 import { refresh } from "next/cache";
 import { obtenerContexto } from "@/lib/sesion";
 import { desconectarGoogle } from "@/lib/google/calendario";
-import { BUCKET_PAGINAS, esquemaContenido, type EntradaContenido } from "@/lib/pagina-publica/contenido";
+import { BUCKET_PAGINAS } from "@/lib/pagina-publica/contenido";
+import { esquemaContenido, type EntradaContenido } from "@/lib/pagina-publica/validacion";
 
 type Supabase = Awaited<ReturnType<typeof obtenerContexto>>["supabase"];
 
@@ -12,6 +13,19 @@ export async function desconectarGoogleCalendar() {
   const { supabase, usuarioId } = await obtenerContexto();
   await desconectarGoogle(supabase, usuarioId);
   refresh();
+}
+
+/**
+ * Enlace firmado para subir la portada directo a Storage desde el navegador, sin cargar allí el cliente
+ * de Supabase. La ruta la decide el servidor (carpeta del espacio); las políticas de storage.objects
+ * vuelven a comprobar que el usuario puede escribir en ella.
+ */
+export async function enlaceSubidaPortada(): Promise<{ ruta: string; url: string } | { error: string }> {
+  const { supabase, organizacionId } = await obtenerContexto();
+  const ruta = `${organizacionId}/portada-${crypto.randomUUID()}.webp`;
+  const { data, error } = await supabase.storage.from(BUCKET_PAGINAS).createSignedUploadUrl(ruta);
+  if (error || !data) return { error: "No se pudo preparar la subida de la foto. Inténtalo de nuevo." };
+  return { ruta, url: data.signedUrl };
 }
 
 export type EstadoPagina = { ok?: boolean; error?: string; errores?: Record<string, string[] | undefined> };

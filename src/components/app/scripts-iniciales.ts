@@ -5,5 +5,7 @@
 */
 export const CLAVE_TEMA = "tema";
 export const CLAVE_MENU = "menu";
+/** Aviso de cookies ya visto (ver aviso-cookies.tsx). */
+export const CLAVE_AVISO_COOKIES = "aviso-cookies";
 
 export const SCRIPT_INICIAL = `try{var t=localStorage.getItem("${CLAVE_TEMA}");if(t==="claro"||t==="sistema")document.documentElement.dataset.tema=t;if(localStorage.getItem("${CLAVE_MENU}")==="plegado")document.documentElement.dataset.menu="plegado"}catch(e){}`;

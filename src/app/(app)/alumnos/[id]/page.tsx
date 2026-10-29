@@ -117,11 +117,12 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
               </EnlaceBoton>
             )}
             {!archivado && (
-              <EnlaceBoton href={`/calendario?alumno=${alumno.id}`} variante="secundario">
+              <EnlaceBoton href={`/calendario?alumno=${alumno.id}`}>
                 <CalendarPlus aria-hidden className="size-4" /> Agendar
               </EnlaceBoton>
             )}
-            <EnlaceBoton href={`/alumnos/${alumno.id}/editar`}>
+            {/* Agendar es lo frecuente; editar sus datos, ocasional. */}
+            <EnlaceBoton href={`/alumnos/${alumno.id}/editar`} variante="secundario">
               <Pencil aria-hidden className="size-4" /> Editar
             </EnlaceBoton>
           </>

@@ -2,7 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // "/e": página pública de cada espacio (/e/<slug>), para quien aún no es alumno.
-const RUTAS_PUBLICAS = ["/ingresar", "/registro", "/recuperar", "/auth", "/e"];
+// Textos legales y archivos para buscadores: los ve cualquiera, con o sin sesión.
+const RUTAS_PUBLICAS = [
+  "/ingresar", "/registro", "/recuperar", "/auth", "/e",
+  "/privacidad", "/terminos", "/cookies",
+  "/robots.txt", "/sitemap.xml", "/opengraph-image",
+];
 const RUTAS_SOLO_INVITADOS = ["/ingresar", "/registro", "/recuperar"];
 
 const empiezaCon = (ruta: string, prefijos: string[]) =>

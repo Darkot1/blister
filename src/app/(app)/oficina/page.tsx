@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Esqueleto } from "@/components/ui/esqueleto";
-import type { CasoJunta } from "@/lib/agentes/juntas";
+/** Columnas sacadas del jsonb `resultado` (PostgREST las devuelve como texto). */
+type FilaResumen = { id: string; alumno_id: string | null; pedido: string; creado_en: string; titulo: string | null; decision: string | null; alumno: string | null };
 import { planesActivos } from "@/lib/entrenamiento/planes";
 import { obtenerContexto } from "@/lib/sesion";
 import { Oficina } from "./oficina";
 
 export const metadata: Metadata = { title: "Oficina" };
+// Las juntas llaman a varios modelos seguidos: sus Server Actions necesitan más tiempo (ver PLAZO_JUNTA_MS).
+export const maxDuration = 300;
 
 export default function PaginaOficina() {
   return (
@@ -39,7 +42,12 @@ async function OficinaConAlumnos() {
   const [{ data: alumnos }, planes, { data: juntas }] = await Promise.all([
     supabase.from("alumnos").select("id, nombres, apellidos").eq("estado", "activo").order("nombres").order("apellidos"),
     planesActivos(supabase),
-    supabase.from("juntas").select("id, alumno_id, pedido, resultado, modelos, creado_en").order("creado_en", { ascending: false }).limit(30),
+    // Solo el resumen de cada junta: el resultado completo (hasta 60 KB cada una) se pide al abrirla.
+    supabase
+      .from("juntas")
+      .select("id, alumno_id, pedido, creado_en, titulo:resultado->>titulo, decision:resultado->decision->>titulo, alumno:resultado->>alumno")
+      .order("creado_en", { ascending: false })
+      .limit(30),
   ]);
   return (
     <Oficina
@@ -48,12 +56,13 @@ async function OficinaConAlumnos() {
         nombre: `${a.nombres} ${a.apellidos}`.trim(),
         detalle: planes.get(a.id) ? `Rutina: ${planes.get(a.id)!.nombre}` : undefined,
       }))}
-      historial={(juntas ?? []).map((j) => ({
+      historial={((juntas ?? []) as unknown as FilaResumen[]).map((j) => ({
         id: j.id,
         alumnoId: j.alumno_id,
         creadoEn: j.creado_en,
-        modelos: j.modelos,
-        caso: j.resultado as CasoJunta,
+        titulo: j.decision || j.titulo || "Junta",
+        alumno: j.alumno ?? "Tu caso",
+        contexto: j.pedido,
       }))}
     />
   );
