@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, Copy, Dumbbell, Plus, Save, Trash2, X } from "lucide-react";
 import { Aviso } from "@/components/ui/aviso";
@@ -51,7 +51,20 @@ const suscribirEscritorio = (avisar: () => void) => {
   return () => consulta.removeEventListener("change", avisar);
 };
 
-export function ConstructorRutina({
+type PropsConstructor = Parameters<typeof Constructor>[0];
+
+/**
+ * Con Cache Components, Next no desmonta la página al salir: la esconde (`<Activity>`) y conserva su estado.
+ * Aquí eso dejaría un borrador sin guardar al volver a entrar, así que el constructor arranca de cero
+ * cada vez que se oculta (la limpieza del efecto corre al esconderse).
+ */
+export function ConstructorRutina(props: PropsConstructor) {
+  const [vez, setVez] = useState(0);
+  useLayoutEffect(() => () => setVez((v) => v + 1), []);
+  return <Constructor key={vez} {...props} />;
+}
+
+function Constructor({
   id,
   inicial,
   catalogo,
