@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { obtenerContexto } from "@/lib/sesion";
 import { desconectarGoogle } from "@/lib/google/calendario";
+import { botTelegram } from "@/lib/telegram/config";
 import { BUCKET_PAGINAS } from "@/lib/pagina-publica/contenido";
 import { esquemaContenido, type EntradaContenido } from "@/lib/pagina-publica/validacion";
 
@@ -89,4 +90,27 @@ export async function eliminarPagina(): Promise<EstadoPagina> {
   await limpiarFotos(supabase, organizacionId, null);
   refresh();
   return { ok: true };
+}
+
+/** Enlace t.me/<bot>?start=<codigo> para vincular el chat del usuario (el código vence en 30 min). */
+export async function prepararTelegram(): Promise<{ url: string } | { error: string }> {
+  const bot = botTelegram();
+  if (!bot) return { error: "Telegram aún no está configurado en el servidor." };
+  const { supabase } = await obtenerContexto();
+  const { data: codigo, error } = await supabase.rpc("preparar_vinculo_telegram");
+  if (error || !codigo) return { error: "No se pudo preparar el enlace. Inténtalo de nuevo." };
+  return { url: `https://t.me/${bot}?start=${codigo}` };
+}
+
+export async function probarTelegram() {
+  const { supabase } = await obtenerContexto();
+  const { data, error } = await supabase.rpc("probar_telegram");
+  if (error || !data) return { error: "No se pudo enviar la prueba. Vuelve a conectar Telegram." };
+}
+
+export async function desconectarTelegram() {
+  const { supabase } = await obtenerContexto();
+  const { error } = await supabase.rpc("desvincular_telegram");
+  if (error) return { error: "No se pudo desconectar. Inténtalo de nuevo." };
+  refresh();
 }

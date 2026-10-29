@@ -257,6 +257,17 @@ export type ConexionGoogleFila = {
   actualizado_en: string;
 };
 
+export type ConexionTelegramFila = {
+  usuario_id: string;
+  chat_id: number | null;
+  codigo: string | null;
+  codigo_expira_en: string | null;
+  vinculado_en: string | null;
+  ultimo_resumen: string | null;
+  creado_en: string;
+  actualizado_en: string;
+};
+
 export type CitaFila = {
   id: string;
   organizacion_id: string;
@@ -408,6 +419,10 @@ export type Database = {
         ConexionGoogleFila,
         Opcional<ConexionGoogleFila, "acceso_cifrado" | "acceso_expira_en" | "calendario_id" | "conectado_en" | "actualizado_en">
       >;
+      conexiones_telegram: Tabla<
+        ConexionTelegramFila,
+        Opcional<ConexionTelegramFila, "chat_id" | "codigo" | "codigo_expira_en" | "vinculado_en" | "ultimo_resumen" | "creado_en" | "actualizado_en">
+      >;
       citas: Tabla<
         CitaFila,
         Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "google_evento_id" | "google_error" | "creado_en" | "actualizado_en">
@@ -505,6 +520,10 @@ export type Database = {
       };
       aceptar_solicitud: { Args: { p_solicitud_id: string }; Returns: string };
       paginas_publicas: { Args: Record<string, never>; Returns: { slug: string; actualizado_en: string }[] };
+      preparar_vinculo_telegram: { Args: Record<string, never>; Returns: string };
+      desvincular_telegram: { Args: Record<string, never>; Returns: undefined };
+      probar_telegram: { Args: Record<string, never>; Returns: boolean };
+      vincular_telegram: { Args: { p_secreto: string; p_codigo: string; p_chat_id: number }; Returns: string };
       reemplazar_relaciones_ejercicio: {
         Args: { p_ejercicio_id: string; p_musculos: { id: string; rol: string }[]; p_equipos: string[] };
         Returns: undefined;
