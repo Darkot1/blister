@@ -56,6 +56,10 @@ export default function PaginaCookies() {
         servidor. Blister Fitness <strong>solo usa los necesarios para funcionar y para recordar tus preferencias</strong>. No usamos
         cookies de publicidad, de analítica ni de terceros que te rastreen.
       </p>
+      <p>
+        Para saber qué páginas se visitan y qué tan rápido cargan usamos Vercel Web Analytics y Speed Insights, que funcionan sin cookies
+        ni almacenamiento en tu navegador y no identifican a quien visita.
+      </p>
 
       <h2>Necesarias</h2>
       <p>Sin ellas no puedes iniciar sesión ni conectar Google Calendar, por eso no se pueden desactivar desde la app.</p>

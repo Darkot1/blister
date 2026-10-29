@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/archivo/wdth.css";
 import "./globals.css";
@@ -38,6 +40,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Saltar al contenido
         </a>
         <ProveedorMovimiento>{children}</ProveedorMovimiento>
+        {/* Visitas y velocidad real de carga en Vercel: sin cookies ni datos personales. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

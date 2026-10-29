@@ -93,7 +93,10 @@ export default function PaginaPrivacidad() {
       </p>
       <ul>
         <li><strong>Supabase</strong> (base de datos, autenticación y archivos), con servidores en Estados Unidos.</li>
-        <li><strong>El proveedor de alojamiento de la aplicación</strong>, que sirve las páginas.</li>
+        <li>
+          <strong>Vercel</strong>, que aloja y sirve la aplicación y mide de forma anónima las visitas y la velocidad de carga de las páginas,
+          sin cookies ni datos personales.
+        </li>
         <li><strong>Google</strong>, para entrar con Google y para Google Calendar si lo conectas.</li>
         <li>
           <strong>Proveedores de inteligencia artificial</strong> (OpenRouter, Groq y Google AI Studio), solo cuando un entrenador convoca una
@@ -144,7 +147,8 @@ export default function PaginaPrivacidad() {
 
       <h2>10. Cookies</h2>
       <p>
-        Solo usamos cookies y almacenamiento local necesarios para iniciar sesión y recordar tus preferencias. Los detalles están en la{" "}
+        Solo usamos cookies y almacenamiento local necesarios para iniciar sesión y recordar tus preferencias. La medición anónima de
+        visitas y velocidad no usa cookies. Los detalles están en la{" "}
         <Link href="/cookies">política de cookies</Link>.
       </p>
 
