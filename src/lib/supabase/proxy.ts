@@ -3,8 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // "/e": página pública de cada espacio (/e/<slug>), para quien aún no es alumno.
 // Textos legales y archivos para buscadores: los ve cualquiera, con o sin sesión.
+// "/api/telegram": webhook del bot (lo llama Telegram, con su propio secreto).
 const RUTAS_PUBLICAS = [
-  "/ingresar", "/registro", "/recuperar", "/auth", "/e",
+  "/ingresar", "/registro", "/recuperar", "/auth", "/e", "/api/telegram",
   "/privacidad", "/terminos", "/cookies",
   "/robots.txt", "/sitemap.xml", "/opengraph-image",
 ];

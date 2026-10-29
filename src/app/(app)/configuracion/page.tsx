@@ -10,6 +10,8 @@ import { googleConfigurado } from "@/lib/google/calendario";
 import { TarjetaGoogle } from "./google";
 import { TarjetaPaginaPublica } from "./pagina-publica";
 import { TarjetaPerfil } from "./perfil";
+import { TarjetaTelegram } from "./telegram";
+import { telegramConfigurado } from "@/lib/telegram/config";
 
 export const metadata: Metadata = { title: "Ajustes" };
 
@@ -40,6 +42,9 @@ export default function PaginaAjustes({ searchParams }: PageProps<"/configuracio
           <Suspense fallback={<Esqueleto className="h-48" />}>
             <Google searchParams={searchParams} />
           </Suspense>
+          <Suspense fallback={<Esqueleto className="h-48" />}>
+            <Telegram />
+          </Suspense>
           <Tarjeta className="overflow-hidden">
             <section aria-labelledby="titulo-apariencia">
               <CabeceraTarjeta id="titulo-apariencia" titulo="Apariencia" />
@@ -63,6 +68,12 @@ async function Google({ searchParams }: { searchParams: PageProps<"/configuracio
     .eq("usuario_id", usuarioId)
     .maybeSingle();
   return <TarjetaGoogle resultado={typeof google === "string" ? google : undefined} conexion={conexion} configurado={googleConfigurado()} />;
+}
+
+async function Telegram() {
+  const { supabase, usuarioId } = await obtenerContexto();
+  const { data } = await supabase.from("conexiones_telegram").select("chat_id, vinculado_en").eq("usuario_id", usuarioId).maybeSingle();
+  return <TarjetaTelegram vinculadoEn={data?.chat_id ? data.vinculado_en : null} configurado={telegramConfigurado()} />;
 }
 
 async function PaginaPublica() {
