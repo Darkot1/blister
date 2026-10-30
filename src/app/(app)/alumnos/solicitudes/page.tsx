@@ -8,7 +8,7 @@ import { EnlaceBoton } from "@/components/ui/boton";
 import { EsqueletoLista } from "@/components/ui/esqueleto";
 import { Aparece } from "@/components/ui/movimiento";
 import { Tarjeta, Vacio, claseSegmentado, claseSegmento } from "@/components/ui/tarjeta";
-import { ETIQUETA_TIPO_OBJETIVO, fechaHora } from "@/lib/formato";
+import { ETIQUETA_TIPO_OBJETIVO, edad, fechaCorta, fechaHora } from "@/lib/formato";
 import { enlaceWhatsapp } from "@/lib/pagina-publica/contenido";
 import { obtenerContexto } from "@/lib/sesion";
 import { aceptarSolicitud, cambiarEstadoSolicitud } from "./acciones";
@@ -49,7 +49,7 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/alumnos/solic
   const [{ data: solicitudes, error }, { data: estados }] = await Promise.all([
     supabase
       .from("solicitudes")
-      .select("id, tipo, nombres, apellidos, correo, telefono, objetivo, mensaje, estado, alumno_id, creado_en")
+      .select("id, tipo, nombres, apellidos, correo, telefono, objetivo, mensaje, fecha_nacimiento, lesiones, estado, alumno_id, creado_en")
       .eq("estado", elegido.valor)
       .order("creado_en", { ascending: false })
       .limit(100),
@@ -109,12 +109,25 @@ async function Lista({ searchParams }: { searchParams: PageProps<"/alumnos/solic
                     </span>
                   </div>
 
-                  {(s.objetivo || s.mensaje) && (
+                  {(s.objetivo || s.mensaje || s.fecha_nacimiento || s.lesiones) && (
                     <div className="space-y-2 text-sm">
                       {s.objetivo && (
                         <p>
                           <span className="text-tenue">Objetivo: </span>
                           {ETIQUETA_TIPO_OBJETIVO[s.objetivo] ?? s.objetivo}
+                        </p>
+                      )}
+                      {s.fecha_nacimiento && (
+                        <p>
+                          <span className="text-tenue">Nació: </span>
+                          {fechaCorta(s.fecha_nacimiento)}
+                          {edad(s.fecha_nacimiento) !== null && <span className="text-tenue"> ({edad(s.fecha_nacimiento)} años)</span>}
+                        </p>
+                      )}
+                      {s.lesiones && (
+                        <p className="whitespace-pre-line rounded-2xl bg-aviso/10 px-3 py-2.5 text-grafito">
+                          <span className="font-medium text-tinta">Lesiones o molestias: </span>
+                          {s.lesiones}
                         </p>
                       )}
                       {s.mensaje && <p className="whitespace-pre-line rounded-2xl bg-hueso/60 px-3 py-2.5 text-grafito">{s.mensaje}</p>}

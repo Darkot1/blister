@@ -7,7 +7,7 @@ import { FormularioNuevoEjercicio } from "./formulario-nuevo";
 export const metadata: Metadata = { title: "Nuevo ejercicio" };
 
 /** Página completa al entrar por URL o recargar; desde la app se abre como modal (`@modal/(.)maestros/ejercicios/nuevo`). */
-export default function PaginaNuevoEjercicio() {
+export default function PaginaNuevoEjercicio({ searchParams }: PageProps<"/maestros/ejercicios/nuevo">) {
   return (
     <>
       <Encabezado
@@ -16,7 +16,7 @@ export default function PaginaNuevoEjercicio() {
         descripcion="Será visible solo en tu espacio y aparecerá en las sugerencias del mapa muscular."
       />
       <Suspense fallback={<Esqueleto className="h-[40rem] max-w-3xl" />}>
-        <FormularioNuevoEjercicio />
+        <FormularioNuevoEjercicio searchParams={searchParams} />
       </Suspense>
     </>
   );

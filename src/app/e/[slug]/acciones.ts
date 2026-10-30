@@ -24,6 +24,14 @@ const esquema = z
       .max(30)
       .refine((t) => t === "" || /^[0-9+()\s-]{7,30}$/.test(t), "Revisa tu teléfono."),
     objetivo: z.union([z.literal(""), z.enum(OBJETIVOS)]),
+    fecha_nacimiento: z.union([
+      z.literal(""),
+      z.iso.date("Revisa la fecha.").refine((f) => {
+        const anios = (Date.now() - new Date(`${f}T12:00:00`).getTime()) / (365.25 * 24 * 3600 * 1000);
+        return anios >= 5 && anios <= 100;
+      }, "Revisa la fecha."),
+    ]),
+    lesiones: z.string().trim().max(500, "Máximo 500 caracteres."),
     mensaje: z.string().trim().max(1000, "Máximo 1000 caracteres."),
     // Autorización de tratamiento de datos (Ley 1581 de 2012): el mensaje puede traer datos de salud.
     autoriza: z.literal("si", "Necesitamos tu autorización para tratar tus datos."),
@@ -39,7 +47,8 @@ export async function enviarSolicitud(slug: string, _: EstadoSolicitud, formData
   // Trampa para bots: un campo oculto que una persona nunca llena. Se finge éxito.
   if (valores.sitio_web) return { enviada: true };
 
-  const datos = esquema.safeParse(valores);
+  // Los campos que solo salen al pedir entrenar pueden no venir (al escribir una pregunta).
+  const datos = esquema.safeParse({ fecha_nacimiento: "", lesiones: "", ...valores });
   if (!datos.success) return { errores: z.flattenError(datos.error).fieldErrors, valores };
 
   const supabase = await crearClienteServidor();
@@ -53,6 +62,8 @@ export async function enviarSolicitud(slug: string, _: EstadoSolicitud, formData
     p_objetivo: datos.data.objetivo,
     p_mensaje: datos.data.mensaje,
     p_autoriza: true,
+    p_fecha_nacimiento: datos.data.fecha_nacimiento || null,
+    p_lesiones: datos.data.lesiones,
   });
   if (error) {
     return { error: CODIGOS_CON_MENSAJE.has(error.code) ? error.message : "No se pudo enviar. Inténtalo de nuevo en un momento.", valores };

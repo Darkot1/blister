@@ -1,6 +1,6 @@
 import "server-only";
 import { AGENTES, LIDER, agentePorId, type Agente } from "./catalogo";
-import { ENTREGABLES, type CasoJunta, type Encargo, type Entregable, type PasoPlan, type RutinaPropuesta } from "./juntas";
+import { ENTREGABLES, type CasoJunta, type Encargo, type EjercicioFaltante, type Entregable, type PasoPlan, type RutinaPropuesta } from "./juntas";
 import { completar, extraerJson } from "./openrouter";
 
 /** Lo que un agente devuelve en la junta. */
@@ -36,6 +36,51 @@ const numeroO = (v: unknown, min: number, max: number) => {
   return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : null;
 };
 const normalizar = (t: string) => t.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+/**
+ * Palabras de gimnasio que los modelos suelen dejar en inglés aunque se les pidan los nombres de la
+ * biblioteca («Plank frontal» por «Plancha frontal»). Se traducen antes de comparar.
+ */
+const INGLES: [RegExp, string][] = [
+  [/^planks?$/g, "plancha frontal"],
+  [/\bplanks?\b/g, "plancha"],
+  [/\bromanian\b/g, "rumano"],
+  [/\bmountain climbers?\b/g, "escaladores"],
+  [/\bjumping jacks?\b/g, "saltos de tijera"],
+  [/\bleg press\b/g, "prensa de piernas"],
+  [/\blat pull ?downs?\b/g, "jalon al pecho"],
+  [/\bfarmers? walk\b/g, "paseo del granjero"],
+  [/\bbox jumps?\b/g, "saltos al cajon"],
+  [/\bstep ?ups?\b/g, "subida al cajon"],
+  [/\bcat cow\b/g, "gato camello"],
+  [/\bkettlebell swings?\b/g, "swing con kettlebell"],
+  [/\bside\b/g, "lateral"],
+  [/\bfront(al)?\b/g, "frontal"],
+  [/\bsquats?\b/g, "sentadilla"],
+  [/\bdeadlifts?\b/g, "peso muerto"],
+  [/\brows?\b/g, "remo"],
+  [/\blunges?\b/g, "zancada"],
+  [/\bpush ?ups?\b/g, "flexiones"],
+  [/\bpull ?ups?\b/g, "dominadas"],
+  [/\bchin ?ups?\b/g, "dominadas supinas"],
+  [/\bcrunch(es)?\b/g, "crunch"],
+  [/\bbench\b/g, "banca"],
+  [/\bdumbbells?\b/g, "mancuerna"],
+  [/\bbarbell\b/g, "barra"],
+  [/\bcable\b/g, "polea"],
+  [/\bcalf raises?\b/g, "elevacion de talones"],
+  [/\bglute bridge\b/g, "puente de gluteo"],
+  [/\bstretch(ing)?\b/g, "estiramiento"],
+];
+
+/** Palabras que no distinguen un ejercicio de otro al comparar. */
+const VACIAS = new Set(["de", "con", "en", "a", "al", "la", "el", "los", "las", "y", "por", "para", "una", "un"]);
+
+const palabras = (t: string) => {
+  let n = normalizar(t);
+  for (const [patron, es] of INGLES) n = n.replace(patron, es);
+  return new Set(n.split(" ").filter((p) => p && !VACIAS.has(p)));
+};
 
 /* ---------- Reparto ---------- */
 
@@ -173,11 +218,15 @@ export async function disenarRutina(
   };
 }
 
-/** De lo que propuso el modelo a una rutina con ejercicios de la biblioteca (por nombre, sin tildes ni mayúsculas). */
+/**
+ * De lo que propuso el modelo a una rutina con ejercicios de la biblioteca: por nombre (sin tildes ni
+ * mayúsculas), luego contenido uno en otro y, por último, por palabras en común (con el inglés traducido).
+ */
 function enlazarRutina(valor: unknown, catalogo: EjercicioCatalogo[]): RutinaPropuesta | null {
   const r = valor as { nombre?: unknown; descripcion?: unknown; dias?: unknown } | undefined;
   if (!r || !Array.isArray(r.dias)) return null;
   const porNombre = new Map(catalogo.map((e) => [normalizar(e.nombre), e]));
+  const conPalabras = catalogo.map((e) => ({ e, p: palabras(e.nombre) }));
   const buscar = (nombre: string) => {
     const clave = normalizar(nombre);
     if (porNombre.has(clave)) return porNombre.get(clave)!;
@@ -186,16 +235,40 @@ function enlazarRutina(valor: unknown, catalogo: EjercicioCatalogo[]): RutinaPro
       const n = normalizar(e.nombre);
       return clave.length > 4 && (n.includes(clave) || clave.includes(n));
     });
-    return candidatos.sort((a, b) => a.nombre.length - b.nombre.length)[0] ?? null;
+    if (candidatos.length) return candidatos.sort((a, b) => a.nombre.length - b.nombre.length)[0];
+    // Por palabras: todas las del propuesto están en el de la biblioteca (o casi), y gana el que menos
+    // sobra. Con empate («Sentadilla con barra»: ¿frontal o trasera?) no se adivina.
+    const buscadas = palabras(nombre);
+    if (!buscadas.size) return null;
+    const [mejor, segundo] = conPalabras
+      .map(({ e, p }) => {
+        const comunes = [...buscadas].filter((x) => p.has(x)).length;
+        return { e, puntaje: comunes / Math.max(buscadas.size, p.size), cubre: comunes / buscadas.size };
+      })
+      .filter((c) => c.cubre >= 0.75 && c.puntaje >= 0.5)
+      .sort((a, b) => b.puntaje - a.puntaje);
+    return mejor && mejor.puntaje !== segundo?.puntaje ? mejor.e : null;
   };
 
   const descartados: string[] = [];
+  const faltantes: EjercicioFaltante[] = [];
   const dias = (r.dias as Record<string, unknown>[]).slice(0, 7).flatMap((d, i) => {
+    const nombreDia = recortar(d?.nombre, 60) || `Día ${i + 1}`;
     const ejercicios = (Array.isArray(d?.ejercicios) ? (d.ejercicios as Record<string, unknown>[]) : []).slice(0, 12).flatMap((e) => {
       const nombre = recortar(e?.nombre, 120);
       const hallado = nombre ? buscar(nombre) : null;
       if (!hallado) {
-        if (nombre) descartados.push(nombre);
+        if (nombre) {
+          descartados.push(nombre);
+          const series = numeroO(e.series, 1, 20);
+          faltantes.push({
+            nombre,
+            dia: nombreDia,
+            prescripcion: [series ? `${Math.round(series)}×${recortar(String(e.repeticiones ?? ""), 20) || "?"}` : null, numeroO(e.rir, 0, 10) !== null ? `RIR ${numeroO(e.rir, 0, 10)}` : null]
+              .filter(Boolean)
+              .join(" · "),
+          });
+        }
         return [];
       }
       const series = numeroO(e.series, 1, 20);
@@ -213,7 +286,7 @@ function enlazarRutina(valor: unknown, catalogo: EjercicioCatalogo[]): RutinaPro
         },
       ];
     });
-    return ejercicios.length ? [{ nombre: recortar(d?.nombre, 60) || `Día ${i + 1}`, ejercicios }] : [];
+    return ejercicios.length ? [{ nombre: nombreDia, ejercicios }] : [];
   });
   if (!dias.length) return null;
   return {
@@ -221,6 +294,7 @@ function enlazarRutina(valor: unknown, catalogo: EjercicioCatalogo[]): RutinaPro
     descripcion: recortar(r.descripcion, 600),
     dias,
     descartados: [...new Set(descartados)],
+    faltantes,
   };
 }
 

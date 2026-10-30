@@ -62,21 +62,27 @@ export function PanelDiseno({
   const cambiarSeccion = (id: SeccionDiseno["id"], cambio: Partial<SeccionDiseno>) =>
     cambiar("secciones", (secciones) => secciones.map((x) => (x.id === id ? { ...x, ...cambio } : x)));
 
+  // El formulario no se ordena: va siempre al final de la página, a todo el ancho.
+  const ordenables = diseno.secciones.filter((s) => s.id !== "contacto");
+  /** Reordena las demás y deja el formulario al final. */
+  const reordenar = (cambio: (resto: SeccionDiseno[]) => SeccionDiseno[]) =>
+    cambiar("secciones", (secciones) => [...cambio(secciones.filter((s) => s.id !== "contacto")), ...secciones.filter((s) => s.id === "contacto")]);
+
   const alSoltar = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
-    cambiar("secciones", (secciones) => {
-      const desde = secciones.findIndex((s) => s.id === active.id);
-      const hasta = secciones.findIndex((s) => s.id === over.id);
-      return desde >= 0 && hasta >= 0 ? arrayMove(secciones, desde, hasta) : secciones;
+    reordenar((resto) => {
+      const desde = resto.findIndex((s) => s.id === active.id);
+      const hasta = resto.findIndex((s) => s.id === over.id);
+      return desde >= 0 && hasta >= 0 ? arrayMove(resto, desde, hasta) : resto;
     });
   };
 
   /** Alternativa al arrastre (táctil, teclado o sin precisión): subir o bajar un puesto. */
   const mover = (id: Seccion, paso: -1 | 1) =>
-    cambiar("secciones", (secciones) => {
-      const desde = secciones.findIndex((s) => s.id === id);
+    reordenar((resto) => {
+      const desde = resto.findIndex((s) => s.id === id);
       const hasta = desde + paso;
-      return desde < 0 || hasta < 0 || hasta >= secciones.length ? secciones : arrayMove(secciones, desde, hasta);
+      return desde < 0 || hasta < 0 || hasta >= resto.length ? resto : arrayMove(resto, desde, hasta);
     });
 
   const propio = !COLORES.some((c) => c.valor === diseno.acento);
@@ -88,7 +94,7 @@ export function PanelDiseno({
           <CabeceraTarjeta id="dis-secciones" titulo="Orden de la página" />
           <div className="space-y-2 p-4">
             <p className="text-sm text-tenue">
-              Arrastra los bloques o usa las flechas para ordenarlos. Cada uno ocupa toda la fila o media: dos mitades seguidas quedan lado a lado.
+              Arrastra los bloques o usa las flechas para ordenarlos. Cada uno ocupa toda la fila o media: dos mitades seguidas quedan lado a lado. El formulario va siempre al final, a todo el ancho, para que nadie lo pierda.
             </p>
             <div className="flex items-center gap-2 rounded-2xl bg-hueso/60 px-3 py-2.5 text-sm text-tenue">
               <Lock aria-hidden className="size-4" /> Portada <span className="ml-auto text-xs">siempre arriba</span>
@@ -100,14 +106,14 @@ export function PanelDiseno({
               onDragEnd={alSoltar}
               accessibility={{ announcements: anunciosDnd((id) => ETIQUETA_SECCION[id as Seccion] ?? String(id)), screenReaderInstructions: instruccionesDnd }}
             >
-              <SortableContext items={diseno.secciones.map((s) => s.id)} strategy={rectSortingStrategy}>
+              <SortableContext items={ordenables.map((s) => s.id)} strategy={rectSortingStrategy}>
                 <ul className="grid grid-cols-2 gap-2">
-                  {diseno.secciones.map((s, i) => (
+                  {ordenables.map((s, i) => (
                     <BloqueSeccion
                       key={s.id}
                       seccion={s}
                       alSubir={i > 0 ? () => mover(s.id, -1) : undefined}
-                      alBajar={i < diseno.secciones.length - 1 ? () => mover(s.id, 1) : undefined}
+                      alBajar={i < ordenables.length - 1 ? () => mover(s.id, 1) : undefined}
                       alAlternar={() => cambiarSeccion(s.id, { visible: !s.visible })}
                       alCambiarAncho={() => cambiarSeccion(s.id, { ancho: s.ancho === "completo" ? "mitad" : "completo" })}
                     />
@@ -115,6 +121,9 @@ export function PanelDiseno({
                 </ul>
               </SortableContext>
             </DndContext>
+            <div className="flex items-center gap-2 rounded-2xl bg-hueso/60 px-3 py-2.5 text-sm text-tenue">
+              <Lock aria-hidden className="size-4" /> {ETIQUETA_SECCION.contacto} <span className="ml-auto text-xs">siempre al final</span>
+            </div>
           </div>
         </section>
       </Tarjeta>

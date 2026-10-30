@@ -75,9 +75,9 @@ export function VistaPaginaPublica({
     equipo: datos.entrenadores.length > 1,
     contacto: true,
   };
-  const secciones = diseno.secciones
-    // El formulario no se oculta: es adonde lleva el botón principal.
-    .filter((s) => (s.visible || s.id === "contacto") && tieneContenido[s.id]);
+  // El formulario no se oculta ni se mueve: va siempre al final, solo y a todo el ancho, para que quien
+  // baja buscándolo lo encuentre (a media columna y a mitad de página pasaba de largo).
+  const secciones = diseno.secciones.filter((s) => s.id !== "contacto" && s.visible && tieneContenido[s.id]);
 
   // Franjas: cada sección ocupa la suya, salvo dos "mitad" seguidas, que comparten franja lado a lado.
   const franjas: (typeof secciones)[] = [];
@@ -86,11 +86,11 @@ export function VistaPaginaPublica({
     if (s.ancho === "mitad" && ultima?.length === 1 && ultima[0].ancho === "mitad") ultima.push(s);
     else franjas.push([s]);
   }
+  franjas.push([{ id: "contacto", ancho: "completo", visible: true }]);
 
   // Un recordatorio a mitad de página, para quien ya se convenció antes de llegar al final: va antes de
-  // la tercera franja, si el formulario aún no ha salido.
-  const indiceContacto = franjas.findIndex((f) => f.some((s) => s.id === "contacto"));
-  const indiceLlamada = franjas.length >= 3 && indiceContacto > 2 ? 2 : -1;
+  // la tercera franja, si quedan al menos dos más (la última es el formulario).
+  const indiceLlamada = franjas.length >= 4 ? 2 : -1;
 
   return (
     <div style={estilo} className="@container/pagina min-w-0 bg-fondo text-tinta">

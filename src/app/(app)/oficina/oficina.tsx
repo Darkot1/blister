@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarPlus, Check, ClipboardCopy, Database, History, NotebookPen, PlugZap, Send, Sparkles, Trash2, TriangleAlert } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Check, ClipboardCopy, Database, History, NotebookPen, PlugZap, Plus, Send, Sparkles, Trash2, TriangleAlert } from "lucide-react";
 import { m } from "motion/react";
 import { AGENTES, LIDER, agentePorId, type Agente } from "@/lib/agentes/catalogo";
 import { DURACION, guionDe, textoDeJunta, type CasoJunta, type Junta, type JuntaGuardada, type Paso, type ResumenJunta, type RutinaPropuesta } from "@/lib/agentes/juntas";
@@ -101,6 +101,8 @@ export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; histor
   const [eligiendoPara, setEligiendoPara] = useState<string | null>(null);
   const [junta, setJunta] = useState<Junta | null>(null);
   const [paso, setPaso] = useState(0);
+  // Número de la junta en pantalla: cada una monta su panel desde cero (su modal de resultado se abre al terminar).
+  const [numeroJunta, setNumeroJunta] = useState(0);
   // Cada junta lleva un número: una respuesta que llega tarde (de una junta ya cerrada) se descarta.
   const idJunta = useRef(0);
   const minuto = useMinuto();
@@ -151,6 +153,7 @@ export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; histor
       decision: { titulo: "", resumen: "" },
     };
     const id = ++idJunta.current;
+    setNumeroJunta(id);
     setJunta({ caso, guion: guionDe(caso, presentes), asistentes: sentados, consulta: "pendiente", alumnoId: pedido.alumnoId });
     setPaso(1);
     // Mientras caminan a la sala, el servidor arma el expediente y consulta al líder y a cada agente con IA.
@@ -212,6 +215,7 @@ export function Oficina({ alumnos, historial }: { alumnos: AlumnoJunta[]; histor
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 lg:sticky lg:top-8">
         {junta ? (
           <PanelJunta
+            key={numeroJunta}
             junta={junta}
             paso={paso}
             // Saltar no se salta la espera: sin respuestas, se queda justo antes de los informes.
@@ -539,6 +543,9 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
   const terminada = paso >= junta.guion.length;
   const acciones = vistos.flatMap((p) => (p.tipo === "informa" ? [p.encargo.accion] : []));
   const sinCubrir = junta.guion.filter((p) => p.tipo === "delega" && !p.presente).length;
+  const hayResultado = terminada && Boolean(junta.caso.decision.titulo);
+  // El resultado se lee en un modal amplio, que se abre solo al terminar; cerrarlo no termina la junta.
+  const [cerrado, setCerrado] = useState(false);
 
   return (
     <Tarjeta>
@@ -564,18 +571,21 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
           </p>
         )}
 
-        {terminada && junta.caso.decision.titulo && <DecisionLider caso={junta.caso} modelos={junta.modelos} acciones={acciones} sinCubrir={sinCubrir} />}
-
-        {terminada && junta.caso.rutina && <PropuestaRutina rutina={junta.caso.rutina} alumno={junta.caso.alumno} />}
-        {terminada && junta.consulta === "lista" && junta.caso.decision.titulo && (
-          <AccionesJunta caso={junta.caso} alumnoId={junta.alumnoId ?? null} juntaId={junta.juntaId ?? null} />
+        {hayResultado && (
+          <div className="mt-4 rounded-[var(--radius-tarjeta)] bg-panel p-4 text-white">
+            <p className="text-xs text-white/60">Propuesta del líder</p>
+            <p className="titulo-display mt-1 leading-snug">{junta.caso.decision.titulo}</p>
+            <Boton className="mt-3 w-full" onClick={() => setCerrado(false)}>
+              <NotebookPen aria-hidden className="size-4" /> Ver resultado
+            </Boton>
+          </div>
         )}
-
         {terminada && (
-          <Boton variante="secundario" className="mt-4 w-full" onClick={alTerminar}>
+          <Boton variante="secundario" className="mt-3 w-full" onClick={alTerminar}>
             Volver a los puestos
           </Boton>
         )}
+
         {terminada && <h3 className="etiqueta mt-5">Cómo se llegó</h3>}
         <ol aria-live="polite" className={`space-y-3 border-l border-linea pl-4 ${terminada ? "mt-2 max-h-72 overflow-y-auto pr-1" : "mt-4"}`}>
           {vistos.map((p, i) => (
@@ -593,6 +603,39 @@ function PanelJunta({ junta, paso, alSaltar, alTerminar }: { junta: Junta; paso:
           )}
         </ol>
       </div>
+
+      <Dialogo abierto={hayResultado && !cerrado} alCerrar={() => setCerrado(true)} titulo={`Junta · ${junta.caso.alumno}`} amplio>
+        <p className="text-grafito">{junta.caso.contexto}</p>
+        <DecisionLider caso={junta.caso} modelos={junta.modelos} acciones={acciones} sinCubrir={sinCubrir} />
+        {junta.caso.rutina && <PropuestaRutina rutina={junta.caso.rutina} alumno={junta.caso.alumno} />}
+        {junta.consulta === "lista" && <AccionesJunta caso={junta.caso} alumnoId={junta.alumnoId ?? null} juntaId={junta.juntaId ?? null} />}
+        {junta.caso.encargos.length > 0 && (
+          <>
+            <h3 className="etiqueta mt-5">Lo que respondió cada agente</h3>
+            <ul className="mt-2 space-y-3 border-l border-linea pl-4">
+              {junta.caso.encargos.map((e, i) => (
+                <li key={i}>
+                  <Evento paso={{ tipo: "informa", encargo: e }} alumno={junta.caso.alumno} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        <div className="mt-6 flex flex-wrap justify-end gap-2 border-t border-linea pt-4">
+          <Boton variante="secundario" onClick={() => setCerrado(true)}>
+            Cerrar
+          </Boton>
+          <Boton
+            variante="secundario"
+            onClick={() => {
+              setCerrado(true);
+              alTerminar();
+            }}
+          >
+            Volver a los puestos
+          </Boton>
+        </div>
+      </Dialogo>
     </Tarjeta>
   );
 }
@@ -823,9 +866,7 @@ function PropuestaRutina({ rutina, alumno }: { rutina: RutinaPropuesta; alumno: 
             </ul>
           </div>
         ))}
-        {rutina.descartados.length > 0 && (
-          <p className="text-xs text-tenue">No están en tu biblioteca y no se incluyen: {rutina.descartados.join(", ")}.</p>
-        )}
+        {rutina.descartados.length > 0 && <Faltantes rutina={rutina} />}
       </div>
       <div className="space-y-2 border-t border-linea p-3">
         {error && <p className="text-sm text-peligro">{error}</p>}
@@ -846,6 +887,38 @@ function PropuestaRutina({ rutina, alumno }: { rutina: RutinaPropuesta; alumno: 
         <p className="text-center text-xs text-tenue">Se abre en el constructor para que la ajustes. No se asigna a nadie hasta que tú lo hagas.</p>
       </div>
     </m.section>
+  );
+}
+
+/**
+ * Ejercicios que la propuesta usa y no están en tu biblioteca: cada uno con un enlace para crearlo (en otra
+ * pestaña, para no perder la junta). Luego se añade a mano en el borrador, que también los anota.
+ */
+function Faltantes({ rutina }: { rutina: RutinaPropuesta }) {
+  const lista = rutina.faltantes ?? rutina.descartados.map((nombre) => ({ nombre, dia: "", prescripcion: "" }));
+  return (
+    <div className="rounded-lg bg-hueso/60 px-3 py-2.5">
+      <p className="text-xs font-medium text-grafito">No están en tu biblioteca, así que no entran en el borrador:</p>
+      <ul className="mt-1.5 space-y-1.5 text-sm">
+        {lista.map((f, i) => (
+          <li key={`${f.nombre}-${i}`} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <span className="min-w-0">
+              {f.nombre}
+              {(f.dia || f.prescripcion) && <span className="text-tenue"> · {[f.dia, f.prescripcion].filter(Boolean).join(" · ")}</span>}
+            </span>
+            <a
+              href={`/maestros/ejercicios/nuevo?nombre=${encodeURIComponent(f.nombre)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-acento underline-offset-2 hover:underline"
+            >
+              <Plus aria-hidden className="size-3.5" /> Crear ejercicio
+              <span className="sr-only">(se abre en otra pestaña)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

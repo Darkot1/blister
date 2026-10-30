@@ -8,14 +8,15 @@ import { enlaceWhatsapp } from "@/lib/pagina-publica/contenido";
 /**
  * Botón fijo abajo en el celular para llegar al formulario desde cualquier punto de la página.
  * Aparece cuando ya no se ve el botón de la portada y se queda fija en todas las secciones; solo se esconde
- * mientras el formulario está en pantalla (ahí ya no hace falta).
+ * mientras los campos del formulario están en pantalla (ahí ya no hace falta). Se mira el bloque de los
+ * campos y no toda la sección: con los pasos y el WhatsApp, la sección es tan alta que la barra no salía.
  */
 export function BarraMovil({ texto, whatsapp }: { texto: string; whatsapp: string | null }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const portada = document.getElementById("boton-portada");
-    const formulario = document.getElementById("empezar");
+    const formulario = document.getElementById("formulario");
     if (!portada || !formulario) return;
     let botonPasado = false;
     let formularioVisible = false;

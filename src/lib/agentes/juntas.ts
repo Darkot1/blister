@@ -39,7 +39,12 @@ export type RutinaPropuesta = {
   dias: { nombre: string; ejercicios: EjercicioPropuesto[] }[];
   /** Ejercicios que propuso pero no están en tu biblioteca (no entran en el borrador). */
   descartados: string[];
+  /** Los mismos, con su día y prescripción, para crearlos y añadirlos a mano (juntas viejas no lo traen). */
+  faltantes?: EjercicioFaltante[];
 };
+
+/** Un ejercicio propuesto que no está en la biblioteca. */
+export type EjercicioFaltante = { nombre: string; dia: string; prescripcion: string };
 
 /** Un paso del plan del líder, ordenado en el tiempo. */
 export type PasoPlan = { cuando: "hoy" | "semana" | "despues"; texto: string };
