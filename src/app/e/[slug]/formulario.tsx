@@ -50,7 +50,9 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
           </svg>
           <h2 className="titulo-display mt-4 text-2xl">¡Listo, recibido!</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-tenue">
-            {tipo === "registro"
+            {estado.repetida
+              ? `Ya tenemos lo que enviaste hoy. ${entrenador} te contactará pronto; no hace falta enviarlo de nuevo.`
+              : tipo === "registro"
               ? `${entrenador} revisará tu solicitud y te contactará para empezar.`
               : `${entrenador} leerá tu mensaje y te responderá pronto.`}
           </p>

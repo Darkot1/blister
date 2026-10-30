@@ -1,10 +1,14 @@
 "use server";
 
+import { createHmac } from "node:crypto";
+import { cookies, headers } from "next/headers";
 import { z } from "zod";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 
 export type EstadoSolicitud = {
   enviada?: boolean;
+  /** Ya había enviado desde este navegador: no se manda otra. */
+  repetida?: boolean;
   error?: string;
   errores?: Record<string, string[] | undefined>;
   valores?: Record<string, string>;
@@ -41,7 +45,17 @@ const esquema = z
 /** Mensajes que la RPC lanza a propósito para quien llena el formulario (validación, límite, página apagada). */
 const CODIGOS_CON_MENSAJE = new Set(["22023", "54000", "P0002"]);
 
-/** Formulario de /e/<slug>: deja una solicitud para el entrenador. Sin sesión: todo pasa por la RPC enviar_solicitud. */
+/** Un día: desde el mismo navegador no se manda otra solicitud a la misma página. */
+const COOKIE_DURACION = 60 * 60 * 24;
+
+/** Huella de la conexión (HMAC de la IP con el secreto del servidor): limita envíos sin guardar la IP. */
+async function origen(secreto: string) {
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "";
+  return ip ? createHmac("sha256", secreto).update(ip).digest("hex") : "";
+}
+
+/** Formulario de /e/<slug>: deja una solicitud para el entrenador. Sin sesión: todo pasa por la RPC enviar_solicitud_web, que exige el secreto del servidor. */
 export async function enviarSolicitud(slug: string, _: EstadoSolicitud, formData: FormData): Promise<EstadoSolicitud> {
   const valores = Object.fromEntries([...formData].filter(([, v]) => typeof v === "string")) as Record<string, string>;
   // Trampa para bots: un campo oculto que una persona nunca llena. Se finge éxito.
@@ -51,8 +65,17 @@ export async function enviarSolicitud(slug: string, _: EstadoSolicitud, formData
   const datos = esquema.safeParse({ fecha_nacimiento: "", lesiones: "", ...valores });
   if (!datos.success) return { errores: z.flattenError(datos.error).fieldErrors, valores };
 
+  const almacen = await cookies();
+  const marca = `solicitud-${slug}`;
+  if (almacen.has(marca)) return { enviada: true, repetida: true };
+
+  const secreto = process.env.FORMULARIO_SECRETO;
+  if (!secreto) return { error: "No se pudo enviar. Inténtalo de nuevo en un momento.", valores };
+
   const supabase = await crearClienteServidor();
-  const { error } = await supabase.rpc("enviar_solicitud", {
+  const { error } = await supabase.rpc("enviar_solicitud_web", {
+    p_secreto: secreto,
+    p_origen: await origen(secreto),
     p_slug: slug,
     p_tipo: datos.data.tipo,
     p_nombres: datos.data.nombres,
@@ -68,5 +91,6 @@ export async function enviarSolicitud(slug: string, _: EstadoSolicitud, formData
   if (error) {
     return { error: CODIGOS_CON_MENSAJE.has(error.code) ? error.message : "No se pudo enviar. Inténtalo de nuevo en un momento.", valores };
   }
+  almacen.set(marca, "1", { maxAge: COOKIE_DURACION, httpOnly: true, sameSite: "lax", secure: true, path: `/e/${slug}` });
   return { enviada: true };
 }
