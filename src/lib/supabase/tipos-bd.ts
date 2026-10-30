@@ -271,6 +271,18 @@ export type ConexionTelegramFila = {
   actualizado_en: string;
 };
 
+export type FotoProgresoFila = {
+  id: string;
+  alumno_id: string;
+  subida_por: string | null;
+  ruta_storage: string;
+  capturada_en: string;
+  categoria: "frente" | "espalda" | "izquierda" | "derecha" | "otra";
+  visibilidad: "solo_entrenador" | "alumno";
+  notas: string | null;
+  creado_en: string;
+};
+
 export type CitaFila = {
   id: string;
   organizacion_id: string;
@@ -428,6 +440,7 @@ export type Database = {
         ConexionTelegramFila,
         Opcional<ConexionTelegramFila, "chat_id" | "codigo" | "codigo_expira_en" | "vinculado_en" | "ultimo_resumen" | "ultimo_resumen_semanal" | "creado_en" | "actualizado_en">
       >;
+      fotos_progreso: Tabla<FotoProgresoFila, Opcional<FotoProgresoFila, "id" | "subida_por" | "capturada_en" | "visibilidad" | "notas" | "creado_en">>;
       citas: Tabla<
         CitaFila,
         Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "google_evento_id" | "google_error" | "google_pendiente" | "google_avisar" | "creado_en" | "actualizado_en">
@@ -531,6 +544,8 @@ export type Database = {
       desvincular_telegram: { Args: Record<string, never>; Returns: undefined };
       probar_telegram: { Args: Record<string, never>; Returns: boolean };
       telegram_procesar: { Args: { p_secreto: string; p_update: Json }; Returns: string };
+      telegram_preparar_archivo: { Args: { p_secreto: string; p_update: Json }; Returns: Json };
+      telegram_confirmar_foto: { Args: { p_secreto: string; p_ruta: string; p_ok: boolean }; Returns: undefined };
       reemplazar_relaciones_ejercicio: {
         Args: { p_ejercicio_id: string; p_musculos: { id: string; rol: string }[]; p_equipos: string[] };
         Returns: undefined;

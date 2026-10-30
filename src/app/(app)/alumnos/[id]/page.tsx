@@ -15,6 +15,7 @@ import type { MedicionFila } from "@/lib/supabase/tipos-bd";
 import { agregarNota, cambiarEstadoAlumno, registrarMedicion } from "../acciones";
 import { BotonCambioEstado, FormularioMedicion, FormularioNota } from "./componentes";
 import { ContactoOculto } from "./contacto";
+import { FotosProgreso } from "./fotos";
 import { PlanAlumno } from "./plan";
 
 export const metadata: Metadata = { title: "Alumno" };
@@ -228,6 +229,10 @@ async function PerfilAlumno({ params }: { params: PageProps<"/alumnos/[id]">["pa
           </section>
         </Tarjeta>
       </div>
+
+      <Suspense fallback={<Esqueleto className="mt-4 h-40 w-full" />}>
+        <FotosProgreso supabase={supabase} alumnoId={alumno.id} nombre={alumno.nombres} />
+      </Suspense>
 
       {/* Zona de riesgo aparte, al final. */}
       <Tarjeta className="mt-8 flex flex-wrap items-center justify-between gap-4 border-dashed p-4">
