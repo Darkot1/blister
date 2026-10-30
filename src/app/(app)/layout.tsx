@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { EnlaceAdmin, Navegacion } from "@/components/app/navegacion";
 import { UsuarioActual, UsuarioActualCargando } from "@/components/app/usuario-actual";
-import { esSuperadmin } from "@/lib/sesion";
+import { after } from "next/server";
+import { sincronizarPendientes } from "@/lib/google/calendario";
+import { esSuperadmin, obtenerContexto } from "@/lib/sesion";
 
 // Detrás del inicio de sesión: nada aquí debe aparecer en buscadores.
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -27,10 +29,20 @@ export default function LayoutApp({ children, modal }: { children: React.ReactNo
         <div className="mx-auto max-w-[78rem]">{children}</div>
       </main>
       {modal}
+      <Suspense fallback={null}>
+        <GooglePendiente />
+      </Suspense>
     </div>
   );
 }
 
 async function SoloSuperadmin() {
   return (await esSuperadmin()) ? <EnlaceAdmin /> : null;
+}
+
+/** Pasa a Google Calendar, después de responder, las citas que se cambiaron desde el bot de Telegram. */
+async function GooglePendiente() {
+  const { supabase, usuarioId } = await obtenerContexto();
+  after(() => sincronizarPendientes(supabase, usuarioId));
+  return null;
 }

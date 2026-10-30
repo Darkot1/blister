@@ -264,6 +264,7 @@ export type ConexionTelegramFila = {
   codigo_expira_en: string | null;
   vinculado_en: string | null;
   ultimo_resumen: string | null;
+  ultimo_resumen_semanal: string | null;
   creado_en: string;
   actualizado_en: string;
 };
@@ -283,6 +284,8 @@ export type CitaFila = {
   google_evento_id: string | null;
   /** Último error al sincronizar con Google (null = sin error). */
   google_error: string | null;
+  google_pendiente: boolean;
+  google_avisar: boolean;
   creado_en: string;
   actualizado_en: string;
 };
@@ -421,11 +424,11 @@ export type Database = {
       >;
       conexiones_telegram: Tabla<
         ConexionTelegramFila,
-        Opcional<ConexionTelegramFila, "chat_id" | "codigo" | "codigo_expira_en" | "vinculado_en" | "ultimo_resumen" | "creado_en" | "actualizado_en">
+        Opcional<ConexionTelegramFila, "chat_id" | "codigo" | "codigo_expira_en" | "vinculado_en" | "ultimo_resumen" | "ultimo_resumen_semanal" | "creado_en" | "actualizado_en">
       >;
       citas: Tabla<
         CitaFila,
-        Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "google_evento_id" | "google_error" | "creado_en" | "actualizado_en">
+        Opcional<CitaFila, "id" | "sesion_id" | "tipo" | "estado" | "notas" | "google_evento_id" | "google_error" | "google_pendiente" | "google_avisar" | "creado_en" | "actualizado_en">
       >;
       ejercicios: Tabla<
         EjercicioFila,
@@ -523,7 +526,7 @@ export type Database = {
       preparar_vinculo_telegram: { Args: Record<string, never>; Returns: string };
       desvincular_telegram: { Args: Record<string, never>; Returns: undefined };
       probar_telegram: { Args: Record<string, never>; Returns: boolean };
-      vincular_telegram: { Args: { p_secreto: string; p_codigo: string; p_chat_id: number }; Returns: string };
+      telegram_procesar: { Args: { p_secreto: string; p_update: Json }; Returns: string };
       reemplazar_relaciones_ejercicio: {
         Args: { p_ejercicio_id: string; p_musculos: { id: string; rol: string }[]; p_equipos: string[] };
         Returns: undefined;
