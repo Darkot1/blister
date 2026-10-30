@@ -182,6 +182,8 @@ export type SolicitudFila = {
   mensaje: string | null;
   fecha_nacimiento: string | null;
   lesiones: string | null;
+  /** HMAC de la IP de quien envió (no reversible); solo para limitar envíos. */
+  origen: string | null;
   estado: "nueva" | "aceptada" | "descartada";
   alumno_id: string | null;
   /** Cuándo autorizó el tratamiento de sus datos; null en solicitudes anteriores a la autorización. */
@@ -429,7 +431,7 @@ export type Database = {
       organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "pagina_publica" | "presentacion" | "titular" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "testimonios" | "respuesta_horas" | "oferta_inicial" | "creado_en" | "actualizado_en">>;
       solicitudes: Tabla<
         SolicitudFila,
-        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "fecha_nacimiento" | "lesiones" | "estado" | "alumno_id" | "autoriza_datos_en" | "creado_en" | "actualizado_en">
+        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "fecha_nacimiento" | "lesiones" | "origen" | "estado" | "alumno_id" | "autoriza_datos_en" | "creado_en" | "actualizado_en">
       >;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
       conexiones_google: Tabla<
@@ -522,8 +524,10 @@ export type Database = {
         Returns: string;
       };
       pagina_publica: { Args: { p_slug: string }; Returns: PaginaPublica | null };
-      enviar_solicitud: {
+      enviar_solicitud_web: {
         Args: {
+          p_secreto: string;
+          p_origen: string;
           p_slug: string;
           p_tipo: "registro" | "contacto";
           p_nombres: string;
