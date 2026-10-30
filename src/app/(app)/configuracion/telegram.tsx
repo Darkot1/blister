@@ -24,9 +24,10 @@ export function TarjetaTelegram({ vinculadoEn, configurado }: { vinculadoEn: str
             <p className="text-sm text-tenue">Recibe en tu celular, por Telegram:</p>
           )}
           <ul className="space-y-1.5 text-sm text-tenue">
-            <li>Cada solicitud nueva de tu página pública, al momento.</li>
-            <li>Tus citas del día, cada mañana.</li>
-            <li>Un aviso 1 hora antes de cada cita.</li>
+            <li>Cada solicitud nueva de tu página, con botones para aceptarla o descartarla.</li>
+            <li>Tus citas del día cada mañana, con lo que conviene revisar, y un resumen el domingo.</li>
+            <li>Cada cita 1 hora antes (confirmar o cancelar) y al terminar (¿se hizo?).</li>
+            <li>Y le puedes escribir: /hoy, /semana, /alumno Ana, /peso Ana 64,5, /nota Ana: …</li>
           </ul>
           {vinculadoEn ? (
             <div className="flex flex-wrap gap-2">

@@ -225,6 +225,23 @@ async function diaDelPlan(supabase: Supabase, sesionId: string | null) {
   return dia?.nombre ?? null;
 }
 
+/**
+ * Citas cambiadas fuera de la app (botones del bot de Telegram, que no tiene los tokens de Google):
+ * se pasan a Google la próxima vez que el entrenador entra. Pocas por vez para no alargar la petición.
+ */
+export async function sincronizarPendientes(supabase: Supabase, usuarioId: string) {
+  const { data: citas } = await supabase
+    .from("citas")
+    .select("id, google_avisar")
+    .eq("entrenador_id", usuarioId)
+    .eq("google_pendiente", true)
+    .limit(20);
+  for (const c of citas ?? []) {
+    await sincronizarCita(supabase, usuarioId, c.id, c.google_avisar);
+    await supabase.from("citas").update({ google_pendiente: false, google_avisar: false }).eq("id", c.id);
+  }
+}
+
 /** Al conectar: pasa a Google las próximas citas pendientes del entrenador (sin avisar a los alumnos de nuevo). */
 export async function sincronizarProximas(supabase: Supabase, usuarioId: string) {
   const { data: citas } = await supabase

@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Prom
   const quien = nombreCompleto(pagina);
   const titulo = `${quien} · Entrenamiento personal${pagina.ubicacion ? ` en ${pagina.ubicacion}` : ""}`;
   const descripcion = resumen(pagina);
-  const foto = urlFoto(pagina.foto_ruta) ?? pagina.entrenadores[0]?.avatar_url ?? undefined;
+  // La imagen al compartir la genera opengraph-image.tsx (la portada de esta página).
   return {
     title: titulo,
     description: descripcion,
@@ -50,9 +50,8 @@ export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Prom
       url: `/e/${slug}`,
       type: "profile",
       locale: "es_CO",
-      ...(foto && { images: [{ url: foto, alt: quien }] }),
     },
-    twitter: { card: foto ? "summary_large_image" : "summary", title: titulo, description: descripcion },
+    twitter: { card: "summary_large_image", title: titulo, description: descripcion },
   };
 }
 
