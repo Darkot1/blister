@@ -7,8 +7,8 @@
 --     · 📅 su próxima cita, con confirmar, cancelar, mover y ver la rutina;
 --     · 🕘 su última sesión: día del plan, esfuerzo y las series registradas;
 --     · 🏋️ la rutina de hoy.
---   Cada vista tiene «↩ Ficha» para volver. El teléfono va en el texto, listo
---   para copiar (Telegram no deja botones que llamen).
+--   Cada vista tiene «↩ Ficha» para volver. El teléfono va en el texto (Telegram
+--   lo reconoce y abre su menú; no hay botones que llamen).
 -- ============================================================
 
 -- ------------------------------------------------------------
