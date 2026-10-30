@@ -79,22 +79,43 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
           </div>
           <p className="-mt-2 text-xs text-tenue">Basta con uno de los dos para que te contacten.</p>
 
+          {/* Lo que el entrenador necesita para empezar: llega a la ficha del alumno al aceptar la solicitud. */}
           <AnimatePresence initial={false}>
             {tipo === "registro" && (
               <m.div
-                key="objetivo"
+                key="registro"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: quieto ? 0 : 0.2 }}
-                className="overflow-hidden"
+                className="-mx-1 space-y-4 overflow-hidden px-1"
               >
-                <Selector
-                  etiqueta="¿Qué te gustaría lograr?"
-                  nombre="objetivo"
-                  defaultValue={v("objetivo")}
-                  errores={e.objetivo}
-                  opciones={[{ valor: "", texto: "Elige uno (opcional)" }, ...Object.entries(ETIQUETA_TIPO_OBJETIVO).map(([valor, texto]) => ({ valor, texto }))]}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Campo
+                    etiqueta="Fecha de nacimiento"
+                    nombre="fecha_nacimiento"
+                    type="date"
+                    autoComplete="bday"
+                    max={new Date().toISOString().slice(0, 10)}
+                    defaultValue={v("fecha_nacimiento")}
+                    errores={e.fecha_nacimiento}
+                  />
+                  <Selector
+                    etiqueta="¿Qué te gustaría lograr?"
+                    nombre="objetivo"
+                    defaultValue={v("objetivo")}
+                    errores={e.objetivo}
+                    opciones={[{ valor: "", texto: "Elige uno (opcional)" }, ...Object.entries(ETIQUETA_TIPO_OBJETIVO).map(([valor, texto]) => ({ valor, texto }))]}
+                  />
+                </div>
+                <AreaTexto
+                  etiqueta="Lesiones, dolores o condiciones de salud (opcional)"
+                  nombre="lesiones"
+                  rows={2}
+                  maxLength={500}
+                  placeholder="Ej.: me operaron la rodilla derecha hace 2 años, a veces me duele la espalda baja…"
+                  defaultValue={v("lesiones")}
+                  errores={e.lesiones}
                 />
               </m.div>
             )}
@@ -103,9 +124,9 @@ export function FormularioSolicitud({ slug, entrenador }: { slug: string; entren
           <AreaTexto
             etiqueta={tipo === "registro" ? "Cuéntale algo más (opcional)" : "Tu mensaje"}
             nombre="mensaje"
-            rows={4}
+            rows={tipo === "registro" ? 3 : 4}
             maxLength={1000}
-            placeholder={tipo === "registro" ? "Experiencia previa, lesiones, horarios que te sirven…" : "¿Qué te gustaría saber?"}
+            placeholder={tipo === "registro" ? "Experiencia previa, horarios que te sirven, dónde prefieres entrenar…" : "¿Qué te gustaría saber?"}
             defaultValue={v("mensaje")}
             errores={e.mensaje}
           />

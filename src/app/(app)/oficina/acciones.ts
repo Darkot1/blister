@@ -180,10 +180,21 @@ export async function crearBorradorRutina(propuesta: RutinaPropuesta, alumno: st
     ];
   });
   if (!dias.length) return { error: "La propuesta no tiene ejercicios de tu biblioteca." };
+  const faltantes = (propuesta.faltantes ?? [])
+    .slice(0, 12)
+    .map((f) => [String(f.nombre).slice(0, 60), String(f.dia ?? "").slice(0, 40), String(f.prescripcion ?? "").slice(0, 30)].filter(Boolean).join(", "));
 
   const resultado = await guardarRutina(null, {
     nombre: `${String(propuesta.nombre || "Rutina propuesta").slice(0, 80)} · borrador`,
-    descripcion: [`Propuesta de la oficina de agentes para ${String(alumno).slice(0, 80)}.`, String(propuesta.descripcion ?? "").slice(0, 600)].join(" ").trim(),
+    descripcion: [
+      `Propuesta de la oficina de agentes para ${String(alumno).slice(0, 80)}.`,
+      String(propuesta.descripcion ?? "").slice(0, 600),
+      // Lo que no estaba en la biblioteca: para añadirlo a mano cuando exista.
+      faltantes.length ? `Falta añadir: ${faltantes.join("; ")}.` : "",
+    ]
+      .join(" ")
+      .trim()
+      .slice(0, 1000),
     tipo_objetivo: null,
     dias,
   });

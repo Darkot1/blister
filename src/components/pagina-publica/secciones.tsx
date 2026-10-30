@@ -122,23 +122,26 @@ const pasos = (quien: string, horas: number | null) => [
  * El panel oscuro (`bg-panel`) la distingue del resto de la página en los dos temas.
  */
 export function Contacto({ datos, quien, formulario }: { datos: PaginaPublica; quien: string; formulario: React.ReactNode }) {
+  const intro = `Deja tus datos y ${quien} se pondrá en contacto contigo. Si solo tienes una duda, también puedes escribir.`;
   return (
     <section
       id="empezar"
       aria-labelledby="titulo-empezar"
       className="-mx-5 grid scroll-mt-20 overflow-hidden bg-superficie ring-1 ring-linea @xl/pagina:mx-0 @xl/pagina:rounded-[var(--radius-elevada)] @3xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
     >
-      <div className="bg-panel px-5 py-8 text-white @xl:p-9">
-        <Encabezado id="titulo-empezar" antetitulo="Empecemos" titulo="Da el primer paso" claro />
-        <p className="mt-4 text-white/80">
-          Deja tus datos y {quien} se pondrá en contacto contigo. Si solo tienes una duda, también puedes escribir.
-        </p>
+      {/* En el celular va debajo del formulario: primero lo que se busca (los campos), luego qué pasa después. */}
+      <div className="order-2 bg-panel px-5 py-8 text-white @xl:p-9 @3xl:order-1">
+        <div className="hidden @3xl:block">
+          <Encabezado id="titulo-empezar-panel" antetitulo="Empecemos" titulo="Da el primer paso" claro />
+          <p className="mt-4 text-white/80">{intro}</p>
+        </div>
         {datos.oferta_inicial && (
-          <p className="mt-5 inline-flex max-w-full items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium">
+          <p className="inline-flex max-w-full items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium @3xl:mt-5">
             <Gift aria-hidden className="size-4 shrink-0" /> <span className="min-w-0">{datos.oferta_inicial}</span>
           </p>
         )}
-        <ol className="mt-8 space-y-5">
+        <p className={`text-sm font-medium text-white/70 @3xl:hidden ${datos.oferta_inicial ? "mt-6" : ""}`}>Qué pasa después</p>
+        <ol className="mt-4 space-y-5 @3xl:mt-8">
           {pasos(quien, datos.respuesta_horas).map((p, i) => (
             <li key={p.titulo} className="flex gap-4">
               <span aria-hidden className="cifra-display grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-base text-white">
@@ -182,7 +185,11 @@ export function Contacto({ datos, quien, formulario }: { datos: PaginaPublica; q
           </div>
         )}
       </div>
-      <div className="min-w-0 px-5 py-8 @xl:p-9">
+      <div id="formulario" className="order-1 min-w-0 scroll-mt-20 px-5 py-8 @xl:p-9 @3xl:order-2">
+        <div className="mb-6 @3xl:hidden">
+          <Encabezado id="titulo-empezar" antetitulo="Empecemos" titulo="Da el primer paso" />
+          <p className="mt-3 text-grafito">{intro}</p>
+        </div>
         <p className="mb-5 text-sm text-tenue">Un minuto: solo lo necesario para contactarte.</p>
         {formulario}
       </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarPlus, Check, ClipboardCopy, Database, History, NotebookPen, PlugZap, Send, Sparkles, Trash2, TriangleAlert } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Check, ClipboardCopy, Database, History, NotebookPen, PlugZap, Plus, Send, Sparkles, Trash2, TriangleAlert } from "lucide-react";
 import { m } from "motion/react";
 import { AGENTES, LIDER, agentePorId, type Agente } from "@/lib/agentes/catalogo";
 import { DURACION, guionDe, textoDeJunta, type CasoJunta, type Junta, type JuntaGuardada, type Paso, type ResumenJunta, type RutinaPropuesta } from "@/lib/agentes/juntas";
@@ -823,9 +823,7 @@ function PropuestaRutina({ rutina, alumno }: { rutina: RutinaPropuesta; alumno: 
             </ul>
           </div>
         ))}
-        {rutina.descartados.length > 0 && (
-          <p className="text-xs text-tenue">No están en tu biblioteca y no se incluyen: {rutina.descartados.join(", ")}.</p>
-        )}
+        {rutina.descartados.length > 0 && <Faltantes rutina={rutina} />}
       </div>
       <div className="space-y-2 border-t border-linea p-3">
         {error && <p className="text-sm text-peligro">{error}</p>}
@@ -846,6 +844,38 @@ function PropuestaRutina({ rutina, alumno }: { rutina: RutinaPropuesta; alumno: 
         <p className="text-center text-xs text-tenue">Se abre en el constructor para que la ajustes. No se asigna a nadie hasta que tú lo hagas.</p>
       </div>
     </m.section>
+  );
+}
+
+/**
+ * Ejercicios que la propuesta usa y no están en tu biblioteca: cada uno con un enlace para crearlo (en otra
+ * pestaña, para no perder la junta). Luego se añade a mano en el borrador, que también los anota.
+ */
+function Faltantes({ rutina }: { rutina: RutinaPropuesta }) {
+  const lista = rutina.faltantes ?? rutina.descartados.map((nombre) => ({ nombre, dia: "", prescripcion: "" }));
+  return (
+    <div className="rounded-lg bg-hueso/60 px-3 py-2.5">
+      <p className="text-xs font-medium text-grafito">No están en tu biblioteca, así que no entran en el borrador:</p>
+      <ul className="mt-1.5 space-y-1.5 text-sm">
+        {lista.map((f, i) => (
+          <li key={`${f.nombre}-${i}`} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <span className="min-w-0">
+              {f.nombre}
+              {(f.dia || f.prescripcion) && <span className="text-tenue"> · {[f.dia, f.prescripcion].filter(Boolean).join(" · ")}</span>}
+            </span>
+            <a
+              href={`/maestros/ejercicios/nuevo?nombre=${encodeURIComponent(f.nombre)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-acento underline-offset-2 hover:underline"
+            >
+              <Plus aria-hidden className="size-3.5" /> Crear ejercicio
+              <span className="sr-only">(se abre en otra pestaña)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

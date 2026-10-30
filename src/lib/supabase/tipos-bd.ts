@@ -180,6 +180,8 @@ export type SolicitudFila = {
   telefono: string | null;
   objetivo: string | null;
   mensaje: string | null;
+  fecha_nacimiento: string | null;
+  lesiones: string | null;
   estado: "nueva" | "aceptada" | "descartada";
   alumno_id: string | null;
   /** Cuándo autorizó el tratamiento de sus datos; null en solicitudes anteriores a la autorización. */
@@ -415,7 +417,7 @@ export type Database = {
       organizaciones: Tabla<OrganizacionFila, Opcional<OrganizacionFila, "id" | "zona_horaria" | "estado" | "pagina_publica" | "presentacion" | "titular" | "foto_ruta" | "metodos" | "modalidad" | "ubicacion" | "experiencia_anos" | "certificaciones" | "instagram" | "whatsapp" | "diseno" | "testimonios" | "respuesta_horas" | "oferta_inicial" | "creado_en" | "actualizado_en">>;
       solicitudes: Tabla<
         SolicitudFila,
-        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "estado" | "alumno_id" | "autoriza_datos_en" | "creado_en" | "actualizado_en">
+        Opcional<SolicitudFila, "id" | "apellidos" | "correo" | "telefono" | "objetivo" | "mensaje" | "fecha_nacimiento" | "lesiones" | "estado" | "alumno_id" | "autoriza_datos_en" | "creado_en" | "actualizado_en">
       >;
       miembros_organizacion: Tabla<MiembroFila, Opcional<MiembroFila, "id" | "rol" | "estado" | "creado_en" | "actualizado_en">>;
       conexiones_google: Tabla<
@@ -518,6 +520,8 @@ export type Database = {
           p_objetivo: string;
           p_mensaje: string;
           p_autoriza: boolean;
+          p_fecha_nacimiento: string | null;
+          p_lesiones: string;
         };
         Returns: string;
       };
