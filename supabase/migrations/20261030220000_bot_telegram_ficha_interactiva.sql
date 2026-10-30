@@ -143,24 +143,34 @@ begin
       || coalesce('📅 ' || public.fecha_corta_tg(v_dia) || chr(10) || '<i>Sin series registradas.</i>', 'Aún no tiene sesiones hechas.');
   else
     v_dia := (coalesce(v_s.programada_para, v_s.completada_en) at time zone p_zona)::date;
-    select string_agg('<b>' || public.html_telegram(e.nombre) || '</b>' || chr(10)
-             || coalesce((select string_agg(
-                    case when ss.peso is not null then replace(rtrim(rtrim(to_char(ss.peso, 'FM99990.99'), '0'), '.'), '.', ',') || ' ' || ss.unidad_peso || ' × ' else '' end
-                    || coalesce(ss.repeticiones::text, case when ss.duracion_segundos is not null then ss.duracion_segundos || ' s' end, '?'),
-                    '  ·  ' order by ss.numero_serie)
-                  from public.sesion_series ss where ss.sesion_ejercicio_id = se.id and (ss.completada or ss.repeticiones is not null or ss.duracion_segundos is not null)),
-                '<i>sin series registradas</i>'),
-             chr(10) || chr(10) order by se.orden)
-      into v_series
-    from public.sesion_ejercicios se join public.ejercicios e on e.id = se.ejercicio_id
-    where se.sesion_id = v_s.id;
+    -- Con series: cada ejercicio con lo que hizo. Los que no se registraron, juntos en una línea.
+    with ejercicios as (
+      select se.orden, e.nombre,
+             (select string_agg(
+                case when ss.peso is not null then replace(rtrim(rtrim(to_char(ss.peso, 'FM99990.99'), '0'), '.'), '.', ',') || ' ' || ss.unidad_peso || ' × ' else '' end
+                || coalesce(ss.repeticiones::text, case when ss.duracion_segundos is not null then ss.duracion_segundos || ' s' end, '?'),
+                '  ·  ' order by ss.numero_serie)
+              from public.sesion_series ss
+              where ss.sesion_ejercicio_id = se.id and (ss.completada or ss.repeticiones is not null or ss.duracion_segundos is not null)) as series
+      from public.sesion_ejercicios se join public.ejercicios e on e.id = se.ejercicio_id
+      where se.sesion_id = v_s.id
+    )
+    select concat_ws(chr(10) || chr(10),
+             (select string_agg('<b>' || public.html_telegram(nombre) || '</b>' || chr(10) || series, chr(10) || chr(10) order by orden)
+              from ejercicios where series is not null),
+             (select case when count(*) filter (where series is not null) = 0
+                          then '<i>No se registraron las series.</i>' || chr(10) || 'Ejercicios: '
+                          else '<i>Sin registrar:</i> ' end
+                     || string_agg(public.html_telegram(nombre), ', ' order by orden) filter (where series is null)
+              from ejercicios having count(*) filter (where series is null) > 0))
+      into v_series;
 
     v_texto := '🕘 <b>Última sesión · ' || public.html_telegram(p_alumno.nombres) || '</b>' || chr(10) || chr(10)
       || '📅 ' || public.fecha_corta_tg(v_dia)
       || ' <i>(' || case v_hoy - v_dia when 0 then 'hoy' when 1 then 'ayer' else 'hace ' || (v_hoy - v_dia) || ' días' end || ')</i>'
       || coalesce(' · ' || public.html_telegram((select d.nombre from public.plan_dias d where d.id = v_s.plan_dia_id)), '')
       || coalesce(chr(10) || '💪 Esfuerzo: <b>' || replace(rtrim(rtrim(to_char(v_s.rpe_sesion, 'FM90.9'), '0'), '.'), '.', ',') || '/10</b>', '')
-      || chr(10) || chr(10) || coalesce(v_series, '<i>Sin ejercicios registrados.</i>')
+      || chr(10) || chr(10) || coalesce(nullif(v_series, ''), '<i>Sin ejercicios registrados.</i>')
       || coalesce(chr(10) || chr(10) || '📝 ' || public.html_telegram(left(v_s.notas, 400)), '');
   end if;
 
