@@ -6,7 +6,7 @@ import { z } from "zod";
 import { obtenerContexto } from "@/lib/sesion";
 import { cargarPlantilla } from "@/lib/entrenamiento/cargar";
 import { esPorRondas, letraBloque } from "@/lib/entrenamiento/prescripcion";
-import { esquemaAsignacion, esquemaRutina, type Rutina, type RutinaEntrada } from "@/lib/validaciones/rutina";
+import { esquemaAsignacion, esquemaPlan, esquemaRutina, type PlanEntrada, type Rutina, type RutinaEntrada } from "@/lib/validaciones/rutina";
 import { valoresDe, type EstadoFormulario } from "@/lib/validaciones/alumno";
 
 const ERROR_GENERICO = "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.";
@@ -59,6 +59,41 @@ export async function guardarRutina(id: string | null, entrada: RutinaEntrada): 
   }
   refresh();
   return { ok: true, id: data };
+}
+
+/**
+ * Guarda los cambios de un plan ya asignado, en su sitio y en una transacción (RPC `guardar_plan`).
+ * Las sesiones hechas o en curso conservan lo que se les prescribió; las agendadas sin empezar toman la versión nueva.
+ */
+export async function guardarPlan(planId: string, entrada: PlanEntrada): Promise<ResultadoRutina> {
+  if (!esId(planId)) return { ok: false, error: "Plan no encontrado." };
+  const datos = esquemaPlan.safeParse(entrada);
+  if (!datos.success) return { ok: false, error: ubicarError(datos.error) };
+
+  const { supabase } = await obtenerContexto();
+  const { error } = await supabase.rpc("guardar_plan", {
+    p_plan_id: planId,
+    p_nombre: datos.data.nombre,
+    p_descripcion: datos.data.descripcion,
+    p_tipo_objetivo: datos.data.tipo_objetivo,
+    // normalizar conserva los ids: solo ajusta series y descansos de superseries y circuitos.
+    p_dias: normalizar(datos.data),
+  });
+  if (error) {
+    console.error("guardar_plan", error.code, error.hint, error.message);
+    if (error.code === "P0002") return { ok: false, error: "Este plan ya no existe." };
+    if (error.hint === "plan_cerrado") return { ok: false, error: "Este plan ya está completado o archivado: no se puede editar." };
+    if (error.hint === "dia_con_sesiones") {
+      return {
+        ok: false,
+        error: "Quitaste un día que tiene sesiones agendadas o en curso. Déjalo en el plan, o mueve o cancela esas citas primero.",
+      };
+    }
+    if (error.code === "42501") return { ok: false, error: "Alguno de los ejercicios ya no está disponible. Quítalo y vuelve a guardar." };
+    return { ok: false, error: ERROR_GENERICO };
+  }
+  refresh();
+  return { ok: true, id: planId };
 }
 
 export async function cambiarEstadoRutina(id: string, estado: "activo" | "archivado"): Promise<{ error?: string }> {

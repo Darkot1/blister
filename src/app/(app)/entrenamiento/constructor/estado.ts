@@ -8,7 +8,7 @@ import {
   prescripcionInicial,
   type TipoBloque,
 } from "@/lib/entrenamiento/prescripcion";
-import type { RutinaEntrada } from "@/lib/validaciones/rutina";
+import type { PlanEntrada } from "@/lib/validaciones/rutina";
 
 export type EjercicioEstado = {
   clave: string;
@@ -126,20 +126,27 @@ export function estadoInicial(rutina?: {
 /** "" → null; "2,5" → 2.5. Un texto no numérico se envía como NaN y la validación lo rechaza. */
 const numero = (v: string) => (v.trim() === "" ? null : Number(v.trim().replace(",", ".")));
 
-export function aEntrada(estado: EstadoRutina): RutinaEntrada {
+/**
+ * Lo que se envía al guardar. Cada elemento lleva su clave como `id`: en un plan es el id de su fila
+ * (se actualiza en su sitio) o una clave nueva (se crea). Al guardar una rutina el id se descarta.
+ */
+export function aEntrada(estado: EstadoRutina): PlanEntrada {
   return {
     nombre: estado.nombre,
     descripcion: estado.descripcion,
     tipo_objetivo: estado.tipo_objetivo || null,
     dias: estado.dias.map((d) => ({
+      id: d.clave,
       nombre: d.nombre,
       bloques: d.bloques.map((b) => ({
+        id: b.clave,
         nombre: b.nombre,
         tipo: b.tipo,
         rondas: numero(b.rondas),
         descanso_segundos: numero(b.descanso_segundos),
         notas: b.notas,
         ejercicios: b.ejercicios.map((e) => ({
+          id: e.clave,
           ejercicio_id: e.ejercicio_id,
           series: numero(e.series),
           repeticiones: e.repeticiones,

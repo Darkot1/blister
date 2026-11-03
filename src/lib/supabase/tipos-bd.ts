@@ -358,6 +358,21 @@ export type SesionEjercicioFila = {
   ejercicio_id: string;
   orden: number;
   notas: string | null;
+  /** Copia de lo que pedía el plan al crear la sesión (no cambia si después se edita el plan). */
+  prescripcion: PrescripcionSesion | null;
+};
+
+/** Forma de `sesion_ejercicios.prescripcion`. */
+export type PrescripcionSesion = {
+  series: number | null;
+  repeticiones: string | null;
+  peso: number | null;
+  unidad_peso: string;
+  descanso_segundos: number | null;
+  tempo: string | null;
+  rir: number | null;
+  rpe: number | null;
+  notas: string | null;
 };
 
 /** Serie realizada: lo que el alumno hizo de verdad (peso, repeticiones, esfuerzo). */
@@ -486,7 +501,7 @@ export type Database = {
         SesionFila,
         Opcional<SesionFila, "id" | "plan_id" | "plan_dia_id" | "programada_para" | "iniciada_en" | "completada_en" | "estado" | "rpe_sesion" | "notas" | "creado_en" | "actualizado_en">
       >;
-      sesion_ejercicios: Tabla<SesionEjercicioFila, Opcional<SesionEjercicioFila, "id" | "plan_ejercicio_id" | "orden" | "notas">>;
+      sesion_ejercicios: Tabla<SesionEjercicioFila, Opcional<SesionEjercicioFila, "id" | "plan_ejercicio_id" | "orden" | "notas" | "prescripcion">>;
       sesion_series: Tabla<
         SesionSerieFila,
         Opcional<SesionSerieFila, "id" | "peso" | "unidad_peso" | "repeticiones" | "duracion_segundos" | "rpe" | "rir" | "completada" | "notas" | "creado_en">
@@ -518,6 +533,17 @@ export type Database = {
         };
         Returns: string;
       };
+      guardar_plan: {
+        Args: {
+          p_plan_id: string;
+          p_nombre: string;
+          p_descripcion: string | null;
+          p_tipo_objetivo: string | null;
+          p_dias: Json;
+        };
+        Returns: undefined;
+      };
+      rellenar_sesion_desde_dia: { Args: { p_sesion_id: string; p_plan_dia_id: string }; Returns: undefined };
       activar_plan: { Args: { p_plan_id: string }; Returns: undefined };
       iniciar_sesion_desde_plan: {
         Args: { p_plan_dia_id: string; p_programada_para?: string };

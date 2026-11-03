@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Archive, CheckCheck, Play } from "lucide-react";
+import { Archive, CheckCheck, Pencil, Play } from "lucide-react";
 import { Encabezado } from "@/components/app/encabezado";
 import { Aviso } from "@/components/ui/aviso";
 import { Avatar } from "@/components/ui/avatar";
+import { EnlaceBoton } from "@/components/ui/boton";
 import { Esqueleto } from "@/components/ui/esqueleto";
 import { conParametros } from "@/components/ui/paginacion";
 import { cargarPlan } from "@/lib/entrenamiento/cargar";
@@ -124,6 +125,11 @@ async function Plan({
         }
         acciones={
           <>
+            {(plan.estado === "borrador" || plan.estado === "activo") && (
+              <EnlaceBoton href={`/entrenamiento/planes/${id}/editar`} variante="secundario">
+                <Pencil aria-hidden className="size-4" /> Editar plan
+              </EnlaceBoton>
+            )}
             {plan.estado !== "activo" && plan.estado !== "archivado" && (
               <BotonAccion accion={cambiarEstadoPlan.bind(null, id, "activo")} variante="primario" textoPendiente="Activando…">
                 <Play aria-hidden className="size-4" /> Activar plan
