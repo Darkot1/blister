@@ -22,7 +22,8 @@ import {
   musculosSugeridos,
   type TipoBloque,
 } from "@/lib/entrenamiento/prescripcion";
-import { guardarRutina } from "../acciones";
+import { guardarRutina, type ResultadoRutina } from "../acciones";
+import type { PlanEntrada } from "@/lib/validaciones/rutina";
 import { AsignarRutina, type Asignacion } from "./asignar";
 import { ElegirEstructura, minutosDia } from "./ayudas";
 import { EditorBloque } from "./bloque";
@@ -69,6 +70,7 @@ function Constructor({
   inicial,
   catalogo,
   asignacion,
+  plan,
 }: {
   /** null = rutina nueva (aún sin guardar). */
   id: string | null;
@@ -76,6 +78,8 @@ function Constructor({
   catalogo: Catalogo;
   /** Datos para asignar la rutina guardada a un alumno (solo rutinas ya creadas). */
   asignacion?: Asignacion;
+  /** Editar un plan ya asignado (en vez de una rutina): guarda con esta acción, que conserva los ids. */
+  plan?: { guardar: (entrada: PlanEntrada) => Promise<ResultadoRutina> };
 }) {
   const router = useRouter();
   const [estado, setEstado] = useState(inicial);
@@ -175,16 +179,16 @@ function Constructor({
 
   const guardar = useCallback(() => {
     if (!estado.nombre.trim()) {
-      setError("Escribe el nombre de la rutina.");
+      setError(`Escribe el nombre ${plan ? "del plan" : "de la rutina"}.`);
       refNombre.current?.focus();
       return;
     }
     iniciar(async () => {
-      let resultado: Awaited<ReturnType<typeof guardarRutina>>;
+      let resultado: ResultadoRutina;
       try {
-        resultado = await guardarRutina(id, aEntrada(estado));
+        resultado = plan ? await plan.guardar(aEntrada(estado)) : await guardarRutina(id, aEntrada(estado));
       } catch {
-        // Sin red o el servidor no respondió: la rutina sigue aquí, sin perder nada.
+        // Sin red o el servidor no respondió: lo editado sigue aquí, sin perder nada.
         setError("No se pudo guardar: revisa tu conexión. Tus cambios siguen aquí, vuelve a intentarlo.");
         return;
       }
@@ -196,7 +200,7 @@ function Constructor({
       setGuardado(true);
       if (!id) router.replace(`/entrenamiento/rutinas/${resultado.id}`);
     });
-  }, [estado, id, router]);
+  }, [estado, id, plan, router]);
 
   // Ctrl/Cmd + S guarda.
   useEffect(() => {
@@ -342,7 +346,7 @@ function Constructor({
           <Tarjeta className="space-y-4 p-4 sm:p-5">
             <div>
               <label htmlFor="rutina-nombre" className="etiqueta mb-1.5 block">
-                Nombre de la rutina
+                {plan ? "Nombre del plan" : "Nombre de la rutina"}
               </label>
               <input
                 ref={refNombre}
@@ -418,7 +422,7 @@ function Constructor({
           )}
 
           {/* Días */}
-          <nav aria-label="Días de la rutina" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+          <nav aria-label={plan ? "Días del plan" : "Días de la rutina"} className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
             {estado.dias.map((d, i) => {
               const n = d.bloques.reduce((t, b) => t + b.ejercicios.length, 0);
               const activo = i === diaActual;
@@ -623,7 +627,9 @@ function Constructor({
                   : sucio
                     ? "Cambios sin guardar"
                     : guardado
-                      ? "Guardada"
+                      ? plan
+                        ? "Guardado"
+                        : "Guardada"
                       : id
                         ? "Sin cambios"
                         : "Aún no la guardas"}
@@ -706,7 +712,7 @@ function Constructor({
           if (destino) router.push(destino);
         }}
       >
-        <p>Tienes cambios en esta rutina que no se han guardado. Si sales, se pierden.</p>
+        <p>Tienes cambios en {plan ? "este plan" : "esta rutina"} que no se han guardado. Si sales, se pierden.</p>
       </DialogoConfirmar>
     </>
   );

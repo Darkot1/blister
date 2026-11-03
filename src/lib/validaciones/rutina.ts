@@ -56,6 +56,35 @@ export const esquemaRutina = z.object({
 export type RutinaEntrada = z.input<typeof esquemaRutina>;
 export type Rutina = z.output<typeof esquemaRutina>;
 
+/**
+ * Un plan asignado se edita con el mismo constructor, pero cada día, bloque y ejercicio lleva su id:
+ * así se actualizan en su sitio y las sesiones del alumno no pierden su día ni su prescripción.
+ * Un id que no es del plan (algo nuevo en el constructor) crea una fila nueva.
+ */
+const id = z.uuid("Elemento no válido").optional();
+
+export const esquemaPlan = esquemaRutina.extend({
+  nombre: z.string().trim().min(1, "Escribe el nombre del plan").max(120, "Máximo 120 caracteres"),
+  dias: z
+    .array(
+      esquemaDiaRutina.extend({
+        id,
+        bloques: z
+          .array(
+            esquemaBloqueRutina.extend({
+              id,
+              ejercicios: z.array(esquemaEjercicioRutina.extend({ id })).max(20, "Máximo 20 ejercicios por bloque"),
+            }),
+          )
+          .max(12, "Máximo 12 bloques por día"),
+      }),
+    )
+    .min(1, "El plan necesita al menos un día")
+    .max(7, "Máximo 7 días"),
+});
+
+export type PlanEntrada = z.input<typeof esquemaPlan>;
+
 export const esquemaAsignacion = z.object({
   alumno_id: z.uuid("Elige un alumno"),
   fecha_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Elige la fecha de inicio"),

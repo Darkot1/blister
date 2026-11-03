@@ -43,11 +43,12 @@ export async function cargarSesion(supabase: Supabase, sesionId: string) {
     supabase.from("alumnos").select("id, nombres, apellidos").eq("id", sesion.alumno_id).maybeSingle(),
     sesion.plan_dia_id ? supabase.from("plan_dias").select("nombre, orden").eq("id", sesion.plan_dia_id).maybeSingle() : Promise.resolve({ data: null }),
     sesion.plan_id ? supabase.from("planes").select("id, nombre").eq("id", sesion.plan_id).maybeSingle() : Promise.resolve({ data: null }),
-    supabase.from("sesion_ejercicios").select("id, plan_ejercicio_id, ejercicio_id, orden").eq("sesion_id", sesionId).order("orden"),
+    supabase.from("sesion_ejercicios").select("id, plan_ejercicio_id, ejercicio_id, orden, prescripcion").eq("sesion_id", sesionId).order("orden"),
   ]);
   const lista = ejerciciosSesion ?? [];
   const ejercicioIds = [...new Set(lista.map((e) => e.ejercicio_id))];
-  const prescritosIds = lista.flatMap((e) => (e.plan_ejercicio_id ? [e.plan_ejercicio_id] : []));
+  // La copia guardada en la sesión manda; el plan en vivo solo cubre filas sin copia.
+  const prescritosIds = lista.flatMap((e) => (!e.prescripcion && e.plan_ejercicio_id ? [e.plan_ejercicio_id] : []));
 
   const [nombres, prescritos, series, anteriores] = await Promise.all([
     porLotes(ejercicioIds, (l) => supabase.from("ejercicios").select("id, nombre").in("id", l)),
@@ -66,7 +67,7 @@ export async function cargarSesion(supabase: Supabase, sesionId: string) {
   const seriesDe = Map.groupBy(series, (s) => s.sesion_ejercicio_id);
 
   const ejercicios: EjercicioDeSesion[] = lista.map((e) => {
-    const p = e.plan_ejercicio_id ? prescritoDe.get(e.plan_ejercicio_id) : undefined;
+    const p = e.prescripcion ?? (e.plan_ejercicio_id ? prescritoDe.get(e.plan_ejercicio_id) : undefined);
     return {
       id: e.id,
       ejercicioId: e.ejercicio_id,
